@@ -1,0 +1,540 @@
+2026-10-24 17:17:54  INFO    ===== Run started (AAPL 20/50 MA) =====
+2026-10-24 17:17:54  INFO    Market is closed today (weekend or holiday). Nothing to do.
+2026-10-24 17:17:54  INFO    ===== Run finished =====
+2026-10-24 17:18:17  INFO    ===== Run started (AAPL 20/50 MA) =====
+2026-10-24 17:18:17  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00, AAPL shares held 0
+2026-10-24 17:18:17  INFO    Latest close: 2026-10-23 at 347.73
+2026-10-24 17:18:17  INFO    20-day MA: 338.57 -> 338.91
+2026-10-24 17:18:17  INFO    50-day MA: 328.62 -> 329.47
+2026-10-24 17:18:17  INFO    No crossover. Nothing to do.
+2026-10-24 17:22:35  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-10-24 17:22:36  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00, shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-24 17:22:36  INFO    --- AAPL ---
+2026-10-24 17:22:36  INFO    Latest close: 2026-10-23 at 347.73
+2026-10-24 17:22:36  INFO    20-day MA: 338.57 -> 338.91
+2026-10-24 17:22:36  INFO    50-day MA: 328.62 -> 329.47
+2026-10-24 17:22:36  INFO    AAPL: no crossover. Nothing to do.
+2026-10-24 17:22:36  INFO    --- SPY ---
+2026-10-24 17:22:36  INFO    Latest close: 2026-10-23 at 759.97
+2026-10-24 17:22:36  INFO    20-day MA: 770.72 -> 770.15
+2026-10-24 17:22:36  INFO    50-day MA: 767.22 -> 766.90
+2026-10-24 17:22:36  INFO    SPY: no crossover. Nothing to do.
+2026-10-24 17:22:36  INFO    --- QQQ ---
+2026-10-24 17:22:36  INFO    Latest close: 2026-10-23 at 704.40
+2026-10-24 17:22:36  INFO    20-day MA: 737.24 -> 735.24
+2026-10-24 17:22:36  INFO    50-day MA: 725.98 -> 725.44
+2026-10-24 17:22:36  INFO    QQQ: no crossover. Nothing to do.
+2026-10-24 20:10:14  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-10-24 20:10:14  INFO    Market is closed today (weekend or holiday). Nothing to do.
+2026-10-24 20:10:14  INFO    ===== Run finished =====
+2026-10-24 20:23:35  INFO    ===== Run started (AAPL 20/50 MA) =====
+2026-10-24 20:23:35  INFO    Forcing a buy for AAPL (signal check skipped).
+2026-10-24 20:23:39  INFO    AAPL: BUY 1 near 347.69, stop 335.31 (2×ATR 6.19), target 384.83 (3R). Borderline: none
+2026-10-24 20:23:39  INFO    Dry run: no order placed.
+2026-10-24 20:23:39  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +50000.00), shares held: AAPL 0
+2026-10-24 20:23:39  INFO    ===== Run finished =====
+2026-10-24 20:23:43  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-10-24 20:23:43  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +50000.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-24 20:23:43  INFO    --- AAPL ---
+2026-10-24 20:23:43  INFO    Latest close: 2026-10-23 at 347.73
+2026-10-24 20:23:43  INFO    20-day MA: 338.57 -> 338.91
+2026-10-24 20:23:43  INFO    50-day MA: 328.62 -> 329.47
+2026-10-24 20:23:43  INFO    AAPL: no crossover. Nothing to do.
+2026-10-24 20:23:43  INFO    --- SPY ---
+2026-10-24 20:23:44  INFO    Latest close: 2026-10-23 at 759.97
+2026-10-24 20:23:44  INFO    20-day MA: 770.72 -> 770.15
+2026-10-24 20:23:44  INFO    50-day MA: 767.22 -> 766.90
+2026-10-24 20:23:44  INFO    SPY: no crossover. Nothing to do.
+2026-10-24 20:23:44  INFO    --- QQQ ---
+2026-10-24 20:23:44  INFO    Latest close: 2026-10-23 at 704.40
+2026-10-24 20:23:44  INFO    20-day MA: 737.24 -> 735.24
+2026-10-24 20:23:44  INFO    50-day MA: 725.98 -> 725.44
+2026-10-24 20:23:44  INFO    QQQ: no crossover. Nothing to do.
+2026-10-24 20:23:44  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +50000.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-24 20:24:02  INFO    ===== Run started (QQQ 20/50 MA) =====
+2026-10-24 20:24:02  INFO    Forcing a buy for QQQ (signal check skipped).
+2026-10-24 20:24:03  INFO    QQQ: BUY 1 near 705.42, stop 681.30 (2×ATR 12.06), target 777.78 (3R). Borderline: price below the 50-day MA
+2026-10-24 20:24:03  INFO    Dry run: no order placed.
+2026-10-24 20:24:03  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: QQQ 0
+2026-10-24 20:24:03  INFO    ===== Run finished =====
+2026-10-24 20:45:02  INFO    ===== Run started (QQQ 20/50 MA) =====
+2026-10-24 20:45:02  INFO    Active rules (APPROVED in lessons.md): none
+2026-10-24 20:45:02  INFO    Journal: no closed trades yet.
+2026-10-24 20:45:02  INFO    Forcing a buy for QQQ (signal check skipped).
+2026-10-24 20:45:03  INFO    QQQ: BUY 1 near 705.42, stop 681.30 (2×ATR 12.06), target 777.78 (3R). Grade C (rule broken: Crossover signal (none: forced test entry); Market open when the order was sent).
+2026-10-24 20:45:03  INFO    Dry run: no order placed.
+2026-10-24 20:45:03  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: QQQ 0
+2026-10-24 20:45:03  INFO    ===== Run finished =====
+2026-10-24 20:45:07  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-10-24 20:45:07  INFO    Active rules (APPROVED in lessons.md): none
+2026-10-24 20:45:07  INFO    Journal: no closed trades yet.
+2026-10-24 20:45:07  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-24 20:45:07  INFO    --- AAPL ---
+2026-10-24 20:45:07  INFO    AAPL: today: after-hours, trend uptrend, weekly bias bullish, volatility normal (ATR 1.78%), 2 headline(s). Active rules applying: none
+2026-10-24 20:45:07  INFO    Latest close: 2026-10-23 at 347.73
+2026-10-24 20:45:07  INFO    20-day MA: 338.57 -> 338.91
+2026-10-24 20:45:07  INFO    50-day MA: 328.62 -> 329.47
+2026-10-24 20:45:07  INFO    AAPL: no crossover. Nothing to do.
+2026-10-24 20:45:07  INFO    --- SPY ---
+2026-10-24 20:45:08  INFO    SPY: today: after-hours, trend sideways, weekly bias bearish, volatility low (ATR 0.94%), 1 headline(s). Active rules applying: none
+2026-10-24 20:45:08  INFO    Latest close: 2026-10-23 at 759.97
+2026-10-24 20:45:08  INFO    20-day MA: 770.72 -> 770.15
+2026-10-24 20:45:08  INFO    50-day MA: 767.22 -> 766.90
+2026-10-24 20:45:08  INFO    SPY: no crossover. Nothing to do.
+2026-10-24 20:45:08  INFO    --- QQQ ---
+2026-10-24 20:45:08  INFO    QQQ: today: after-hours, trend sideways, weekly bias bearish, volatility normal (ATR 1.71%), 3 headline(s). Active rules applying: none
+2026-10-24 20:45:08  INFO    Latest close: 2026-10-23 at 704.40
+2026-10-24 20:45:08  INFO    20-day MA: 737.24 -> 735.24
+2026-10-24 20:45:08  INFO    50-day MA: 725.98 -> 725.44
+2026-10-24 20:45:08  INFO    QQQ: no crossover. Nothing to do.
+2026-10-24 20:45:08  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-25 22:06:09  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-10-25 22:06:09  INFO    Active rules (APPROVED in lessons.md): none
+2026-10-25 22:06:09  INFO    Journal: no closed trades yet.
+2026-10-25 22:06:09  INFO    Market is closed today (weekend or holiday). Nothing to do.
+2026-10-25 22:06:09  INFO    ===== Run finished =====
+2026-10-25 22:06:11  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-10-25 22:06:11  INFO    Active rules (APPROVED in lessons.md): none
+2026-10-25 22:06:11  INFO    Journal: no closed trades yet.
+2026-10-25 22:06:11  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-25 22:06:11  INFO    --- AAPL ---
+2026-10-25 22:06:12  INFO    AAPL: today: after-hours, trend uptrend, weekly bias bullish, volatility normal (ATR 1.78%), 2 headline(s). Active rules applying: none
+2026-10-25 22:06:12  INFO    Latest close: 2026-10-23 at 347.73
+2026-10-25 22:06:12  INFO    20-day MA: 338.57 -> 338.91
+2026-10-25 22:06:12  INFO    50-day MA: 328.62 -> 329.47
+2026-10-25 22:06:12  INFO    AAPL: no crossover. Nothing to do.
+2026-10-25 22:06:12  INFO    --- SPY ---
+2026-10-25 22:06:12  INFO    SPY: today: after-hours, trend sideways, weekly bias bearish, volatility low (ATR 0.94%), 1 headline(s). Active rules applying: none
+2026-10-25 22:06:12  INFO    Latest close: 2026-10-23 at 759.97
+2026-10-25 22:06:12  INFO    20-day MA: 770.72 -> 770.15
+2026-10-25 22:06:12  INFO    50-day MA: 767.22 -> 766.90
+2026-10-25 22:06:12  INFO    SPY: no crossover. Nothing to do.
+2026-10-25 22:06:12  INFO    --- QQQ ---
+2026-10-25 22:06:13  INFO    QQQ: today: after-hours, trend sideways, weekly bias bearish, volatility normal (ATR 1.71%), 0 headline(s). Active rules applying: none
+2026-10-25 22:06:13  INFO    Latest close: 2026-10-23 at 704.40
+2026-10-25 22:06:13  INFO    20-day MA: 737.24 -> 735.24
+2026-10-25 22:06:13  INFO    50-day MA: 725.98 -> 725.44
+2026-10-25 22:06:13  INFO    QQQ: no crossover. Nothing to do.
+2026-10-25 22:06:13  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-26 10:02:37  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-10-26 10:02:37  INFO    Active rules (APPROVED in lessons.md): none
+2026-10-26 10:02:37  INFO    Journal: no closed trades yet.
+2026-10-26 10:02:37  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-26 10:02:37  INFO    --- AAPL ---
+2026-10-26 10:02:40  INFO    AAPL: ignoring today's incomplete bar; using completed days only.
+2026-10-26 10:02:40  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 1.80%), 6 headline(s). Active rules applying: none
+2026-10-26 10:02:40  INFO    Latest close: 2026-10-23 at 347.73
+2026-10-26 10:02:40  INFO    20-day MA: 338.57 -> 338.91
+2026-10-26 10:02:40  INFO    50-day MA: 328.62 -> 329.47
+2026-10-26 10:02:40  INFO    AAPL: no crossover. Nothing to do.
+2026-10-26 10:02:40  INFO    --- SPY ---
+2026-10-26 10:02:40  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-10-26 10:02:40  INFO    SPY: today: NY AM, trend sideways, weekly bias bearish, volatility low (ATR 0.94%), 10 headline(s). Active rules applying: none
+2026-10-26 10:02:40  INFO    Latest close: 2026-10-23 at 759.97
+2026-10-26 10:02:40  INFO    20-day MA: 770.72 -> 770.15
+2026-10-26 10:02:40  INFO    50-day MA: 767.22 -> 766.90
+2026-10-26 10:02:40  INFO    SPY: no crossover. Nothing to do.
+2026-10-26 10:02:40  INFO    --- QQQ ---
+2026-10-26 10:02:40  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-10-26 10:02:40  INFO    QQQ: today: NY AM, trend sideways, weekly bias bearish, volatility normal (ATR 1.71%), 5 headline(s). Active rules applying: none
+2026-10-26 10:02:40  INFO    Latest close: 2026-10-23 at 704.40
+2026-10-26 10:02:40  INFO    20-day MA: 737.24 -> 735.24
+2026-10-26 10:02:40  INFO    50-day MA: 725.98 -> 725.44
+2026-10-26 10:02:40  INFO    QQQ: no crossover. Nothing to do.
+2026-10-26 10:02:40  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-26 10:02:40  INFO    ===== Run finished =====
+2026-10-26 10:12:07  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-10-26 10:12:07  INFO    Active rules (APPROVED in lessons.md): none
+2026-10-26 10:12:07  INFO    Journal: no closed trades yet.
+2026-10-26 10:12:07  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-26 10:12:07  INFO    --- AAPL ---
+2026-10-26 10:12:07  INFO    AAPL: ignoring today's incomplete bar; using completed days only.
+2026-10-26 10:12:08  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 1.80%), 6 headline(s). Active rules applying: none
+2026-10-26 10:12:08  INFO    Latest close: 2026-10-23 at 347.73
+2026-10-26 10:12:08  INFO    20-day MA: 338.57 -> 338.91
+2026-10-26 10:12:08  INFO    50-day MA: 328.62 -> 329.47
+2026-10-26 10:12:08  INFO    AAPL: no crossover. Nothing to do.
+2026-10-26 10:12:08  INFO    --- SPY ---
+2026-10-26 10:12:08  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-10-26 10:12:08  INFO    SPY: today: NY AM, trend sideways, weekly bias bearish, volatility low (ATR 0.94%), 10 headline(s). Active rules applying: none
+2026-10-26 10:12:08  INFO    Latest close: 2026-10-23 at 759.97
+2026-10-26 10:12:08  INFO    20-day MA: 770.72 -> 770.15
+2026-10-26 10:12:08  INFO    50-day MA: 767.22 -> 766.90
+2026-10-26 10:12:08  INFO    SPY: no crossover. Nothing to do.
+2026-10-26 10:12:08  INFO    --- QQQ ---
+2026-10-26 10:12:08  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-10-26 10:12:08  INFO    QQQ: today: NY AM, trend sideways, weekly bias bearish, volatility normal (ATR 1.70%), 5 headline(s). Active rules applying: none
+2026-10-26 10:12:08  INFO    Latest close: 2026-10-23 at 704.40
+2026-10-26 10:12:08  INFO    20-day MA: 737.24 -> 735.24
+2026-10-26 10:12:08  INFO    50-day MA: 725.98 -> 725.44
+2026-10-26 10:12:08  INFO    QQQ: no crossover. Nothing to do.
+2026-10-26 10:12:09  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-26 10:12:09  INFO    ===== Run finished =====
+2026-10-26 10:12:17  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-10-26 10:12:17  INFO    Active rules (APPROVED in lessons.md): none
+2026-10-26 10:12:17  INFO    Journal: no closed trades yet.
+2026-10-26 10:12:18  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-26 10:12:18  INFO    --- AAPL ---
+2026-10-26 10:12:18  INFO    AAPL: ignoring today's incomplete bar; using completed days only.
+2026-10-26 10:12:18  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 1.80%), 6 headline(s). Active rules applying: none
+2026-10-26 10:12:18  INFO    Latest close: 2026-10-23 at 347.73
+2026-10-26 10:12:18  INFO    20-day MA: 338.57 -> 338.91
+2026-10-26 10:12:18  INFO    50-day MA: 328.62 -> 329.47
+2026-10-26 10:12:18  INFO    AAPL: no crossover. Nothing to do.
+2026-10-26 10:12:18  INFO    --- SPY ---
+2026-10-26 10:12:18  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-10-26 10:12:18  INFO    SPY: today: NY AM, trend sideways, weekly bias bearish, volatility low (ATR 0.94%), 10 headline(s). Active rules applying: none
+2026-10-26 10:12:18  INFO    Latest close: 2026-10-23 at 759.97
+2026-10-26 10:12:18  INFO    20-day MA: 770.72 -> 770.15
+2026-10-26 10:12:18  INFO    50-day MA: 767.22 -> 766.90
+2026-10-26 10:12:18  INFO    SPY: no crossover. Nothing to do.
+2026-10-26 10:12:18  INFO    --- QQQ ---
+2026-10-26 10:12:19  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-10-26 10:12:19  INFO    QQQ: today: NY AM, trend sideways, weekly bias bearish, volatility normal (ATR 1.70%), 5 headline(s). Active rules applying: none
+2026-10-26 10:12:19  INFO    Latest close: 2026-10-23 at 704.40
+2026-10-26 10:12:19  INFO    20-day MA: 737.24 -> 735.24
+2026-10-26 10:12:19  INFO    50-day MA: 725.98 -> 725.44
+2026-10-26 10:12:19  INFO    QQQ: no crossover. Nothing to do.
+2026-10-26 10:12:19  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-26 10:12:19  INFO    ===== Run finished =====
+2026-10-28 19:06:37  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-10-28 19:06:37  INFO    Active rules (APPROVED in lessons.md): none
+2026-10-28 19:06:37  INFO    Journal: no closed trades yet.
+2026-10-28 19:06:37  INFO    Market is closed today (weekend or holiday). Nothing to do.
+2026-10-28 19:06:37  INFO    ===== Run finished =====
+2026-10-28 19:07:38  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-10-28 19:07:38  INFO    Active rules (APPROVED in lessons.md): none
+2026-10-28 19:07:38  INFO    Journal: no closed trades yet.
+2026-10-28 19:07:39  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-28 19:07:39  INFO    --- AAPL ---
+2026-10-28 19:07:39  INFO    AAPL: today: after-hours, trend uptrend, weekly bias bullish, volatility normal (ATR 1.80%), 16 headline(s). Active rules applying: none
+2026-10-28 19:07:39  INFO    Latest close: 2026-10-28 at 343.83
+2026-10-28 19:07:39  INFO    20-day MA: 340.07 -> 340.61
+2026-10-28 19:07:39  INFO    50-day MA: 331.06 -> 331.73
+2026-10-28 19:07:39  INFO    AAPL: no crossover. Nothing to do.
+2026-10-28 19:07:39  INFO    --- SPY ---
+2026-10-28 19:07:40  INFO    SPY: today: after-hours, trend sideways, weekly bias neutral, volatility low (ATR 0.92%), 49 headline(s). Active rules applying: none
+2026-10-28 19:07:40  INFO    Latest close: 2026-10-28 at 772.31
+2026-10-28 19:07:40  INFO    20-day MA: 770.41 -> 770.90
+2026-10-28 19:07:40  INFO    50-day MA: 766.70 -> 766.83
+2026-10-28 19:07:40  INFO    SPY: no crossover. Nothing to do.
+2026-10-28 19:07:40  INFO    --- QQQ ---
+2026-10-28 19:07:40  INFO    QQQ: today: after-hours, trend sideways, weekly bias neutral, volatility normal (ATR 1.66%), 7 headline(s). Active rules applying: none
+2026-10-28 19:07:40  INFO    Latest close: 2026-10-28 at 725.61
+2026-10-28 19:07:40  INFO    20-day MA: 733.18 -> 732.48
+2026-10-28 19:07:40  INFO    50-day MA: 724.92 -> 725.10
+2026-10-28 19:07:40  INFO    QQQ: no crossover. Nothing to do.
+2026-10-28 19:07:40  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-28 19:07:40  INFO    ===== Run finished =====
+2026-10-29 09:30:10  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-10-29 09:30:10  INFO    Active rules (APPROVED in lessons.md): none
+2026-10-29 09:30:10  INFO    Journal: no closed trades yet.
+2026-10-29 09:30:11  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-29 09:30:11  INFO    --- AAPL ---
+2026-10-29 09:30:14  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 1.78%), 10 headline(s). Active rules applying: none
+2026-10-29 09:30:14  INFO    Latest close: 2026-10-28 at 343.83
+2026-10-29 09:30:14  INFO    20-day MA: 340.07 -> 340.61
+2026-10-29 09:30:14  INFO    50-day MA: 331.06 -> 331.73
+2026-10-29 09:30:14  INFO    AAPL: no crossover. Nothing to do.
+2026-10-29 09:30:14  INFO    --- SPY ---
+2026-10-29 09:30:15  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-10-29 09:30:15  INFO    SPY: today: NY AM, trend sideways, weekly bias neutral, volatility low (ATR 0.92%), 50 headline(s). Active rules applying: none
+2026-10-29 09:30:15  INFO    Latest close: 2026-10-28 at 772.31
+2026-10-29 09:30:15  INFO    20-day MA: 770.41 -> 770.90
+2026-10-29 09:30:15  INFO    50-day MA: 766.70 -> 766.83
+2026-10-29 09:30:15  INFO    SPY: no crossover. Nothing to do.
+2026-10-29 09:30:15  INFO    --- QQQ ---
+2026-10-29 09:30:15  INFO    QQQ: today: NY AM, trend sideways, weekly bias neutral, volatility normal (ATR 1.67%), 11 headline(s). Active rules applying: none
+2026-10-29 09:30:15  INFO    Latest close: 2026-10-28 at 725.61
+2026-10-29 09:30:15  INFO    20-day MA: 733.18 -> 732.48
+2026-10-29 09:30:15  INFO    50-day MA: 724.92 -> 725.10
+2026-10-29 09:30:15  INFO    QQQ: no crossover. Nothing to do.
+2026-10-29 09:30:15  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-29 09:30:15  INFO    ===== Run finished =====
+2026-10-29 10:51:10  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-10-29 10:51:10  INFO    Active rules (APPROVED in lessons.md): none
+2026-10-29 10:51:10  INFO    Journal: no closed trades yet.
+2026-10-29 10:51:10  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-29 10:51:10  INFO    --- AAPL ---
+2026-10-29 10:51:13  INFO    AAPL: ignoring today's incomplete bar; using completed days only.
+2026-10-29 10:51:13  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 1.78%), 12 headline(s). Active rules applying: none
+2026-10-29 10:51:13  INFO    Latest close: 2026-10-28 at 343.83
+2026-10-29 10:51:13  INFO    20-day MA: 340.07 -> 340.61
+2026-10-29 10:51:13  INFO    50-day MA: 331.06 -> 331.73
+2026-10-29 10:51:13  INFO    AAPL: no crossover. Nothing to do.
+2026-10-29 10:51:13  INFO    --- SPY ---
+2026-10-29 10:51:13  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-10-29 10:51:13  INFO    SPY: today: NY AM, trend sideways, weekly bias neutral, volatility low (ATR 0.92%), 50 headline(s). Active rules applying: none
+2026-10-29 10:51:13  INFO    Latest close: 2026-10-28 at 772.31
+2026-10-29 10:51:13  INFO    20-day MA: 770.41 -> 770.90
+2026-10-29 10:51:13  INFO    50-day MA: 766.70 -> 766.83
+2026-10-29 10:51:13  INFO    SPY: no crossover. Nothing to do.
+2026-10-29 10:51:13  INFO    --- QQQ ---
+2026-10-29 10:51:14  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-10-29 10:51:14  INFO    QQQ: today: NY AM, trend sideways, weekly bias neutral, volatility normal (ATR 1.67%), 10 headline(s). Active rules applying: none
+2026-10-29 10:51:14  INFO    Latest close: 2026-10-28 at 725.61
+2026-10-29 10:51:14  INFO    20-day MA: 733.18 -> 732.48
+2026-10-29 10:51:14  INFO    50-day MA: 724.92 -> 725.10
+2026-10-29 10:51:14  INFO    QQQ: no crossover. Nothing to do.
+2026-10-29 10:51:14  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-29 10:51:14  INFO    ===== Run finished =====
+2026-10-30 09:30:09  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-10-30 09:30:09  INFO    Active rules (APPROVED in lessons.md): none
+2026-10-30 09:30:09  INFO    Journal: no closed trades yet.
+2026-10-30 09:30:10  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-30 09:30:10  INFO    --- AAPL ---
+2026-10-30 09:30:14  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 1.75%), 11 headline(s). Active rules applying: none
+2026-10-30 09:30:14  INFO    Latest close: 2026-10-29 at 348.91
+2026-10-30 09:30:14  INFO    20-day MA: 340.61 -> 341.54
+2026-10-30 09:30:14  INFO    50-day MA: 331.73 -> 332.37
+2026-10-30 09:30:14  INFO    AAPL: no crossover. Nothing to do.
+2026-10-30 09:30:14  INFO    --- SPY ---
+2026-10-30 09:30:14  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-10-30 09:30:14  INFO    SPY: today: NY AM, trend sideways, weekly bias neutral, volatility low (ATR 0.93%), 21 headline(s). Active rules applying: none
+2026-10-30 09:30:14  INFO    Latest close: 2026-10-29 at 769.36
+2026-10-30 09:30:14  INFO    20-day MA: 770.90 -> 771.16
+2026-10-30 09:30:14  INFO    50-day MA: 766.83 -> 766.87
+2026-10-30 09:30:14  INFO    SPY: no crossover. Nothing to do.
+2026-10-30 09:30:14  INFO    --- QQQ ---
+2026-10-30 09:30:14  INFO    QQQ: today: NY AM, trend sideways, weekly bias bearish, volatility normal (ATR 1.80%), 8 headline(s). Active rules applying: none
+2026-10-30 09:30:14  INFO    Latest close: 2026-10-29 at 715.34
+2026-10-30 09:30:14  INFO    20-day MA: 732.48 -> 731.14
+2026-10-30 09:30:14  INFO    50-day MA: 725.10 -> 725.10
+2026-10-30 09:30:14  INFO    QQQ: no crossover. Nothing to do.
+2026-10-30 09:30:15  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-30 09:30:15  INFO    ===== Run finished =====
+2026-10-30 10:38:31  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-10-30 10:38:31  INFO    Active rules (APPROVED in lessons.md): none
+2026-10-30 10:38:31  INFO    Journal: no closed trades yet.
+2026-10-30 10:38:31  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-30 10:38:31  INFO    --- AAPL ---
+2026-10-30 10:38:34  INFO    AAPL: ignoring today's incomplete bar; using completed days only.
+2026-10-30 10:38:34  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 1.75%), 10 headline(s). Active rules applying: none
+2026-10-30 10:38:34  INFO    Latest close: 2026-10-29 at 348.91
+2026-10-30 10:38:34  INFO    20-day MA: 340.61 -> 341.54
+2026-10-30 10:38:34  INFO    50-day MA: 331.73 -> 332.37
+2026-10-30 10:38:34  INFO    AAPL: no crossover. Nothing to do.
+2026-10-30 10:38:34  INFO    --- SPY ---
+2026-10-30 10:38:34  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-10-30 10:38:34  INFO    SPY: today: NY AM, trend sideways, weekly bias neutral, volatility low (ATR 0.94%), 20 headline(s). Active rules applying: none
+2026-10-30 10:38:34  INFO    Latest close: 2026-10-29 at 769.36
+2026-10-30 10:38:34  INFO    20-day MA: 770.90 -> 771.16
+2026-10-30 10:38:34  INFO    50-day MA: 766.83 -> 766.87
+2026-10-30 10:38:34  INFO    SPY: no crossover. Nothing to do.
+2026-10-30 10:38:34  INFO    --- QQQ ---
+2026-10-30 10:38:34  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-10-30 10:38:34  INFO    QQQ: today: NY AM, trend sideways, weekly bias bearish, volatility normal (ATR 1.80%), 8 headline(s). Active rules applying: none
+2026-10-30 10:38:34  INFO    Latest close: 2026-10-29 at 715.34
+2026-10-30 10:38:34  INFO    20-day MA: 732.48 -> 731.14
+2026-10-30 10:38:34  INFO    50-day MA: 725.10 -> 725.10
+2026-10-30 10:38:34  INFO    QQQ: no crossover. Nothing to do.
+2026-10-30 10:38:34  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-10-30 10:38:34  INFO    ===== Run finished =====
+2026-11-03 11:06:21  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-11-03 11:06:21  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-03 11:06:21  INFO    Journal: no closed trades yet.
+2026-11-03 11:06:21  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-11-03 11:06:21  INFO    --- AAPL ---
+2026-11-03 11:06:26  INFO    AAPL: ignoring today's incomplete bar; using completed days only.
+2026-11-03 11:06:26  INFO    AAPL: today: NY AM, trend sideways, weekly bias bullish, volatility normal (ATR 2.06%), 50 headline(s). Active rules applying: none
+2026-11-03 11:06:26  INFO    Latest close: 2026-11-02 at 338.32
+2026-11-03 11:06:26  INFO    20-day MA: 342.08 -> 342.36
+2026-11-03 11:06:26  INFO    50-day MA: 333.04 -> 333.62
+2026-11-03 11:06:26  INFO    AAPL: no crossover. Nothing to do.
+2026-11-03 11:06:26  INFO    --- SPY ---
+2026-11-03 11:06:27  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-03 11:06:27  INFO    SPY: today: NY AM, trend sideways, weekly bias bearish, volatility low (ATR 1.19%), 34 headline(s). Active rules applying: none
+2026-11-03 11:06:27  INFO    Latest close: 2026-11-02 at 752.10
+2026-11-03 11:06:27  INFO    20-day MA: 770.47 -> 769.33
+2026-11-03 11:06:27  INFO    50-day MA: 766.77 -> 766.54
+2026-11-03 11:06:27  INFO    SPY: no crossover. Nothing to do.
+2026-11-03 11:06:27  INFO    --- QQQ ---
+2026-11-03 11:06:27  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-03 11:06:27  INFO    QQQ: today: NY AM, trend downtrend, weekly bias bearish, volatility normal (ATR 2.21%), 12 headline(s). Active rules applying: none
+2026-11-03 11:06:27  INFO    Latest close: 2026-11-02 at 681.09
+2026-11-03 11:06:27  INFO    20-day MA: 728.19 -> 724.43
+2026-11-03 11:06:27  INFO    50-day MA: 724.70 -> 724.07
+2026-11-03 11:06:27  INFO    QQQ: no crossover. Nothing to do.
+2026-11-03 11:06:27  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-11-03 11:06:27  INFO    ===== Run finished =====
+2026-11-05 09:43:27  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-11-05 09:43:27  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-05 09:43:27  INFO    Journal: no closed trades yet.
+2026-11-05 09:43:27  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-11-05 09:43:27  INFO    --- AAPL ---
+2026-11-05 09:43:30  INFO    AAPL: ignoring today's incomplete bar; using completed days only.
+2026-11-05 09:43:30  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 2.41%), 22 headline(s). Active rules applying: none
+2026-11-05 09:43:30  INFO    Latest close: 2026-11-04 at 349.51
+2026-11-05 09:43:30  INFO    20-day MA: 342.27 -> 342.91
+2026-11-05 09:43:30  INFO    50-day MA: 334.05 -> 334.84
+2026-11-05 09:43:30  INFO    AAPL: no crossover. Nothing to do.
+2026-11-05 09:43:30  INFO    --- SPY ---
+2026-11-05 09:43:31  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-05 09:43:31  INFO    SPY: today: NY AM, trend sideways, weekly bias neutral, volatility low (ATR 1.24%), 48 headline(s). Active rules applying: none
+2026-11-05 09:43:31  INFO    Latest close: 2026-11-04 at 766.81
+2026-11-05 09:43:31  INFO    20-day MA: 768.09 -> 767.57
+2026-11-05 09:43:31  INFO    50-day MA: 766.40 -> 766.45
+2026-11-05 09:43:31  INFO    SPY: no crossover. Nothing to do.
+2026-11-05 09:43:31  INFO    --- QQQ ---
+2026-11-05 09:43:31  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-05 09:43:31  INFO    QQQ: today: NY AM, trend downtrend, weekly bias bearish, volatility normal (ATR 2.19%), 11 headline(s). Active rules applying: none
+2026-11-05 09:43:31  INFO    Latest close: 2026-11-04 at 691.95
+2026-11-05 09:43:31  INFO    20-day MA: 720.71 -> 717.42
+2026-11-05 09:43:31  INFO    50-day MA: 723.67 -> 723.30
+2026-11-05 09:43:31  INFO    QQQ: no crossover. Nothing to do.
+2026-11-05 09:43:31  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-11-05 09:43:31  INFO    ===== Run finished =====
+2026-11-05 09:48:18  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-11-05 09:48:18  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-05 09:48:18  INFO    Journal: no closed trades yet.
+2026-11-05 09:48:18  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-11-05 09:48:18  INFO    --- AAPL ---
+2026-11-05 09:48:19  INFO    AAPL: ignoring today's incomplete bar; using completed days only.
+2026-11-05 09:48:19  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 2.41%), 22 headline(s). Active rules applying: none
+2026-11-05 09:48:19  INFO    Latest close: 2026-11-04 at 349.51
+2026-11-05 09:48:19  INFO    20-day MA: 342.27 -> 342.91
+2026-11-05 09:48:19  INFO    50-day MA: 334.05 -> 334.84
+2026-11-05 09:48:19  INFO    AAPL: no crossover. Nothing to do.
+2026-11-05 09:48:19  INFO    --- SPY ---
+2026-11-05 09:48:19  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-05 09:48:19  INFO    SPY: today: NY AM, trend sideways, weekly bias neutral, volatility low (ATR 1.25%), 46 headline(s). Active rules applying: none
+2026-11-05 09:48:19  INFO    Latest close: 2026-11-04 at 766.81
+2026-11-05 09:48:19  INFO    20-day MA: 768.09 -> 767.57
+2026-11-05 09:48:19  INFO    50-day MA: 766.40 -> 766.45
+2026-11-05 09:48:19  INFO    SPY: no crossover. Nothing to do.
+2026-11-05 09:48:19  INFO    --- QQQ ---
+2026-11-05 09:48:19  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-05 09:48:20  INFO    QQQ: today: NY AM, trend downtrend, weekly bias bearish, volatility normal (ATR 2.19%), 11 headline(s). Active rules applying: none
+2026-11-05 09:48:20  INFO    Latest close: 2026-11-04 at 691.95
+2026-11-05 09:48:20  INFO    20-day MA: 720.71 -> 717.42
+2026-11-05 09:48:20  INFO    50-day MA: 723.67 -> 723.30
+2026-11-05 09:48:20  INFO    QQQ: no crossover. Nothing to do.
+2026-11-05 09:48:20  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-11-05 09:48:20  INFO    ===== Run finished =====
+2026-11-05 10:29:33  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-11-05 10:29:33  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-05 10:29:33  INFO    Journal: no closed trades yet.
+2026-11-05 10:29:33  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-11-05 10:29:33  INFO    --- AAPL ---
+2026-11-05 10:29:33  INFO    AAPL: ignoring today's incomplete bar; using completed days only.
+2026-11-05 10:29:33  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 2.43%), 21 headline(s). Active rules applying: none
+2026-11-05 10:29:33  INFO    Latest close: 2026-11-04 at 349.51
+2026-11-05 10:29:33  INFO    20-day MA: 342.27 -> 342.91
+2026-11-05 10:29:33  INFO    50-day MA: 334.05 -> 334.84
+2026-11-05 10:29:33  INFO    AAPL: no crossover. Nothing to do.
+2026-11-05 10:29:33  INFO    --- SPY ---
+2026-11-05 10:29:33  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-05 10:29:33  INFO    SPY: today: NY AM, trend sideways, weekly bias neutral, volatility low (ATR 1.26%), 43 headline(s). Active rules applying: none
+2026-11-05 10:29:33  INFO    Latest close: 2026-11-04 at 766.81
+2026-11-05 10:29:33  INFO    20-day MA: 768.09 -> 767.57
+2026-11-05 10:29:33  INFO    50-day MA: 766.40 -> 766.45
+2026-11-05 10:29:33  INFO    SPY: no crossover. Nothing to do.
+2026-11-05 10:29:33  INFO    --- QQQ ---
+2026-11-05 10:29:33  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-05 10:29:33  INFO    QQQ: today: NY AM, trend downtrend, weekly bias bearish, volatility normal (ATR 2.23%), 11 headline(s). Active rules applying: none
+2026-11-05 10:29:33  INFO    Latest close: 2026-11-04 at 691.95
+2026-11-05 10:29:33  INFO    20-day MA: 720.71 -> 717.42
+2026-11-05 10:29:33  INFO    50-day MA: 723.67 -> 723.30
+2026-11-05 10:29:33  INFO    QQQ: no crossover. Nothing to do.
+2026-11-05 10:29:34  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-11-05 10:29:34  INFO    ===== Run finished =====
+2026-11-05 10:29:36  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-11-05 10:29:36  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-05 10:29:36  INFO    Journal: no closed trades yet.
+2026-11-05 10:29:36  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-11-05 10:29:36  INFO    --- AAPL ---
+2026-11-05 10:29:36  INFO    AAPL: ignoring today's incomplete bar; using completed days only.
+2026-11-05 10:29:36  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 2.42%), 21 headline(s). Active rules applying: none
+2026-11-05 10:29:36  INFO    Latest close: 2026-11-04 at 349.51
+2026-11-05 10:29:36  INFO    20-day MA: 342.27 -> 342.91
+2026-11-05 10:29:36  INFO    50-day MA: 334.05 -> 334.84
+2026-11-05 10:29:36  INFO    AAPL: no crossover. Nothing to do.
+2026-11-05 10:29:36  INFO    --- SPY ---
+2026-11-05 10:29:36  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-05 10:29:36  INFO    SPY: today: NY AM, trend sideways, weekly bias neutral, volatility low (ATR 1.26%), 43 headline(s). Active rules applying: none
+2026-11-05 10:29:36  INFO    Latest close: 2026-11-04 at 766.81
+2026-11-05 10:29:36  INFO    20-day MA: 768.09 -> 767.57
+2026-11-05 10:29:36  INFO    50-day MA: 766.40 -> 766.45
+2026-11-05 10:29:36  INFO    SPY: no crossover. Nothing to do.
+2026-11-05 10:29:36  INFO    --- QQQ ---
+2026-11-05 10:29:36  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-05 10:29:36  INFO    QQQ: today: NY AM, trend downtrend, weekly bias bearish, volatility normal (ATR 2.23%), 11 headline(s). Active rules applying: none
+2026-11-05 10:29:37  INFO    Latest close: 2026-11-04 at 691.95
+2026-11-05 10:29:37  INFO    20-day MA: 720.71 -> 717.42
+2026-11-05 10:29:37  INFO    50-day MA: 723.67 -> 723.30
+2026-11-05 10:29:37  INFO    QQQ: no crossover. Nothing to do.
+2026-11-05 10:29:37  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-11-05 10:29:37  INFO    ===== Run finished =====
+2026-11-05 10:29:45  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-11-05 10:29:45  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-05 10:29:45  INFO    Journal: no closed trades yet.
+2026-11-05 10:29:46  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-11-05 10:29:46  INFO    --- AAPL ---
+2026-11-05 10:29:46  INFO    AAPL: ignoring today's incomplete bar; using completed days only.
+2026-11-05 10:29:46  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 2.42%), 21 headline(s). Active rules applying: none
+2026-11-05 10:29:46  INFO    Latest close: 2026-11-04 at 349.51
+2026-11-05 10:29:46  INFO    20-day MA: 342.27 -> 342.91
+2026-11-05 10:29:46  INFO    50-day MA: 334.05 -> 334.84
+2026-11-05 10:29:46  INFO    AAPL: no crossover. Nothing to do.
+2026-11-05 10:29:46  INFO    --- SPY ---
+2026-11-05 10:29:46  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-05 10:29:46  INFO    SPY: today: NY AM, trend sideways, weekly bias neutral, volatility low (ATR 1.26%), 43 headline(s). Active rules applying: none
+2026-11-05 10:29:46  INFO    Latest close: 2026-11-04 at 766.81
+2026-11-05 10:29:46  INFO    20-day MA: 768.09 -> 767.57
+2026-11-05 10:29:46  INFO    50-day MA: 766.40 -> 766.45
+2026-11-05 10:29:46  INFO    SPY: no crossover. Nothing to do.
+2026-11-05 10:29:46  INFO    --- QQQ ---
+2026-11-05 10:29:46  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-05 10:29:46  INFO    QQQ: today: NY AM, trend downtrend, weekly bias bearish, volatility normal (ATR 2.23%), 11 headline(s). Active rules applying: none
+2026-11-05 10:29:46  INFO    Latest close: 2026-11-04 at 691.95
+2026-11-05 10:29:46  INFO    20-day MA: 720.71 -> 717.42
+2026-11-05 10:29:46  INFO    50-day MA: 723.67 -> 723.30
+2026-11-05 10:29:46  INFO    QQQ: no crossover. Nothing to do.
+2026-11-05 10:29:46  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-11-05 10:29:46  INFO    ===== Run finished =====
+2026-11-06 09:30:12  INFO    ===== Run started (AAPL, SPY, QQQ 20/50 MA) =====
+2026-11-06 09:30:12  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-06 09:30:12  INFO    Journal: no closed trades yet.
+2026-11-06 09:30:13  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-11-06 09:30:13  INFO    --- AAPL ---
+2026-11-06 09:30:13  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 2.61%), 12 headline(s). Active rules applying: none
+2026-11-06 09:30:13  INFO    Latest close: 2026-11-05 at 344.17
+2026-11-06 09:30:13  INFO    20-day MA: 342.91 -> 343.10
+2026-11-06 09:30:13  INFO    50-day MA: 334.84 -> 335.46
+2026-11-06 09:30:13  INFO    AAPL: no crossover. Nothing to do.
+2026-11-06 09:30:13  INFO    --- SPY ---
+2026-11-06 09:30:13  INFO    SPY: today: NY AM, trend sideways, weekly bias bearish, volatility low (ATR 1.49%), 39 headline(s). Active rules applying: none
+2026-11-06 09:30:13  INFO    Latest close: 2026-11-05 at 733.00
+2026-11-06 09:30:13  INFO    20-day MA: 767.57 -> 765.53
+2026-11-06 09:30:13  INFO    50-day MA: 766.45 -> 765.83
+2026-11-06 09:30:13  INFO    SPY: crossover detected: SELL, but no position to sell.
+2026-11-06 09:30:13  INFO    --- QQQ ---
+2026-11-06 09:30:13  INFO    QQQ: today: NY AM, trend downtrend, weekly bias bearish, volatility normal (ATR 2.50%), 14 headline(s). Active rules applying: none
+2026-11-06 09:30:13  INFO    Latest close: 2026-11-05 at 647.05
+2026-11-06 09:30:13  INFO    20-day MA: 717.42 -> 712.40
+2026-11-06 09:30:13  INFO    50-day MA: 723.30 -> 722.03
+2026-11-06 09:30:13  INFO    QQQ: no crossover. Nothing to do.
+2026-11-06 09:30:13  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0, QQQ 0
+2026-11-06 09:30:13  INFO    ===== Run finished =====
+2026-11-07 21:16:44  INFO    ===== Run started (AAPL, SPY 20/50 MA) =====
+2026-11-07 21:16:44  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-07 21:16:44  INFO    Journal: no closed trades yet.
+2026-11-07 21:16:45  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0
+2026-11-07 21:16:45  INFO    --- AAPL ---
+2026-11-07 21:16:45  INFO    AAPL: today: after-hours, trend uptrend, weekly bias bullish, volatility normal (ATR 2.63%), 0 headline(s). Active rules applying: none
+2026-11-07 21:16:45  INFO    Latest close: 2026-11-06 at 342.37
+2026-11-07 21:16:45  INFO    20-day MA: 343.10 -> 343.38
+2026-11-07 21:16:45  INFO    50-day MA: 335.46 -> 336.01
+2026-11-07 21:16:45  INFO    AAPL: no crossover. Nothing to do.
+2026-11-07 21:16:45  INFO    --- SPY ---
+2026-11-07 21:16:45  INFO    SPY: today: after-hours, trend sideways, weekly bias bearish, volatility normal (ATR 1.51%), 5 headline(s). Active rules applying: none
+2026-11-07 21:16:45  INFO    Latest close: 2026-11-06 at 735.29
+2026-11-07 21:16:45  INFO    20-day MA: 765.53 -> 763.36
+2026-11-07 21:16:45  INFO    50-day MA: 765.83 -> 765.15
+2026-11-07 21:16:45  INFO    SPY: no crossover. Nothing to do.
+2026-11-07 21:16:45  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0
+2026-11-07 21:17:37  INFO    ===== 10am model started (QQQ) =====
+2026-11-07 21:17:37  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-07 21:17:37  INFO    Journal: no closed trades yet.
+2026-11-07 21:17:37  INFO    10am: market is closed today. Nothing to do.
+2026-11-07 21:17:37  INFO    ===== 10am model finished =====

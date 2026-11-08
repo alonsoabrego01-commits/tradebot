@@ -1,0 +1,66 @@
+name: Daily trading run
+
+on:
+  schedule:
+    # GitHub schedules are in UTC and ignore daylight saving, and starts can run late.
+    # Three starts (8:35/9:35/10:35 ET in winter, 9:35/10:35/11:35 ET in summer); the bot's
+    # --scheduled flag only acts on the first one between 9:30 and 12:00 ET each weekday.
+    - cron: "35 13 * * 1-5"
+    - cron: "35 14 * * 1-5"
+    - cron: "35 15 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "dry-run places no orders; live trades on any signal"
+        type: choice
+        options: [dry-run, live]
+        default: dry-run
+
+# Never let two runs touch the account or the state files at the same time.
+concurrency:
+  group: trading
+  cancel-in-progress: false
+
+permissions:
+  contents: write  # to save the journal, lessons, state and log back to the repo
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Run bot
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            python bot.py --scheduled
+          elif [ "${{ inputs.mode }}" = "live" ]; then
+            python bot.py
+          else
+            python bot.py --dry-run
+          fi
+
+      - name: Save journal, lessons, state and log
+        if: always()
+        run: |
+          git config user.name "tradebot"
+          git config user.email "tradebot@users.noreply.github.com"
+          git add -A -- trades_state.json trade_journal.md lessons.md bot.log 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "Nothing to save."
+          else
+            git commit -m "Bot run $(TZ=America/New_York date '+%Y-%m-%d %H:%M ET')"
+            git pull --rebase
+            git push
+          fi
