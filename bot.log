@@ -538,3 +538,8 @@
 2026-11-07 21:17:37  INFO    Journal: no closed trades yet.
 2026-11-07 21:17:37  INFO    10am: market is closed today. Nothing to do.
 2026-11-07 21:17:37  INFO    ===== 10am model finished =====
+2026-11-07 21:40:55  INFO    ===== Run started (AAPL, SPY 20/50 MA) =====
+2026-11-07 21:40:55  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-07 21:40:55  INFO    Journal: no closed trades yet.
+2026-11-07 21:40:55  INFO    Market is closed today (weekend or holiday). Nothing to do.
+2026-11-07 21:40:55  INFO    ===== Run finished =====
