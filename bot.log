@@ -543,3 +543,21 @@
 2026-11-07 21:40:55  INFO    Journal: no closed trades yet.
 2026-11-07 21:40:55  INFO    Market is closed today (weekend or holiday). Nothing to do.
 2026-11-07 21:40:55  INFO    ===== Run finished =====
+2026-11-09 09:30:49  INFO    ===== Run started (AAPL, SPY 20/50 MA) =====
+2026-11-09 09:30:49  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-09 09:30:49  INFO    Journal: no closed trades yet.
+2026-11-09 09:30:49  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0
+2026-11-09 09:30:49  INFO    --- AAPL ---
+2026-11-09 09:30:49  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 2.60%), 3 headline(s). Active rules applying: none
+2026-11-09 09:30:49  INFO    Latest close: 2026-11-06 at 342.37
+2026-11-09 09:30:49  INFO    20-day MA: 343.10 -> 343.38
+2026-11-09 09:30:49  INFO    50-day MA: 335.46 -> 336.01
+2026-11-09 09:30:49  INFO    AAPL: no crossover. Nothing to do.
+2026-11-09 09:30:49  INFO    --- SPY ---
+2026-11-09 09:30:49  INFO    SPY: today: NY AM, trend sideways, weekly bias bearish, volatility low (ATR 1.50%), 8 headline(s). Active rules applying: none
+2026-11-09 09:30:50  INFO    Latest close: 2026-11-06 at 735.29
+2026-11-09 09:30:50  INFO    20-day MA: 765.53 -> 763.36
+2026-11-09 09:30:50  INFO    50-day MA: 765.83 -> 765.15
+2026-11-09 09:30:50  INFO    SPY: no crossover. Nothing to do.
+2026-11-09 09:30:50  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0
+2026-11-09 09:30:50  INFO    ===== Run finished =====
