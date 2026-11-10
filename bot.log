@@ -571,3 +571,17 @@
 2026-11-09 10:11:03  INFO    10am: 10:10 short: wick above the 9:30-10:00 high (673.64)
 2026-11-09 11:00:00  INFO    10am: NO TRADE: no setup completed before 11:00 ET.
 2026-11-09 11:00:00  INFO    ===== 10am model finished =====
+2026-11-10 09:55:13  INFO    ===== 10am model started (QQQ) =====
+2026-11-10 09:55:13  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-10 09:55:13  INFO    Journal: no closed trades yet.
+2026-11-10 10:01:03  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-10 10:01:03  INFO    10am: prior day 2026-11-09 high 682.48, low 662.02
+2026-11-10 10:01:04  INFO    10am: O10 679.06 | 9:30-10:00 670.00-679.17 | premarket 669.00-679.86
+2026-11-10 10:01:04  INFO    10am: 10:00 short: wick above the premarket high (679.86)
+2026-11-10 10:13:03  INFO    10am: 10:12 short: 1-min close 678.82 back below O10
+2026-11-10 10:26:03  INFO    10am: 10:25 short: O10 at a 0.620 retracement of 680.87 -> 676.11
+2026-11-10 10:26:03  INFO    10am: SHORT setup ready: limit 679.06, stop 680.92, target 673.48 (3R (nearer than the prior-day low 662.02)), 73 sh, risk $135.78.
+2026-11-10 10:26:03  INFO    10am: grade C (2 borderline: Sweep candle has a clear rejection wick (at least 30% of its range); News: fewer than 5 QQQ headlines in the prior 24h).
+2026-11-10 10:26:03  INFO    10am: submitted SHORT bracket id=d9e27d94-b70b-4978-89e6-629cbb10c9f7 status=pending_new
+2026-11-10 11:00:17  INFO    10am: 11:00: entry never filled; order cancelled.
+2026-11-10 11:00:17  INFO    ===== 10am model finished =====
