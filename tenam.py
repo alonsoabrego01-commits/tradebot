@@ -27,7 +27,7 @@ Definitions used where the rules leave room:
 Run:  python tenam.py                  live (waits for 10:00, places at most one paper order)
       python tenam.py --dry-run        live data, logs what it would do, places nothing
       python tenam.py --scheduled      how GitHub runs it (9:40-10:30 start window, stops after 11:00)
-      python tenam.py --flatten        close an open 10am trade (GitHub's 15:55 job)
+      python tenam.py --flatten        close an open 10am trade (GitHub's 15:55 job; starts ~15:00 and waits)
       python tenam.py --replay 2026-11-06            replay one past day
       python tenam.py --replay 2025-01-01 2025-12-31  replay a date range and summarise
 """
@@ -50,7 +50,7 @@ from alpaca.data.enums import Adjustment, DataFeed
 from alpaca.data.requests import StockBarsRequest
 from alpaca.data.timeframe import TimeFrame
 from alpaca.trading.enums import OrderClass, OrderSide, OrderStatus, TimeInForce
-from alpaca.trading.requests import LimitOrderRequest, StopLossRequest, TakeProfitRequest
+from alpaca.trading.requests import GetCalendarRequest, LimitOrderRequest, StopLossRequest, TakeProfitRequest
 
 import bot
 import config
@@ -267,6 +267,18 @@ def et_time(day, hhmm):
     return pd.Timestamp(f"{day} {hhmm}", tz=ET)
 
 
+def flatten_time(clients, day):
+    """15:55 ET, or 5 minutes before the close on a half day (13:00 closes, e.g. Nov 27, Dec 24)."""
+    normal = et_time(day, config.TENAM_FLATTEN_AT)
+    try:
+        cal = clients.trading.get_calendar(GetCalendarRequest(start=day, end=day))
+        close = pd.Timestamp(cal[0].close).tz_localize(ET)  # Alpaca gives naive ET times
+        return min(normal, close - pd.Timedelta(minutes=5))
+    except Exception:
+        log.warning("10am: could not read today's close from Alpaca; using the normal flatten time.")
+        return normal
+
+
 def sleep_until(ts):
     while (wait := (ts - bot.now_et()).total_seconds()) > 0:
         time.sleep(min(wait, 30))
@@ -387,9 +399,13 @@ def place(clients, side, lv, daily, dry_run):
 def manage(clients, day, until_flatten=True):
     """Wait for the fill (cancel at 11:00), then let stop/target work until the 15:55 flatten.
     With until_flatten=False (GitHub runs) it stops after 11:00 and leaves the 15:55 close
-    to the separate --flatten job; the stop and target stay on Alpaca in the meantime."""
+    to the separate --flatten job; the stop and target stay on Alpaca in the meantime.
+    On a half day (13:00 close) it always stays and flattens at 12:55, since the afternoon
+    flatten job would start after the close."""
     client = clients.trading
-    cancel_at, flatten_at = et_time(day, config.TENAM_CANCEL_AT), et_time(day, config.TENAM_FLATTEN_AT)
+    cancel_at, flatten_at = et_time(day, config.TENAM_CANCEL_AT), flatten_time(clients, day)
+    if flatten_at < et_time(day, config.TENAM_FLATTEN_AT):
+        until_flatten = True
     while True:
         state = fresh_state()
         bot.reconcile(clients, state)
@@ -417,7 +433,7 @@ def manage(clients, day, until_flatten=True):
                 log.info(f"10am: {config.TENAM_CANCEL_AT}: entry never filled; order cancelled.")
                 return
         if trade["entry"] is not None and now >= flatten_at:
-            bot.exit_trade(clients, state, SYMBOL, False, reason=f"End-of-day flatten ({config.TENAM_FLATTEN_AT})")
+            bot.exit_trade(clients, state, SYMBOL, False, reason=f"End-of-day flatten ({flatten_at:%H:%M})")
             return
         if not until_flatten and trade["entry"] is not None and now >= cancel_at:
             log.info(f"10am: in the trade; stop and target are on Alpaca. The {config.TENAM_FLATTEN_AT} job closes it if still open.")
@@ -443,11 +459,19 @@ def flatten_open_trade(clients, reason):
     return True
 
 
+FLATTEN_START_WINDOW = ("14:45", "15:58")
+
+
 def run_flatten(scheduled):
-    """The 15:55 job on GitHub. Two UTC start times cover daylight saving; only one lands at 15:50-16:00."""
+    """The 15:55 job on GitHub. GitHub often starts scheduled jobs 30-50 minutes late, so the
+    job starts from about 15:00 ET and waits for 15:55 itself. Starts outside 14:45-15:58 ET
+    (the other daylight-saving season's UTC times) exit at once, and so does any day with no
+    open 10am trade, so the wait only costs Actions minutes when there is a trade to close."""
     now = bot.now_et()
-    if scheduled and not (15 * 60 + 50 <= now.hour * 60 + now.minute < 16 * 60):
-        print(f"{now:%H:%M} ET is outside the 15:50-16:00 flatten window; skipping.")
+    day = now.date().isoformat()
+    lo, hi = (et_time(day, t) for t in FLATTEN_START_WINDOW)
+    if scheduled and not (lo <= now < hi):
+        print(f"{now:%H:%M} ET is outside the {FLATTEN_START_WINDOW[0]}-{FLATTEN_START_WINDOW[1]} flatten start window; skipping.")
         return
     trade = fresh_state()["open"].get(SYMBOL, {})
     if trade.get("model") != "10am":
@@ -456,7 +480,16 @@ def run_flatten(scheduled):
     bot.setup_logging()
     try:
         log.info("===== 10am flatten job =====")
-        if not flatten_open_trade(bot.Clients(), f"End-of-day flatten ({config.TENAM_FLATTEN_AT})"):
+        clients = bot.Clients()
+        flatten_at = flatten_time(clients, day)
+        if bot.now_et() < flatten_at:
+            bot.reconcile(clients, fresh_state())  # it may already have hit its stop or target
+            if fresh_state()["open"].get(SYMBOL, {}).get("model") != "10am":
+                log.info("10am: the trade already closed at its stop or target; nothing to flatten.")
+                return
+            log.info(f"10am: trade still open; waiting until {flatten_at:%H:%M} ET to close it.")
+            sleep_until(flatten_at)
+        if not flatten_open_trade(clients, f"End-of-day flatten ({flatten_at:%H:%M})"):
             log.info("10am: the trade had already closed.")
     except Exception:
         log.exception("10am: flatten failed")

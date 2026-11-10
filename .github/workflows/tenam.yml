@@ -26,7 +26,7 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 100
+    timeout-minutes: 200  # normal days end at 11:00; half days stay to flatten at 12:55
     steps:
       - uses: actions/checkout@v4
 
@@ -36,6 +36,17 @@ jobs:
           cache: pip
 
       - run: pip install -r requirements.txt
+
+      # Backup for the daily crossover: when GitHub starts the crossover's own job late, or cancels
+      # it while it waits behind this one, it runs here first. bot.py --scheduled still runs only
+      # once per day between 9:30 and 12:00 ET, so on most days this exits in a second.
+      - name: Daily crossover, if it hasn't run yet today
+        if: github.event_name == 'schedule'
+        continue-on-error: true
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        run: python bot.py --scheduled
 
       - name: Run 10am model
         env:
