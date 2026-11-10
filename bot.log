@@ -585,3 +585,23 @@
 2026-11-10 10:26:03  INFO    10am: submitted SHORT bracket id=d9e27d94-b70b-4978-89e6-629cbb10c9f7 status=pending_new
 2026-11-10 11:00:17  INFO    10am: 11:00: entry never filled; order cancelled.
 2026-11-10 11:00:17  INFO    ===== 10am model finished =====
+2026-11-10 11:24:53  INFO    ===== Run started (AAPL, SPY 20/50 MA) =====
+2026-11-10 11:24:53  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-10 11:24:53  INFO    Journal: no closed trades yet.
+2026-11-10 11:24:53  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0
+2026-11-10 11:24:53  INFO    --- AAPL ---
+2026-11-10 11:24:53  INFO    AAPL: ignoring today's incomplete bar; using completed days only.
+2026-11-10 11:24:54  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 2.71%), 11 headline(s). Active rules applying: none
+2026-11-10 11:24:54  INFO    Latest close: 2026-11-09 at 350.69
+2026-11-10 11:24:54  INFO    20-day MA: 343.38 -> 343.87
+2026-11-10 11:24:54  INFO    50-day MA: 336.01 -> 336.63
+2026-11-10 11:24:54  INFO    AAPL: no crossover. Nothing to do.
+2026-11-10 11:24:54  INFO    --- SPY ---
+2026-11-10 11:24:54  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-10 11:24:54  INFO    SPY: today: NY AM, trend sideways, weekly bias bearish, volatility normal (ATR 1.60%), 50 headline(s). Active rules applying: none
+2026-11-10 11:24:54  INFO    Latest close: 2026-11-09 at 752.69
+2026-11-10 11:24:54  INFO    20-day MA: 763.36 -> 762.09
+2026-11-10 11:24:54  INFO    50-day MA: 765.15 -> 764.85
+2026-11-10 11:24:54  INFO    SPY: no crossover. Nothing to do.
+2026-11-10 11:24:54  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0
+2026-11-10 11:24:54  INFO    ===== Run finished =====
