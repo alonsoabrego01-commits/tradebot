@@ -660,3 +660,23 @@
 2026-11-12 10:52:03  INFO    10am: 10:51 short: wick above the 9:30-10:00 high (688.40)
 2026-11-12 11:00:00  INFO    10am: NO TRADE: no setup completed before 11:00 ET.
 2026-11-12 11:00:00  INFO    ===== 10am model finished =====
+2026-11-13 09:38:07  INFO    ===== Run started (AAPL, SPY 20/50 MA) =====
+2026-11-13 09:38:07  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-13 09:38:07  INFO    Journal: no closed trades yet.
+2026-11-13 09:38:08  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0
+2026-11-13 09:38:08  INFO    --- AAPL ---
+2026-11-13 09:38:08  INFO    AAPL: ignoring today's incomplete bar; using completed days only.
+2026-11-13 09:38:08  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 2.64%), 15 headline(s). Active rules applying: none
+2026-11-13 09:38:08  INFO    Latest close: 2026-11-12 at 354.88
+2026-11-13 09:38:08  INFO    20-day MA: 344.60 -> 345.26
+2026-11-13 09:38:08  INFO    50-day MA: 337.62 -> 338.22
+2026-11-13 09:38:08  INFO    AAPL: no crossover. Nothing to do.
+2026-11-13 09:38:08  INFO    --- SPY ---
+2026-11-13 09:38:08  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-13 09:38:09  INFO    SPY: today: NY AM, trend downtrend, weekly bias bearish, volatility normal (ATR 1.64%), 36 headline(s). Active rules applying: none
+2026-11-13 09:38:09  INFO    Latest close: 2026-11-12 at 757.12
+2026-11-13 09:38:09  INFO    20-day MA: 760.20 -> 759.47
+2026-11-13 09:38:09  INFO    50-day MA: 764.55 -> 764.43
+2026-11-13 09:38:09  INFO    SPY: no crossover. Nothing to do.
+2026-11-13 09:38:09  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0
+2026-11-13 09:38:09  INFO    ===== Run finished =====
