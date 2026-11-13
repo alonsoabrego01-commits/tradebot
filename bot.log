@@ -680,3 +680,13 @@
 2026-11-13 09:38:09  INFO    SPY: no crossover. Nothing to do.
 2026-11-13 09:38:09  INFO    Account PA3LHFO6L: cash 50,000.00, equity 50,000.00 (today +0.00), shares held: AAPL 0, SPY 0
 2026-11-13 09:38:09  INFO    ===== Run finished =====
+2026-11-13 09:53:36  INFO    ===== 10am model started (QQQ) =====
+2026-11-13 09:53:36  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-13 09:53:36  INFO    Journal: no closed trades yet.
+2026-11-13 10:01:03  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-13 10:01:03  INFO    10am: prior day 2026-11-12 high 694.56, low 679.83
+2026-11-13 10:01:04  INFO    10am: O10 681.04 | 9:30-10:00 680.72-688.64 | premarket 685.00-693.13
+2026-11-13 10:01:04  INFO    10am: levels not in play: premarket low 685.00 (already taken before 10:00)
+2026-11-13 10:01:04  INFO    10am: 10:00 long: wick below the 9:30-10:00 low (680.72)
+2026-11-13 11:00:00  INFO    10am: NO TRADE: no setup completed before 11:00 ET.
+2026-11-13 11:00:00  INFO    ===== 10am model finished =====
