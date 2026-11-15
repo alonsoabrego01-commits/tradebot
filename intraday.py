@@ -1,22 +1,28 @@
 """Intraday models. Both act on completed 5-minute bars, take at most one trade a day each,
-enter at market with a bracket (stop + target), and are flat by 15:55 ET.
+enter with a bracket (stop + target), and are flat by 15:55 ET.
 
-QQQ opening range breakout (config.ORB_*):
-  1. Opening range = high and low of 9:30-9:45 ET.
-  2. The first 5-minute close outside the range, completed by 10:30, is the signal:
-     close above the high -> long, close below the low -> short.
-  3. Stop $0.05 beyond the midpoint of the range (or its far side, ORB_STOP). Target 2R.
-  4. If the first breakout is not taken (filter, hard limit), there is no second try that day.
+QQQ inverse fair value gap with the order flow (config.IFVG_*):
+  1. Structure is read on 5-minute bars from 8:00 ET. A swing high/low is a bar whose high/low
+     beats the two bars on each side. Order flow is bullish after a 5-minute close above the
+     latest swing high and bearish after a close below the latest swing low.
+  2. A fair value gap is a 3-bar gap: a bar's low above the high two bars back (bullish) or its
+     high below the low two bars back (bearish).
+  3. Setup: with bullish order flow, a 5-minute bar closes above the top of a bearish gap formed
+     in the last hour (the gap is now "inverse"). Mirror image for shorts.
+  4. Entry: a limit order at the retest of that gap's edge, for setups completing 10:00-12:00.
+     It is cancelled after 45 minutes, or sooner if order flow turns the other way. Only one
+     order rests at a time; the first fill is the day's trade.
+  5. Stop $0.05 beyond the extreme of the leg since the gap formed (at least 0.05% of price
+     away). Target 2R.
 
-SPY trend-day VWAP pullback (config.VWAP_*):
-  1. Strong open, judged at 10:00 ET: price moved at least 0.25 daily ATR from the 9:30 open,
-     the 10:00 close is on that side of the session VWAP, and at least 80% of the 5-minute
-     closes so far are too. Up = longs only, down = shorts only, neither = no trade.
-  2. First pullback: a 5-minute bar trades back to the nearer of VWAP and the 21 EMA after the
-     previous bar closed beyond it. A 5-minute close through VWAP means the trend broke: no trade.
-  3. Entry when a 5-minute bar then closes back beyond the 9 EMA in the trend direction
-     (it can be the same bar), completed by 11:00.
-  4. Stop $0.05 behind the pullback's extreme (at least 0.05% of price away). Target 2R.
+SPY liquidity sweep and reversal (config.SWEEP_*):
+  1. Levels: the premarket (4:00-9:15 ET) high and low and the prior day's high and low.
+     A high only counts if it is above the 9:30 open, a low only if it is below it.
+  2. Sweep: a 5-minute bar trades beyond a level. Reclaim: that bar or one of the next two
+     closes back inside it. Below a low then back above = long; above a high then back below = short.
+  3. Entry on the reclaim bar's close, completed between 9:35 and 11:30. Each level gives
+     one setup.
+  4. Stop $0.05 beyond the sweep's extreme (at least 0.05% of price away). Target 3R.
 
 Size = INTRADAY_RISK_PER_TRADE / stop distance, inside INTRADAY_POSITION_VALUE and the hard
 limits, and never more than the account's unused equity (no margin). Anything unclear
@@ -24,16 +30,19 @@ limits, and never more than the account's unused equity (no margin). Anything un
 shorting disabled) means no trade, and the reason is logged.
 
 Definitions used where the rules leave room:
-  - VWAP is the session VWAP from 9:30. The 9 and 21 EMAs are of 5-minute closes from 9:30.
+  - The prior day's high and low come from its regular-session minute bars (unadjusted prices).
+  - The premarket range stops at 9:15 because Alpaca's consolidated feed is only free once
+    it is 15 minutes old, and the first decision is at 9:35.
   - Live data is Alpaca's consolidated (SIP) feed for everything older than 16 minutes and
     the free IEX feed for the most recent minutes. Replays use SIP throughout.
-  - Replays fill at the open of the minute after the signal bar and assume the stop came
-    first when a 1-minute bar touches both stop and target.
+  - Replays fill market entries at the open of the minute after the signal bar and limit
+    entries at the limit price, and assume the stop came first when a 1-minute bar touches
+    both stop and target.
 
 Run:  python intraday.py                  live (both models, stays until the 15:55 flatten)
       python intraday.py --dry-run        live data, logs what it would do, places nothing
-      python intraday.py --model orb      only one model (orb or vwap)
-      python intraday.py --scheduled      how GitHub runs it (8:40-10:30 start window, stops after the last cutoff)
+      python intraday.py --model ifvg     only one model (ifvg or sweep)
+      python intraday.py --scheduled      how GitHub runs it (8:40-10:30 start window, stops about 12:45)
       python intraday.py --flatten        close open intraday trades (GitHub's 15:55 job; starts ~15:00 and waits)
       python intraday.py --replay 2026-11-06             replay one past day
       python intraday.py --replay 2025-11-01 2026-10-31  replay a date range and summarise
@@ -56,7 +65,9 @@ from alpaca.data.enums import Adjustment, DataFeed
 from alpaca.data.requests import StockBarsRequest
 from alpaca.data.timeframe import TimeFrame
 from alpaca.trading.enums import OrderClass, OrderSide, OrderStatus, TimeInForce
-from alpaca.trading.requests import GetCalendarRequest, MarketOrderRequest, StopLossRequest, TakeProfitRequest
+from alpaca.trading.requests import (
+    GetCalendarRequest, LimitOrderRequest, MarketOrderRequest, StopLossRequest, TakeProfitRequest,
+)
 
 import bot
 import config
@@ -85,8 +96,8 @@ def _none(why):
 
 def five_min_bars(m1, day, now=None):
     """Completed 5-minute bars of the regular session from 1-minute bars, with the session
-    VWAP and the fast/slow EMAs of the closes as of each bar's close."""
-    cols = ["open", "high", "low", "close", "vwap", "ema_fast", "ema_slow"]
+    VWAP as of each bar's close."""
+    cols = ["open", "high", "low", "close", "vwap"]
     if m1 is None or m1.empty:
         return pd.DataFrame(columns=cols)
     rth = m1[(m1.index >= et_time(day, "09:30")) & (m1.index < et_time(day, "16:00"))]
@@ -101,8 +112,6 @@ def five_min_bars(m1, day, now=None):
     }).dropna(subset=["close"])
     if now is not None:
         b5 = b5[b5.index + FIVE <= now]
-    b5["ema_fast"] = b5["close"].ewm(span=config.VWAP_FAST_EMA, adjust=False).mean()
-    b5["ema_slow"] = b5["close"].ewm(span=config.VWAP_SLOW_EMA, adjust=False).mean()
     return b5
 
 
@@ -113,147 +122,176 @@ def _still_time(b5, cutoff, waiting, gave_up):
     return _wait(waiting)
 
 
-def orb_signal(b5, day, daily):
-    """Opening range breakout. `daily` = completed daily bars before `day`."""
-    range_end = et_time(day, "09:30") + pd.Timedelta(minutes=config.ORB_RANGE_MINUTES)
-    cutoff = et_time(day, config.ORB_ENTRY_CUTOFF)
-    need = config.ORB_RANGE_MINUTES // 5
-    opening, later = b5[b5.index < range_end], b5[b5.index >= range_end]
-    if len(opening) < need:
-        if later.empty:
-            return _wait("opening range still forming")
-        return _none(f"only {len(opening)} of {need} opening-range bars, so the range is unclear")
-    high, low = float(opening["high"].max()), float(opening["low"].min())
-    width = high - low
-    if width <= 0:
-        return _none("opening range has no width")
+def structure_bars(m1, day, now=None):
+    """Completed 5-minute bars from IFVG_STRUCTURE_FROM (premarket included) to the close."""
+    cols = ["open", "high", "low", "close"]
+    if m1 is None or m1.empty:
+        return pd.DataFrame(columns=cols)
+    x = m1[(m1.index >= et_time(day, config.IFVG_STRUCTURE_FROM)) & (m1.index < et_time(day, "16:00"))]
+    if x.empty:
+        return pd.DataFrame(columns=cols)
+    g = x.resample("5min")
+    b5 = pd.DataFrame({"open": g["open"].first(), "high": g["high"].max(), "low": g["low"].min(),
+                       "close": g["close"].last()}).dropna()
+    return b5[b5.index + FIVE <= now] if now is not None else b5
 
-    allowed = {"long", "short"}
-    trend_note = ""
-    if config.ORB_TREND_FILTER:
-        ma = float(daily["Close"].tail(config.ORB_TREND_MA).mean())
-        prior_close = float(daily["Close"].iloc[-1])
-        allowed = {"long"} if prior_close > ma else {"short"}
-        trend_note = f"prior close {prior_close:.2f} vs {config.ORB_TREND_MA}-day MA {ma:.2f}"
 
-    for t, bar in later.iterrows():
+def ifvg_orders(b5, day):
+    """Every limit order the inverse fair value gap rules would create that day, in order.
+    Each: direction, time (bar completion), expire, limit, stop, plus journal details."""
+    o, h, l, c = (b5[k].tolist() for k in ("open", "high", "low", "close"))
+    times = list(b5.index)
+    first, last = et_time(day, config.IFVG_FIRST_ORDER), et_time(day, config.IFVG_LAST_ORDER)
+    life = pd.Timedelta(minutes=config.IFVG_ORDER_MINUTES)
+    swing_high = swing_low = None  # [price, already broken]
+    flow, gaps, orders = 0, [], []
+    for j in range(len(c)):
+        done = times[j] + FIVE
+        if j >= 4:  # the bar two back is now confirmed as a swing (or not)
+            k = j - 2
+            if h[k] > max(h[k - 2], h[k - 1]) and h[k] >= max(h[k + 1], h[k + 2]):
+                swing_high = [h[k], False]
+            if l[k] < min(l[k - 2], l[k - 1]) and l[k] <= min(l[k + 1], l[k + 2]):
+                swing_low = [l[k], False]
+        broke = 0
+        if swing_high and not swing_high[1] and c[j] > swing_high[0]:
+            swing_high[1], broke = True, 1
+        elif swing_low and not swing_low[1] and c[j] < swing_low[0]:
+            swing_low[1], broke = True, -1
+        if broke:
+            flow = broke
+            for order in orders:  # order flow turned against a resting order
+                if order["sign"] == -broke:
+                    order["expire"] = min(order["expire"], done)
+        if j >= 2:
+            if l[j] > h[j - 2]:
+                gaps.append({"sign": 1, "low": h[j - 2], "high": l[j], "born": j, "live": True})
+            elif h[j] < l[j - 2]:
+                gaps.append({"sign": -1, "low": h[j], "high": l[j - 2], "born": j, "live": True})
+        for gap in gaps:
+            if not gap["live"] or gap["born"] >= j:
+                continue
+            if not (c[j] > gap["high"] if gap["sign"] == -1 else c[j] < gap["low"]):
+                continue
+            gap["live"] = False  # closed through: it is now an inverse gap for the other side
+            sign = -gap["sign"]
+            age = j - gap["born"]
+            if flow != sign or age > config.IFVG_MAX_GAP_BARS or not (first <= done <= last):
+                continue
+            long_ = sign == 1
+            leg = slice(max(gap["born"] - 2, 0), j + 1)
+            extreme = min(l[leg]) if long_ else max(h[leg])
+            limit = gap["high"] if long_ else gap["low"]
+            through, old, flow_name = ("above", "bearish", "bullish") if long_ else ("below", "bullish", "bearish")
+            gap_time = times[gap["born"]] + FIVE
+            orders.append({
+                "direction": "long" if long_ else "short", "sign": sign, "time": done, "expire": done + life,
+                "limit": limit, "price": limit, "stop": extreme - sign * config.INTRADAY_STOP_BUFFER,
+                "summary": (f"{flow_name} order flow, 5-min close {c[j]:.2f} {through} the {old} gap "
+                            f"{gap['low']:.2f}-{gap['high']:.2f}"),
+                "gates": [
+                    f"Order flow {flow_name}: the last break of structure was {'up' if long_ else 'down'}",
+                    f"{old.capitalize()} fair value gap {gap['low']:.2f}-{gap['high']:.2f} formed at {gap_time:%H:%M}, "
+                    f"within {config.IFVG_MAX_GAP_BARS} bars",
+                    f"Inverted: 5-min close {c[j]:.2f} {through} it at {done:%H:%M}",
+                    f"Setup completed between {config.IFVG_FIRST_ORDER} and {config.IFVG_LAST_ORDER} ET",
+                    f"Limit entry at the retest of the gap ({limit:.2f}), good for {config.IFVG_ORDER_MINUTES} minutes",
+                ],
+                "ctx": {
+                    "flow": flow_name, "gap_low": round(gap["low"], 2), "gap_high": round(gap["high"], 2),
+                    "gap_time": f"{gap_time:%H:%M}", "gap_age_bars": age, "inversion_close": round(c[j], 2),
+                    "limit": round(limit, 2), "leg_extreme": round(extreme, 2),
+                },
+            })
+    return orders
+
+
+def limit_fill(order, m1):
+    """When and where a resting limit order would fill on 1-minute bars: (time, price) or None."""
+    sign = order["sign"]
+    bars = m1[(m1.index >= order["time"]) & (m1.index < order["expire"])]
+    for t, bar in bars.iterrows():
+        if (bar["low"] <= order["limit"]) if sign == 1 else (bar["high"] >= order["limit"]):
+            gapped = (bar["open"] < order["limit"]) if sign == 1 else (bar["open"] > order["limit"])
+            return t, float(bar["open"]) if gapped else float(order["limit"])
+    return None
+
+
+SWEEP_LEVELS = (  # (name, key in the levels dict, direction of the trade after a sweep)
+    ("premarket low", "pm_low", "long"), ("prior-day low", "pd_low", "long"),
+    ("premarket high", "pm_high", "short"), ("prior-day high", "pd_high", "short"),
+)
+
+
+def sweep_signal(b5, day, daily, levels):
+    """Liquidity sweep and reversal. `levels` = premarket and prior-day high/low (None until known)."""
+    if levels is None:
+        return _wait("waiting for the premarket and prior-day levels")
+    if b5.empty:
+        return _wait("no bars yet")
+    first_entry, cutoff = et_time(day, config.SWEEP_FIRST_ENTRY), et_time(day, config.SWEEP_ENTRY_CUTOFF)
+    day_open = float(b5["open"].iloc[0])
+    sides = []
+    for name, key, direction in SWEEP_LEVELS:
+        level = levels.get(key)
+        if level is not None and ((level < day_open) if direction == "long" else (level > day_open)):
+            sides.append({"direction": direction, "name": name, "level": level, "left": None})
+    if not sides:
+        return _none("no premarket or prior-day level on either side of the open")
+    shown = {k: (round(v, 2) if v is not None else None) for k, v in levels.items()}
+
+    for t, bar in b5.iterrows():
         done = t + FIVE
         if done > cutoff:
             break
         close = float(bar["close"])
-        direction = "long" if close > high else "short" if close < low else None
-        if direction is None:
-            continue
-        if direction not in allowed:
-            return _none(f"first breakout ({done:%H:%M}) was {direction}, against the daily trend ({trend_note})")
-        long_ = direction == "long"
-        anchor = (high + low) / 2 if config.ORB_STOP == "mid" else (low if long_ else high)
-        stop = anchor - config.INTRADAY_STOP_BUFFER if long_ else anchor + config.INTRADAY_STOP_BUFFER
-        stop_basis = "the range midpoint" if config.ORB_STOP == "mid" else f"the range {'low' if long_ else 'high'}"
-        side = "above" if long_ else "below"
-        gates = [
-            f"Opening range {config.ORB_RANGE_MINUTES} min from 9:30: {low:.2f}-{high:.2f}",
-            f"First 5-min close outside the range: {close:.2f} {side} it at {done:%H:%M}",
-            f"Breakout completed by {config.ORB_ENTRY_CUTOFF} ET",
-        ]
-        if config.ORB_TREND_FILTER:
-            gates.append(f"Breakout agrees with the daily trend ({trend_note})")
-        return {"status": "signal", "signal": {
-            "direction": direction, "time": done, "price": close, "stop": stop, "gates": gates,
-            "summary": f"5-min close {close:.2f} {side} the opening range {low:.2f}-{high:.2f}",
-            "ctx": {
-                "range_high": round(high, 2), "range_low": round(low, 2),
-                "range_pct": round(width / close * 100, 3), "breakout_close": round(close, 2),
-                "stop_basis": f"${config.INTRADAY_STOP_BUFFER:.2f} beyond {stop_basis}",
-            },
-        }}
-    return _still_time(b5, cutoff, f"no close outside {low:.2f}-{high:.2f} yet",
-                       f"no 5-min close outside the opening range {low:.2f}-{high:.2f} by {config.ORB_ENTRY_CUTOFF}")
-
-
-def vwap_signal(b5, day, daily):
-    """Trend-day VWAP pullback. `daily` = completed daily bars before `day`."""
-    open_end = et_time(day, "09:30") + pd.Timedelta(minutes=config.VWAP_OPEN_MINUTES)
-    cutoff = et_time(day, config.VWAP_ENTRY_CUTOFF)
-    need = config.VWAP_OPEN_MINUTES // 5
-    first, later = b5[b5.index < open_end], b5[b5.index >= open_end]
-    if len(first) < need:
-        if later.empty:
-            return _wait(f"waiting for {open_end:%H:%M} to judge the open")
-        return _none(f"only {len(first)} of {need} bars in the first {config.VWAP_OPEN_MINUTES} minutes")
-
-    atr = journal.atr(daily, config.ATR_PERIOD)
-    day_open, last = float(first["open"].iloc[0]), first.iloc[-1]
-    move = float(last["close"]) - day_open
-    min_move = config.VWAP_MIN_OPEN_MOVE_ATR * atr
-    min_side = math.ceil(config.VWAP_MIN_SIDE_SHARE * len(first))
-    above = int((first["close"] > first["vwap"]).sum())
-    below = int((first["close"] < first["vwap"]).sum())
-    if move >= min_move and last["close"] > last["vwap"] and above >= min_side:
-        direction, sign, on_side = "long", 1, above
-    elif move <= -min_move and last["close"] < last["vwap"] and below >= min_side:
-        direction, sign, on_side = "short", -1, below
-    else:
-        return _none(
-            f"no strong open: {move:+.2f} from the open by {open_end:%H:%M} ({move / atr:+.2f} ATR, need "
-            f"{config.VWAP_MIN_OPEN_MOVE_ATR:g}), {above} of {len(first)} closes above VWAP and {below} below "
-            f"(need {min_side} on the trend side)")
-    long_ = direction == "long"
-    beyond, back = ("above", "below") if long_ else ("below", "above")
-
-    prev_close, touch, extreme, pierced = float(last["close"]), None, None, False
-    for t, bar in later.iterrows():
-        done = t + FIVE
-        if done > cutoff:
-            break
-        close, vwap = float(bar["close"]), float(bar["vwap"])
-        if (close - vwap) * sign < 0:
-            return _none(f"{done:%H:%M} 5-min close {close:.2f} back {back} VWAP {vwap:.2f}; the trend broke")
-        zone = max(vwap, float(bar["ema_slow"])) if long_ else min(vwap, float(bar["ema_slow"]))
-        grab = float(bar["low"] if long_ else bar["high"])
-        if touch is None and (prev_close - zone) * sign > 0 and (grab - zone) * sign <= 0:
-            touch = {"level": "VWAP" if zone == vwap else f"{config.VWAP_SLOW_EMA} EMA", "price": zone, "time": done}
-            extreme = grab
-        if touch is not None:
-            extreme = min(extreme, grab) if long_ else max(extreme, grab)
-            pierced = pierced or (grab - vwap) * sign < 0
-            if (close - float(bar["ema_fast"])) * sign > 0 and (close - float(bar["open"])) * sign > 0:
-                stop = extreme - sign * config.INTRADAY_STOP_BUFFER
-                return {"status": "signal", "signal": {
-                    "direction": direction, "time": done, "price": close, "stop": stop,
-                    "summary": (f"{direction} trend open ({move / atr:+.2f} ATR), pullback to the {touch['level']} "
-                                f"{touch['price']:.2f}, 5-min close {close:.2f} back {beyond} the {config.VWAP_FAST_EMA} EMA"),
-                    "gates": [
-                        f"Strong open by {open_end:%H:%M}: {move:+.2f} from the open ({move / atr:+.2f} daily ATR), "
-                        f"{on_side} of {len(first)} 5-min closes {beyond} VWAP",
-                        f"First pullback to the {touch['level']} ({touch['price']:.2f}) at {touch['time']:%H:%M}",
-                        f"No 5-min close {back} VWAP before entry",
-                        f"5-min close {close:.2f} back {beyond} the {config.VWAP_FAST_EMA} EMA at {done:%H:%M}",
-                        f"Entry signal completed by {config.VWAP_ENTRY_CUTOFF} ET",
-                    ],
-                    "ctx": {
-                        "open_move": round(move, 2), "open_move_atr": round(abs(move) / atr, 2),
-                        "side_closes": f"{on_side}/{len(first)}", "vwap": round(vwap, 2),
-                        "touch_level": touch["level"], "touch_price": round(touch["price"], 2),
-                        "touch_time": f"{touch['time']:%H:%M}", "pullback_extreme": round(extreme, 2),
-                        "pierced_vwap": bool(pierced),
-                    },
-                }}
-        prev_close = close
-    waiting = "in the pullback, waiting for the reclaim" if touch else f"{direction} trend open, waiting for the first pullback"
-    return _still_time(b5, cutoff, waiting, f"{direction} trend open but no pullback entry by {config.VWAP_ENTRY_CUTOFF}")
+        for s in sides:
+            long_ = s["direction"] == "long"
+            grab = float(bar["low"] if long_ else bar["high"])
+            if s["left"] is None:
+                if not ((grab < s["level"]) if long_ else (grab > s["level"])):
+                    continue
+                s.update(left=config.SWEEP_RECLAIM_BARS, extreme=grab, sweep_time=done)
+            if s["left"] <= 0:
+                continue  # this level's setup was used up or timed out
+            s["extreme"] = min(s["extreme"], grab) if long_ else max(s["extreme"], grab)
+            s["left"] -= 1
+            if not ((close > s["level"]) if long_ else (close < s["level"])):
+                continue
+            bars_taken, s["left"] = config.SWEEP_RECLAIM_BARS - s["left"], 0
+            if done < first_entry:
+                continue  # completed before the bot may enter; the other levels stay live
+            beyond, back = ("below", "above") if long_ else ("above", "below")
+            stop = s["extreme"] - config.INTRADAY_STOP_BUFFER if long_ else s["extreme"] + config.INTRADAY_STOP_BUFFER
+            return {"status": "signal", "signal": {
+                "direction": s["direction"], "time": done, "price": close, "stop": stop,
+                "summary": f"swept the {s['name']} {s['level']:.2f} to {s['extreme']:.2f}, 5-min close {close:.2f} back {back} it",
+                "gates": [
+                    f"Level in play at the open: {s['name']} {s['level']:.2f}",
+                    f"Sweep: a 5-min bar traded {beyond} it at {s['sweep_time']:%H:%M} (extreme {s['extreme']:.2f})",
+                    f"Reclaim: 5-min close {close:.2f} back {back} it within {config.SWEEP_RECLAIM_BARS} bars ({done:%H:%M})",
+                    f"Entry signal between {config.SWEEP_FIRST_ENTRY} and {config.SWEEP_ENTRY_CUTOFF} ET",
+                ],
+                "ctx": {
+                    "swept_level": s["name"], "swept_price": round(s["level"], 2),
+                    "sweep_time": f"{s['sweep_time']:%H:%M}", "sweep_extreme": round(s["extreme"], 2),
+                    "reclaim_bars": bars_taken, "reclaim_close": round(close, 2), "levels": shown,
+                },
+            }}
+    return _still_time(b5, cutoff, "no sweep and reclaim yet",
+                       f"no level swept and reclaimed between {config.SWEEP_FIRST_ENTRY} and {config.SWEEP_ENTRY_CUTOFF}")
 
 
 MODELS = {
-    "orb": {
-        "symbol": config.ORB_SYMBOL, "setup": journal.ORB_SETUP, "find": orb_signal,
-        "target_r": config.ORB_TARGET_R, "cutoff": config.ORB_ENTRY_CUTOFF, "min_stop_pct": 0.0,
-        "conditions": journal.ORB_CONDITIONS,
+    "ifvg": {
+        "symbol": config.IFVG_SYMBOL, "setup": journal.IFVG_SETUP, "orders": ifvg_orders, "limit": True,
+        "target_r": config.IFVG_TARGET_R, "cutoff": config.IFVG_LAST_ORDER,
+        "min_stop_pct": config.IFVG_MIN_STOP_PCT, "conditions": journal.IFVG_CONDITIONS, "premarket": True,
     },
-    "vwap": {
-        "symbol": config.VWAP_SYMBOL, "setup": journal.VWAP_SETUP, "find": vwap_signal,
-        "target_r": config.VWAP_TARGET_R, "cutoff": config.VWAP_ENTRY_CUTOFF,
-        "min_stop_pct": config.VWAP_MIN_STOP_PCT, "conditions": journal.VWAP_CONDITIONS,
+    "sweep": {
+        "symbol": config.SWEEP_SYMBOL, "setup": journal.SWEEP_SETUP, "find": sweep_signal,
+        "target_r": config.SWEEP_TARGET_R, "cutoff": config.SWEEP_ENTRY_CUTOFF,
+        "min_stop_pct": config.SWEEP_MIN_STOP_PCT, "conditions": journal.SWEEP_CONDITIONS, "levels": True, "premarket": True,
     },
 }
 assert len({m["symbol"] for m in MODELS.values()}) == len(MODELS), "each intraday model needs its own symbol"
@@ -295,10 +333,10 @@ def fetch_minutes(clients, symbol, start, end, feed):
     return df
 
 
-def live_minutes(clients, symbol, day, now):
-    """Today's 1-minute bars: consolidated (SIP) data where it is old enough to be free
-    (16+ minutes), the IEX feed for the latest minutes."""
-    start = et_time(day, "09:30")
+def live_minutes(clients, symbol, day, now, start="09:30"):
+    """Today's 1-minute bars from `start`: consolidated (SIP) data where it is old enough to be
+    free (16+ minutes), the IEX feed for the latest minutes (IEX has no premarket)."""
+    start = et_time(day, start)
     split = (now - pd.Timedelta(minutes=16)).floor("min")
     parts = []
     if split > start:
@@ -313,6 +351,36 @@ def live_minutes(clients, symbol, day, now):
         return pd.DataFrame()
     bars = pd.concat(parts)
     return bars[~bars.index.duplicated(keep="first")].sort_index()
+
+
+def levels_from(premarket, prior_session):
+    """Premarket and prior-day high/low from 1-minute bars (either frame may be empty)."""
+    def hi_lo(df):
+        return (float(df["high"].max()), float(df["low"].min())) if df is not None and len(df) else (None, None)
+    pm_high, pm_low = hi_lo(premarket)
+    pd_high, pd_low = hi_lo(prior_session)
+    return {"pm_high": pm_high, "pm_low": pm_low, "pd_high": pd_high, "pd_low": pd_low}
+
+
+def live_levels(clients, symbol, day, daily):
+    """Today's premarket range (to SWEEP_PREMARKET_END) and the prior session's range, from the
+    consolidated feed. Call it 16+ minutes after SWEEP_PREMARKET_END, when that data is free."""
+    def fetch(what, start, end):
+        try:
+            return fetch_minutes(clients, symbol, start, end, DataFeed.SIP)
+        except Exception as e:
+            log.warning(f"{symbol}: {what} bars unavailable ({e}); those levels are not used today.")
+            return None
+    prior_day = daily.index[-1].date().isoformat()
+    return levels_from(
+        fetch("premarket", et_time(day, "04:00"), et_time(day, config.SWEEP_PREMARKET_END)),
+        fetch("prior-day", et_time(prior_day, "09:30"), et_time(prior_day, "16:00")),
+    )
+
+
+def describe_levels(lv):
+    part = lambda name, lo, hi: f"{name} {lo:.2f}-{hi:.2f}" if lo is not None else f"{name}: no bars"
+    return f"{part('premarket', lv['pm_low'], lv['pm_high'])} | {part('prior day', lv['pd_low'], lv['pd_high'])}"
 
 
 def flatten_time(clients, day):
@@ -347,16 +415,13 @@ def trades_today(state, day, key):
 # --------------------------------------------------------------------------- live trading
 
 def build_context(signal, plan, daily, headlines, placed_at):
-    width = signal["ctx"].get("range_high", 0) - signal["ctx"].get("range_low", 0)
-    edge = signal["ctx"].get("range_high") if signal["direction"] == "long" else signal["ctx"].get("range_low")
-    extra = {"extension": round(abs(plan["entry"] - edge) / width, 2)} if width > 0 else {}
     return {
         "session": journal.session_label(placed_at),
         "direction": signal["direction"],
         "signal_time": f"{signal['time']:%H:%M}", "signal_minute": signal["time"].hour * 60 + signal["time"].minute,
         "placed_at": f"{placed_at:%H:%M} ET",
         "news_count": len(headlines), "headlines": headlines[:3],
-        **signal["ctx"], **extra,
+        **signal["ctx"],
         **{k: plan[k] for k in ("risk_ps", "planned_rr")},
         "risk_pct": round(plan["risk_ps"] / plan["entry"] * 100, 3),
         **journal.daily_trend(daily, plan["entry"]),
@@ -364,13 +429,15 @@ def build_context(signal, plan, daily, headlines, placed_at):
 
 
 def place(clients, key, signal, daily, dry_run):
-    """All gates, then the market bracket order. Returns True if an order was placed."""
+    """All gates, then the bracket order: at market, or a resting limit when the signal carries
+    a limit price. Returns True if an order was placed."""
     model, client = MODELS[key], clients.trading
     symbol, tag = model["symbol"], f"{model['symbol']} {key}"
     now = bot.now_et()
     day = now.date().isoformat()
     state = fresh_state()
-    price = bot.latest_price(clients, symbol, signal["price"])
+    limit = signal.get("limit")
+    price = round(limit, 2) if limit is not None else bot.latest_price(clients, symbol, signal["price"])
     plan, why = plan_trade(signal, price, model["target_r"], model["min_stop_pct"])
     if not plan:
         log.info(f"{tag}: NO TRADE: {why}.")
@@ -402,8 +469,9 @@ def place(clients, key, signal, daily, dry_run):
     if blocked:
         reasons.append(f"blocked by APPROVED lessons.md rule(s) {', '.join(blocked)}")
 
+    how = f"limit {plan['entry']:.2f}" if limit is not None else f"market near {plan['entry']:.2f}"
     log.info(
-        f"{tag}: {signal['direction'].upper()} signal ({signal['summary']}): market near {plan['entry']:.2f}, "
+        f"{tag}: {signal['direction'].upper()} signal ({signal['summary']}): {how}, "
         f"stop {plan['stop']:.2f}, target {plan['target']:.2f} ({plan['planned_rr']:g}R), {qty} sh, "
         f"risk ${qty * plan['risk_ps']:.2f}."
     )
@@ -428,12 +496,14 @@ def place(clients, key, signal, daily, dry_run):
         log.info(f"{tag}: dry run: no order placed.")
         return False
 
-    order = client.submit_order(MarketOrderRequest(
+    request = dict(
         symbol=symbol, qty=qty, side=OrderSide.BUY if signal["direction"] == "long" else OrderSide.SELL,
         time_in_force=TimeInForce.GTC, order_class=OrderClass.BRACKET,
         take_profit=TakeProfitRequest(limit_price=plan["target"]),
         stop_loss=StopLossRequest(stop_price=plan["stop"]),
-    ))
+    )
+    order = client.submit_order(
+        LimitOrderRequest(limit_price=plan["entry"], **request) if limit is not None else MarketOrderRequest(**request))
     log.info(f"{tag}: submitted {signal['direction'].upper()} bracket id={order.id} status={order.status.value}")
 
     state = fresh_state()
@@ -445,14 +515,53 @@ def place(clients, key, signal, daily, dry_run):
         "stop": plan["stop"], "target": plan["target"], "stop_order_id": None, "target_order_id": None,
         "context": context, "checklist": items, "grade": grade, "grade_reason": grade_reason, "adopted": False,
     }
+    if limit is not None:
+        state["open"][symbol].update(signal_start=signal["time"].isoformat(), expire=signal["expire"].isoformat())
     journal.save_state(state)
 
+    if limit is not None:
+        log.info(f"{tag}: limit order resting until {signal['expire']:%H:%M} ET.")
+        return True
     order = bot.wait_for_fill(client, order.id)
     if order.status == OrderStatus.FILLED:
         bot.reconcile(clients, fresh_state())  # records the fill price and the stop/target leg ids
     else:
         log.info(f"{tag}: not filled yet (status={order.status.value}); the next check will pick it up.")
     return True
+
+
+def cancel_resting(clients, key, why):
+    """Cancel an unfilled limit entry. Returns "filled" if part of it had filled (that part is
+    kept as the day's trade), "cancelled" if nothing had, or None if there was nothing resting."""
+    symbol, tag = MODELS[key]["symbol"], f"{MODELS[key]['symbol']} {key}"
+    client = clients.trading
+    state = fresh_state()
+    trade = state["open"].get(symbol)
+    if not trade or trade.get("model") != key or trade["entry"] is not None:
+        return None
+    try:
+        client.cancel_order_by_id(trade["entry_order_id"])
+    except Exception:
+        pass  # already filled or cancelled; the status below says which
+    time.sleep(3)
+    order = client.get_order_by_id(trade["entry_order_id"])
+    filled = float(order.filled_qty or 0)
+    if filled > 0:
+        trade["qty"] = filled
+        trade["entry"] = round(float(order.filled_avg_price), 2)
+        trade["entry_time"] = journal.to_et(order.filled_at or bot.now_et()).isoformat()
+        trade["stop_order_id"], trade["target_order_id"] = bot.bracket_leg_ids(client, trade["entry_order_id"])
+        journal.save_state(state)
+        log.info(f"{tag}: entry filled {filled:g} sh at {trade['entry']:.2f} before the cancel ({why}); keeping the trade.")
+        return "filled"
+    del state["open"][symbol]
+    day = bot.now_et().date().isoformat()  # an order that never filled doesn't use up the day's trade
+    state["entries_by_day"][day] = max(0, state["entries_by_day"].get(day, 0) - 1)
+    by_model = state.setdefault("intraday_trades_by_day", {}).setdefault(day, {})
+    by_model[key] = max(0, by_model.get(key, 0) - 1)
+    journal.save_state(state)
+    log.info(f"{tag}: limit order cancelled unfilled ({why}).")
+    return "cancelled"
 
 
 def flatten_open_trades(clients, reason, only_before=None):
@@ -528,7 +637,7 @@ def run_flatten(scheduled):
         sys.exit(1)
 
 
-def check_model(clients, key, day, daily, dry_run):
+def check_model(clients, key, day, daily, dry_run, cache):
     """One look at a model after a 5-minute bar completes. Returns True when it is done for the day."""
     model = MODELS[key]
     symbol, tag = model["symbol"], f"{model['symbol']} {key}"
@@ -540,7 +649,13 @@ def check_model(clients, key, day, daily, dry_run):
             break
         time.sleep(3)
         m1 = live_minutes(clients, symbol, day, bot.now_et())
-    result = model["find"](five_min_bars(m1, day, now), day, daily)
+    levels = None
+    if model.get("levels") and now >= et_time(day, config.SWEEP_FIRST_ENTRY):
+        if key not in cache:
+            cache[key] = live_levels(clients, symbol, day, daily)
+            log.info(f"{tag}: {describe_levels(cache[key])}")
+        levels = cache[key]
+    result = model["find"](five_min_bars(m1, day, now), day, daily, levels)
     if result["status"] == "wait":
         log.info(f"{tag}: {now:%H:%M} {result['why']}.")
         return False
@@ -554,6 +669,47 @@ def check_model(clients, key, day, daily, dry_run):
         return True
     place(clients, key, signal, daily, dry_run)
     return True
+
+
+def check_limit_model(clients, key, day, daily, dry_run, cache):
+    """One look at a limit-entry model after a 5-minute bar completes: watch a resting order,
+    or place one for a setup that just completed. Returns True when it is done for the day."""
+    model = MODELS[key]
+    symbol, tag = model["symbol"], f"{model['symbol']} {key}"
+    now = bot.now_et()
+    cutoff = et_time(day, model["cutoff"])
+    state = fresh_state()
+    trade = state["open"].get(symbol)
+    resting = trade is not None and trade.get("model") == key and trade["entry"] is None
+    if trade is not None and not resting:
+        return True  # filled: the stop and target are working
+    if not resting and trades_today(state, day, key) >= config.INTRADAY_MAX_TRADES_PER_MODEL:
+        return True
+    if not resting and now > cutoff + pd.Timedelta(seconds=90):
+        log.info(f"{tag}: NO TRADE: no setup filled by {model['cutoff']} ET.")
+        return True
+
+    m1 = live_minutes(clients, symbol, day, now, start=config.IFVG_STRUCTURE_FROM)
+    orders = model["orders"](structure_bars(m1, day, now), day)
+    if resting:
+        placed_until = pd.Timestamp(trade["expire"])
+        expire = min([placed_until] + [o["expire"] for o in orders if o["time"].isoformat() == trade.get("signal_start")])
+        if now < expire:
+            return False
+        why = "order flow turned the other way" if expire < placed_until else f"not filled in {config.IFVG_ORDER_MINUTES} minutes"
+        if cancel_resting(clients, key, why) == "filled":
+            return True
+        return bot.now_et() > cutoff
+    fresh = [o for o in orders if pd.Timedelta(0) <= now - o["time"] <= pd.Timedelta(seconds=90)]
+    if fresh:
+        place(clients, key, fresh[-1], daily, dry_run)
+    return False
+
+
+def decision_end(day, key):
+    """When a model has nothing left to decide: its cutoff, plus the life of a resting order."""
+    end = et_time(day, MODELS[key]["cutoff"])
+    return end + pd.Timedelta(minutes=config.IFVG_ORDER_MINUTES) if MODELS[key].get("limit") else end
 
 
 def run_live(args):
@@ -571,9 +727,9 @@ def run_live(args):
         return
     flatten_at = flatten_time(clients, day)
     stay = not args.scheduled or flatten_at < et_time(day, config.INTRADAY_FLATTEN_AT)  # half days: stay and flatten
-    last_cutoff = max(et_time(day, MODELS[k]["cutoff"]) for k in keys)
+    last_decision = max(decision_end(day, k) for k in keys)
 
-    if bot.now_et() < last_cutoff:
+    if bot.now_et() < last_decision:
         sleep_until(et_time(day, "09:35:05"))  # the first 5-minute bar completes at 9:35
     bot.reconcile(clients, fresh_state())
     if flatten_open_trades(clients, "Flatten of a previous day's trade (missed the end-of-day close)", only_before=day):
@@ -583,9 +739,13 @@ def run_live(args):
     pending = []
     for key in keys:
         symbol = MODELS[key]["symbol"]
-        if trades_today(state, day, key) >= config.INTRADAY_MAX_TRADES_PER_MODEL:
+        trade = state["open"].get(symbol)
+        if trade and trade.get("model") == key and trade["entry"] is None:
+            log.info(f"{symbol} {key}: an entry order is already resting; watching it.")
+            pending.append(key)
+        elif trades_today(state, day, key) >= config.INTRADAY_MAX_TRADES_PER_MODEL:
             log.info(f"{symbol} {key}: already traded today.")
-        elif symbol in state["open"]:
+        elif trade:
             log.info(f"{symbol} {key}: {symbol} is already in a tracked trade.")
         elif bot.now_et() >= et_time(day, MODELS[key]["cutoff"]):
             log.info(f"{symbol} {key}: started after its {MODELS[key]['cutoff']} ET cutoff. Nothing to do today.")
@@ -593,52 +753,82 @@ def run_live(args):
             pending.append(key)
 
     daily = {key: bot.fetch_bars(MODELS[key]["symbol"], config.LOOKBACK_DAYS, clients) for key in pending}
+    cache = {}
     while pending:
         for key in list(pending):
+            check = check_limit_model if MODELS[key].get("limit") else check_model
             try:
-                if check_model(clients, key, day, daily[key], args.dry_run):
+                if check(clients, key, day, daily[key], args.dry_run, cache):
                     pending.remove(key)
             except Exception:
                 log.exception(f"{MODELS[key]['symbol']} {key}: check failed; trying again on the next bar")
-        if not pending or bot.now_et() >= last_cutoff:
+        if not pending or bot.now_et() >= min(last_decision + pd.Timedelta(minutes=2), flatten_at):
             break
         sleep_until(bot.now_et().floor("5min") + FIVE + pd.Timedelta(seconds=5))
-        bot.reconcile(clients, fresh_state())  # journal a stop or target that filled meanwhile
+        bot.reconcile(clients, fresh_state())  # journal an entry, stop or target that filled meanwhile
+    for key in pending:  # never leave an entry order resting with nobody watching it
+        if MODELS[key].get("limit"):
+            cancel_resting(clients, key, "end of the entry window")
     manage(clients, stay, flatten_at)
 
 
 # --------------------------------------------------------------------------- replay
 
-def replay_day(key, day, m1, daily, verbose):
+def replay_day(key, day, m1, daily, verbose, prev_m1=None):
     """Simulate one past day for one model. Returns a result dict."""
     model = MODELS[key]
     say = (lambda m: print(f"  {model['symbol']} {key}: {m}")) if verbose else (lambda m: None)
     prior = daily[daily.index.date < pd.Timestamp(day).date()]
-    if len(prior) < max(config.ATR_PERIOD + 1, config.ORB_TREND_MA):
+    if len(prior) < config.ATR_PERIOD + 1:
         return {"day": day, "result": "no data", "why": "not enough daily history"}
-    result = model["find"](five_min_bars(m1, day), day, prior)
-    if result["status"] != "signal":
-        say(f"NO TRADE: {result['why']}")
-        return {"day": day, "result": "no trade", "why": result["why"]}
-    signal = result["signal"]
     flatten_at = et_time(day, config.INTRADAY_FLATTEN_AT)
-    after = m1[(m1.index >= signal["time"]) & (m1.index < flatten_at)]
-    if after.empty:
-        return {"day": day, "result": "no data", "why": "no bars after the signal"}
-    entry = float(after["open"].iloc[0])
+    is_limit = bool(model.get("limit"))
+    if is_limit:
+        signal, busy_until = None, None
+        for order in model["orders"](structure_bars(m1, day), day):
+            if busy_until is not None and order["time"] < busy_until:
+                continue  # one resting order at a time
+            got = limit_fill(order, m1)
+            if got:
+                signal, (start, entry) = order, got
+                break
+            busy_until = order["expire"]
+            say(f"{order['time']:%H:%M} {order['direction'].upper()} limit {order['limit']:.2f} ({order['summary']}): "
+                f"cancelled unfilled at {order['expire']:%H:%M}")
+        if signal is None:
+            say("NO TRADE: no setup filled")
+            return {"day": day, "result": "no trade", "why": "no setup filled"}
+        after = m1[(m1.index >= start) & (m1.index < flatten_at)]
+    else:
+        levels = None
+        if model.get("levels"):
+            prev_session = prev_m1[prev_m1.index.hour * 60 + prev_m1.index.minute >= 9 * 60 + 30] if prev_m1 is not None else None
+            levels = levels_from(m1[m1.index < et_time(day, config.SWEEP_PREMARKET_END)], prev_session)
+        result = model["find"](five_min_bars(m1, day), day, prior, levels)
+        if result["status"] != "signal":
+            say(f"NO TRADE: {result['why']}")
+            return {"day": day, "result": "no trade", "why": result["why"]}
+        signal = result["signal"]
+        after = m1[(m1.index >= signal["time"]) & (m1.index < flatten_at)]
+        if after.empty:
+            return {"day": day, "result": "no data", "why": "no bars after the signal"}
+        entry = float(after["open"].iloc[0])
     plan, why = plan_trade(signal, entry, model["target_r"], model["min_stop_pct"])
     if not plan:
         say(f"NO TRADE: {why}")
         return {"day": day, "result": "no trade", "why": why}
     long_ = signal["direction"] == "long"
     qty = size(plan["risk_ps"], entry, config.INTRADAY_RISK_PER_TRADE, config.INTRADAY_POSITION_VALUE)
-    say(f"{signal['time']:%H:%M} {signal['direction'].upper()} ({signal['summary']}): entry {entry:.2f}, "
+    say(f"{signal['time']:%H:%M} {signal['direction'].upper()} ({signal['summary']}): "
+        f"{'filled ' + format(after.index[0], '%H:%M') + ' at' if is_limit else 'entry'} {entry:.2f}, "
         f"stop {plan['stop']:.2f}, target {plan['target']:.2f}, {qty} sh")
     exit_price = None
-    for t, bar in after.iterrows():
+    for i, (t, bar) in enumerate(after.iterrows()):
         if (bar["low"] <= plan["stop"]) if long_ else (bar["high"] >= plan["stop"]):
             exit_price, reason, exit_t = plan["stop"], "stop", t  # stop first if both in one bar
             break
+        if is_limit and i == 0:
+            continue  # the bar a limit order fills in can stop out but is not credited with the target
         if (bar["high"] >= plan["target"]) if long_ else (bar["low"] <= plan["target"]):
             exit_price, reason, exit_t = plan["target"], "target", t
             break
@@ -651,19 +841,21 @@ def replay_day(key, day, m1, daily, verbose):
             "pnl": points * qty, "qty": qty, **plan}
 
 
-def history_minutes(clients, symbol, start, end):
-    """Regular-session 1-minute SIP bars for a date range, fetched a month at a time."""
-    parts, cursor = [], pd.Timestamp(start, tz=ET)
+def history_minutes(clients, symbol, start, end, premarket=False):
+    """1-minute SIP bars for a date range, fetched in chunks: the regular session, plus the
+    premarket from 4:00 (and a few earlier days, for the prior session) when `premarket` is set."""
+    first_minute = 4 * 60 if premarket else 9 * 60 + 30
+    parts, cursor = [], pd.Timestamp(start, tz=ET) - pd.Timedelta(days=6 if premarket else 0)
     stop = pd.Timestamp(end, tz=ET) + pd.Timedelta(days=1)
     limit = bot.now_et() - pd.Timedelta(minutes=16)
     while cursor < stop:
-        chunk_end = min(cursor + pd.Timedelta(days=31), stop, limit)
+        chunk_end = min(cursor + pd.Timedelta(days=21), stop, limit)
         if chunk_end <= cursor:
             break
         df = fetch_minutes(clients, symbol, cursor, chunk_end, DataFeed.SIP)
         if not df.empty:
             minutes = df.index.hour * 60 + df.index.minute
-            parts.append(df[(minutes >= 9 * 60 + 30) & (minutes < 16 * 60)])
+            parts.append(df[(minutes >= first_minute) & (minutes < 16 * 60)])
         cursor = chunk_end
     return pd.concat(parts) if parts else pd.DataFrame()
 
@@ -703,15 +895,17 @@ def run_replay(start, end, keys):
     for key in keys:
         symbol = MODELS[key]["symbol"]
         daily = bot.alpaca_daily_bars(clients, symbol, (pd.Timestamp(start) - pd.Timedelta(days=60)).to_pydatetime())
-        minutes = history_minutes(clients, symbol, start, end)
+        minutes = history_minutes(clients, symbol, start, end, premarket=bool(MODELS[key].get("premarket")))
         by_day = {d.isoformat(): g for d, g in minutes.groupby(minutes.index.date)} if not minutes.empty else {}
+        sessions = sorted(by_day)
         results = []
-        for day in days:
-            if day not in by_day:
+        for i, day in enumerate(sessions):
+            if day not in days:
                 continue
             if verbose:
                 print(f"{day}:")
-            results.append(replay_day(key, day, by_day[day], daily, verbose))
+            prev_m1 = by_day[sessions[i - 1]] if i else None
+            results.append(replay_day(key, day, by_day[day], daily, verbose, prev_m1))
         if not verbose:
             summarise(key, results, start, end)
 

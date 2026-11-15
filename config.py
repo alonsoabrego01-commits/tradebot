@@ -1,6 +1,6 @@
 # Strategy settings. Three models share this account:
 #   - bot.py:      daily 20/50 moving average crossover on SYMBOLS (runs once after 9:30 ET)
-#   - intraday.py: QQQ opening range breakout (ORB_*) and SPY trend-day VWAP pullback (VWAP_*)
+#   - intraday.py: QQQ inverse fair value gap (IFVG_*) and SPY liquidity sweep and reversal (SWEEP_*)
 
 # --- Daily crossover (bot.py) ------------------------------------------------
 SYMBOLS = ["AAPL"]    # QQQ and SPY are traded only by the intraday models
@@ -20,25 +20,24 @@ INTRADAY_POSITION_VALUE = 25_000.0  # Max dollars per intraday position, so both
 INTRADAY_STOP_BUFFER = 0.05         # Stop sits this far beyond its level
 INTRADAY_FLATTEN_AT = "15:55"       # Open intraday trades are closed at this ET time
 
-# QQQ opening range breakout
-ORB_SYMBOL = "QQQ"
-ORB_RANGE_MINUTES = 15         # Opening range = 9:30 to 9:45 ET (a multiple of 5)
-ORB_STOP = "mid"               # "mid" = midpoint of the opening range, "range" = its far side
-ORB_TARGET_R = 2.0             # Take-profit this many R from entry
-ORB_ENTRY_CUTOFF = "10:30"     # The breakout bar must complete by this ET time
-ORB_TREND_FILTER = False       # True: longs only above the ORB_TREND_MA-day average, shorts only below
-ORB_TREND_MA = 20
+# QQQ inverse fair value gap, traded with the order flow
+IFVG_SYMBOL = "QQQ"
+IFVG_STRUCTURE_FROM = "08:00"  # Swings and gaps are read on 5-minute bars from this ET time
+IFVG_FIRST_ORDER = "10:00"     # Orders are only placed for setups completing from this ET time...
+IFVG_LAST_ORDER = "12:00"      #   ...to this one
+IFVG_ORDER_MINUTES = 45        # An unfilled limit order is cancelled after this long
+IFVG_MAX_GAP_BARS = 12         # The gap must have formed within this many 5-minute bars (one hour)
+IFVG_TARGET_R = 2.0            # Take-profit this many R from entry
+IFVG_MIN_STOP_PCT = 0.05       # Stop is at least this % of price from entry
 
-# SPY trend-day VWAP pullback
-VWAP_SYMBOL = "SPY"
-VWAP_OPEN_MINUTES = 30         # The open is judged over 9:30 to 10:00 ET (a multiple of 5)
-VWAP_MIN_OPEN_MOVE_ATR = 0.25  # Strong open: price at least this many daily ATRs from the 9:30 open...
-VWAP_MIN_SIDE_SHARE = 0.8      #   ...and at least this share of 5-minute closes on that side of VWAP
-VWAP_FAST_EMA = 9              # A 5-minute close back beyond this EMA triggers the entry
-VWAP_SLOW_EMA = 21             # Pullback zone: the nearer of VWAP and this EMA
-VWAP_TARGET_R = 2.0            # Take-profit this many R from entry
-VWAP_ENTRY_CUTOFF = "11:00"    # The entry bar must complete by this ET time
-VWAP_MIN_STOP_PCT = 0.05       # Stop is at least this % of price from entry
+# SPY liquidity sweep and reversal
+SWEEP_SYMBOL = "SPY"
+SWEEP_RECLAIM_BARS = 3         # The sweep bar or one of the next two must close back inside the level
+SWEEP_TARGET_R = 3.0           # Take-profit this many R from entry
+SWEEP_PREMARKET_END = "09:15"  # Premarket range = 4:00 ET to this time (later minutes are not free data by 9:35)
+SWEEP_FIRST_ENTRY = "09:35"    # The reclaim bar must complete at or after this ET time
+SWEEP_ENTRY_CUTOFF = "11:30"   # The reclaim bar must complete by this ET time
+SWEEP_MIN_STOP_PCT = 0.05      # Stop is at least this % of price from entry
 
 # ---------------------------------------------------------------------------
 # HARD LIMITS. Set by the account owner. Only a human edits these.

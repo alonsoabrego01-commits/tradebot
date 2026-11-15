@@ -29,8 +29,8 @@ LESSONS_FILE = os.path.join(BASE, "lessons.md")
 log = logging.getLogger("tradebot")
 
 SETUP = f"{config.SHORT_WINDOW}/{config.LONG_WINDOW} MA golden cross"
-ORB_SETUP = "Opening range breakout"
-VWAP_SETUP = "Trend-day VWAP pullback"
+IFVG_SETUP = "Inverse fair value gap with the order flow"
+SWEEP_SETUP = "Liquidity sweep and reversal"
 FIB_LEVELS = (0.62, 0.65, 0.705, 0.79)
 MET, BORDERLINE, NOT_MET = "MET", "BORDERLINE", "NOT MET"
 
@@ -77,58 +77,53 @@ def htf_aligned(c):
     )
 
 
-ORB_CONDITIONS = {
-    "orb_htf_not_aligned": (
-        "Higher-timeframe (weekly) bias agrees with the trade direction",
-        "weekly bias not aligned with the breakout direction",
-        lambda c: not htf_aligned(c),
-    ),
-    "orb_wide_range": (
-        "Opening range at most 1% of price",
-        "opening range wider than 1% of price",
-        lambda c: c["range_pct"] > 1.0,
-    ),
-    "orb_extended": (
-        "Entry within half a range-width of the breakout level",
-        "entry more than half a range-width past the breakout level",
-        lambda c: c["extension"] > 0.5,
-    ),
-    "orb_late": (
-        "Breakout by 10:15 ET",
-        "breakout after 10:15 ET",
-        lambda c: c["signal_minute"] > 10 * 60 + 15,
-    ),
-}
-
-VWAP_CONDITIONS = {
-    "vwap_htf_not_aligned": (
+IFVG_CONDITIONS = {
+    "ifvg_htf_not_aligned": (
         "Higher-timeframe (weekly) bias agrees with the trade direction",
         "weekly bias not aligned with the trade direction",
         lambda c: not htf_aligned(c),
     ),
-    "vwap_weak_open": (
-        "Opening move at least 0.4 daily ATR",
-        "opening move under 0.4 daily ATR",
-        lambda c: c["open_move_atr"] < 0.4,
+    "ifvg_old_gap": (
+        "Gap formed within the last 30 minutes",
+        "gap formed more than 30 minutes before it was inverted",
+        lambda c: c["gap_age_bars"] > 6,
     ),
-    "vwap_pierced": (
-        "Pullback held VWAP (no trade through it)",
-        "pullback traded through VWAP before the entry",
-        lambda c: c["pierced_vwap"],
-    ),
-    "vwap_tight_stop": (
+    "ifvg_tight_stop": (
         "Stop at least 0.08% of price from entry",
         "stop under 0.08% of price from entry",
         lambda c: c["risk_pct"] < 0.08,
     ),
-    "vwap_late": (
-        "Entry signal by 10:40 ET",
-        "entry signal after 10:40 ET",
-        lambda c: c["signal_minute"] > 10 * 60 + 40,
+    "ifvg_wide_stop": (
+        "Stop at most 0.6% of price from entry",
+        "stop more than 0.6% of price from entry",
+        lambda c: c["risk_pct"] > 0.6,
     ),
 }
 
-ALL_CONDITIONS = {**CROSSOVER_CONDITIONS, **ORB_CONDITIONS, **VWAP_CONDITIONS}
+SWEEP_CONDITIONS = {
+    "sweep_htf_not_aligned": (
+        "Higher-timeframe (weekly) bias agrees with the trade direction",
+        "weekly bias not aligned with the trade direction",
+        lambda c: not htf_aligned(c),
+    ),
+    "sweep_slow_reclaim": (
+        "Level reclaimed on the sweep bar itself",
+        "level reclaimed one or two bars after the sweep, not on the sweep bar",
+        lambda c: c["reclaim_bars"] > 1,
+    ),
+    "sweep_tight_stop": (
+        "Stop at least 0.08% of price from entry",
+        "stop under 0.08% of price from entry",
+        lambda c: c["risk_pct"] < 0.08,
+    ),
+    "sweep_late": (
+        "Entry signal by 10:45 ET",
+        "entry signal after 10:45 ET",
+        lambda c: c["signal_minute"] > 10 * 60 + 45,
+    ),
+}
+
+ALL_CONDITIONS = {**CROSSOVER_CONDITIONS, **IFVG_CONDITIONS, **SWEEP_CONDITIONS}
 
 LESSONS_TEMPLATE = """# Lessons
 
@@ -432,32 +427,35 @@ def _crossover_setup_lines(trade, ctx):
     ]
 
 
-def _orb_setup_lines(trade, ctx):
-    side = "above" if trade["direction"] == "long" else "below"
+def _ifvg_setup_lines(trade, ctx):
+    through, old = ("above", "bearish") if trade["direction"] == "long" else ("below", "bullish")
     return [
-        f"**Setup:** {trade['setup']}: {config.ORB_RANGE_MINUTES}-minute opening range "
-        f"{ctx['range_low']:.2f}–{ctx['range_high']:.2f} ({ctx['range_pct']:.2f}% of price), then a 5-min close "
-        f"{ctx['breakout_close']:.2f} {side} it at {ctx['signal_time']}. Market entry, stop {ctx['stop_basis']}, "
+        f"**Setup:** {trade['setup']}: order flow {ctx['flow']} (last break of structure), then a 5-min close "
+        f"{ctx['inversion_close']:.2f} {through} the {old} fair value gap {ctx['gap_low']:.2f}–{ctx['gap_high']:.2f} "
+        f"(formed {ctx['gap_time']}) at {ctx['signal_time']}. Limit at the retest of the gap ({ctx['limit']:.2f}), "
+        f"stop beyond the leg's extreme ({ctx['leg_extreme']:.2f}), target {ctx['planned_rr']:g}R. "
+        f"Order placed {ctx['placed_at']}.",
+        f"- Gap age when inverted: {ctx['gap_age_bars']} five-minute bar(s)",
+        f"- Stop distance: {ctx['risk_ps']:.2f} per share ({ctx['risk_pct']:.2f}% of price)",
+    ]
+
+
+def _sweep_setup_lines(trade, ctx):
+    beyond, back = ("below", "above") if trade["direction"] == "long" else ("above", "below")
+    reclaim = "on the sweep bar" if ctx["reclaim_bars"] == 1 else f"{ctx['reclaim_bars'] - 1} bar(s) after the sweep"
+    return [
+        f"**Setup:** {trade['setup']}: price traded {beyond} the {ctx['swept_level']} ({ctx['swept_price']:.2f}) at "
+        f"{ctx['sweep_time']} (extreme {ctx['sweep_extreme']:.2f}), then a 5-min close {ctx['reclaim_close']:.2f} back "
+        f"{back} it at {ctx['signal_time']}. Market entry, stop behind the sweep extreme, "
         f"target {ctx['planned_rr']:g}R. Order placed {ctx['placed_at']}.",
-        f"- Entry extension: {ctx['extension']:.0%} of the range-width past the breakout level",
+        f"- Reclaim: {reclaim}",
+        f"- Levels: premarket {ctx['levels']['pm_low']}–{ctx['levels']['pm_high']}, "
+        f"prior day {ctx['levels']['pd_low']}–{ctx['levels']['pd_high']}",
         f"- Stop distance: {ctx['risk_ps']:.2f} per share ({ctx['risk_pct']:.2f}% of price)",
     ]
 
 
-def _vwap_setup_lines(trade, ctx):
-    beyond = "above" if trade["direction"] == "long" else "below"
-    return [
-        f"**Setup:** {trade['setup']}: strong open ({ctx['open_move']:+.2f}, {ctx['open_move_atr']:.2f} daily ATR, "
-        f"{ctx['side_closes']} 5-min closes {beyond} VWAP), first pullback to the {ctx['touch_level']} "
-        f"({ctx['touch_price']:.2f}) at {ctx['touch_time']}, then a 5-min close back {beyond} the "
-        f"{config.VWAP_FAST_EMA} EMA at {ctx['signal_time']}. Market entry, stop behind the pullback extreme "
-        f"({ctx['pullback_extreme']:.2f}), target {ctx['planned_rr']:g}R. Order placed {ctx['placed_at']}.",
-        f"- Pullback depth: {'traded through VWAP' if ctx['pierced_vwap'] else 'held VWAP'} (VWAP {ctx['vwap']:.2f})",
-        f"- Stop distance: {ctx['risk_ps']:.2f} per share ({ctx['risk_pct']:.2f}% of price)",
-    ]
-
-
-SETUP_LINES = {"orb": _orb_setup_lines, "vwap": _vwap_setup_lines}
+SETUP_LINES = {"ifvg": _ifvg_setup_lines, "sweep": _sweep_setup_lines}
 
 
 def write_journal_entry(trade, number):
@@ -468,7 +466,7 @@ def write_journal_entry(trade, number):
             "# Trade Journal",
             "",
             "Grades: A = all rules met, B = one borderline, C = a rule broken (or 2+ borderline). "
-            "Crossover trades are read on daily candles; intraday trades (opening range breakout, VWAP pullback) on 5-minute candles.",
+            "Crossover trades are read on daily candles; intraday trades (inverse fair value gap, liquidity sweep) on 5-minute candles.",
             "",
         ]
     result = "WIN" if trade["pnl"] > 0 else "LOSS" if trade["pnl"] < 0 else "BREAKEVEN"

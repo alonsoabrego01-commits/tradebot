@@ -1,4 +1,4 @@
-name: Intraday models (QQQ breakout, SPY VWAP pullback)
+name: Intraday models (QQQ inverse FVG, SPY liquidity sweep)
 
 on:
   schedule:
@@ -29,7 +29,7 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 280  # normal days end at 11:00; half days stay to flatten at 12:55
+    timeout-minutes: 280  # normal days end about 12:45; half days stay to flatten at 12:55
     steps:
       - uses: actions/checkout@v4
 
