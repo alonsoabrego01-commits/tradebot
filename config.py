@@ -19,6 +19,9 @@ INTRADAY_RISK_PER_TRADE = 125.0     # Dollars from entry to stop; two losers = t
 INTRADAY_POSITION_VALUE = 25_000.0  # Max dollars per intraday position, so both fit without margin
 INTRADAY_STOP_BUFFER = 0.05         # Stop sits this far beyond its level
 INTRADAY_FLATTEN_AT = "15:55"       # Open intraday trades are closed at this ET time
+# Scale-out: every time price gains another step from entry, half of what is left is closed
+# and the stop on the rest moves up to one step behind (entry after step 1, step 1 after step 2...).
+SCALE_STEP_PCT = 0.36               # Step size as % of entry price (about 100 Nasdaq futures points)
 
 # QQQ inverse fair value gap, traded with the order flow
 IFVG_SYMBOL = "QQQ"
@@ -27,13 +30,11 @@ IFVG_FIRST_ORDER = "10:00"     # Orders are only placed for setups completing fr
 IFVG_LAST_ORDER = "12:00"      #   ...to this one
 IFVG_ORDER_MINUTES = 45        # An unfilled limit order is cancelled after this long
 IFVG_MAX_GAP_BARS = 12         # The gap must have formed within this many 5-minute bars (one hour)
-IFVG_TARGET_R = 2.0            # Take-profit this many R from entry
 IFVG_MIN_STOP_PCT = 0.05       # Stop is at least this % of price from entry
 
 # SPY liquidity sweep and reversal
 SWEEP_SYMBOL = "SPY"
 SWEEP_RECLAIM_BARS = 3         # The sweep bar or one of the next two must close back inside the level
-SWEEP_TARGET_R = 3.0           # Take-profit this many R from entry
 SWEEP_PREMARKET_END = "09:15"  # Premarket range = 4:00 ET to this time (later minutes are not free data by 9:35)
 SWEEP_FIRST_ENTRY = "09:35"    # The reclaim bar must complete at or after this ET time
 SWEEP_ENTRY_CUTOFF = "11:30"   # The reclaim bar must complete by this ET time

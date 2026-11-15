@@ -1,5 +1,5 @@
 """Intraday models. Both act on completed 5-minute bars, take at most one trade a day each,
-enter with a bracket (stop + target), and are flat by 15:55 ET.
+enter with a stop attached, scale out in steps, and are flat by 15:55 ET.
 
 QQQ inverse fair value gap with the order flow (config.IFVG_*):
   1. Structure is read on 5-minute bars from 8:00 ET. A swing high/low is a bar whose high/low
@@ -13,7 +13,7 @@ QQQ inverse fair value gap with the order flow (config.IFVG_*):
      It is cancelled after 45 minutes, or sooner if order flow turns the other way. Only one
      order rests at a time; the first fill is the day's trade.
   5. Stop $0.05 beyond the extreme of the leg since the gap formed (at least 0.05% of price
-     away). Target 2R.
+     away).
 
 SPY liquidity sweep and reversal (config.SWEEP_*):
   1. Levels: the premarket (4:00-9:15 ET) high and low and the prior day's high and low.
@@ -22,7 +22,14 @@ SPY liquidity sweep and reversal (config.SWEEP_*):
      closes back inside it. Below a low then back above = long; above a high then back below = short.
   3. Entry on the reclaim bar's close, completed between 9:35 and 11:30. Each level gives
      one setup.
-  4. Stop $0.05 beyond the sweep's extreme (at least 0.05% of price away). Target 3R.
+  4. Stop $0.05 beyond the sweep's extreme (at least 0.05% of price away).
+
+Exits, both models (config.SCALE_STEP_PCT): a step is 0.36% of the entry price, about 100
+Nasdaq futures points. Each time price gains another step, half of what is left is closed and
+the stop on the rest moves to one step behind: to entry after step 1, to step 1 after step 2,
+and so on until nothing is left. On Alpaca each trade is a ladder of bracket orders, one lot
+per step with its own take-profit, so the partial exits rest at the exchange; the bot moves the
+stops, so it has to keep running while a trade is open.
 
 Size = INTRADAY_RISK_PER_TRADE / stop distance, inside INTRADAY_POSITION_VALUE and the hard
 limits, and never more than the account's unused equity (no margin). Anything unclear
@@ -64,9 +71,10 @@ import pandas as pd
 from alpaca.data.enums import Adjustment, DataFeed
 from alpaca.data.requests import StockBarsRequest
 from alpaca.data.timeframe import TimeFrame
-from alpaca.trading.enums import OrderClass, OrderSide, OrderStatus, TimeInForce
+from alpaca.trading.enums import OrderClass, OrderSide, OrderStatus, OrderType, TimeInForce
 from alpaca.trading.requests import (
-    GetCalendarRequest, LimitOrderRequest, MarketOrderRequest, StopLossRequest, TakeProfitRequest,
+    GetCalendarRequest, GetOrderByIdRequest, LimitOrderRequest, MarketOrderRequest, ReplaceOrderRequest,
+    StopLossRequest, TakeProfitRequest,
 )
 
 import bot
@@ -77,7 +85,9 @@ log = bot.log
 ET = "America/New_York"
 FIVE = pd.Timedelta(minutes=5)
 START_WINDOW = ("08:40", "10:30")          # --scheduled only starts inside this ET window
-FLATTEN_START_WINDOW = ("14:45", "15:58")  # --flatten --scheduled only starts inside this one
+FLATTEN_START_WINDOW = ("13:30", "15:58")  # --flatten --scheduled only starts inside this one
+RUN_BUDGET = pd.Timedelta(hours=5, minutes=35)  # a GitHub job may run 6 hours; hand over before that
+POLL_SECONDS = 20                          # how often open scale-out trades are checked
 
 
 def et_time(day, hhmm):
@@ -285,32 +295,60 @@ def sweep_signal(b5, day, daily, levels):
 MODELS = {
     "ifvg": {
         "symbol": config.IFVG_SYMBOL, "setup": journal.IFVG_SETUP, "orders": ifvg_orders, "limit": True,
-        "target_r": config.IFVG_TARGET_R, "cutoff": config.IFVG_LAST_ORDER,
+        "cutoff": config.IFVG_LAST_ORDER,
         "min_stop_pct": config.IFVG_MIN_STOP_PCT, "conditions": journal.IFVG_CONDITIONS, "premarket": True,
     },
     "sweep": {
         "symbol": config.SWEEP_SYMBOL, "setup": journal.SWEEP_SETUP, "find": sweep_signal,
-        "target_r": config.SWEEP_TARGET_R, "cutoff": config.SWEEP_ENTRY_CUTOFF,
+        "cutoff": config.SWEEP_ENTRY_CUTOFF,
         "min_stop_pct": config.SWEEP_MIN_STOP_PCT, "conditions": journal.SWEEP_CONDITIONS, "levels": True, "premarket": True,
     },
 }
 assert len({m["symbol"] for m in MODELS.values()}) == len(MODELS), "each intraday model needs its own symbol"
 
 
-def plan_trade(signal, entry, target_r, min_stop_pct=0.0):
-    """Stop and target for a market entry near `entry`. Returns (plan, None) or (None, reason)."""
+def plan_trade(signal, entry, min_stop_pct=0.0):
+    """Stop and scale-out step for an entry at `entry`. Returns (plan, None) or (None, reason)."""
     sign = 1 if signal["direction"] == "long" else -1
     risk = (entry - signal["stop"]) * sign
     if risk <= 0:
         return None, f"price {entry:.2f} is already beyond the stop {signal['stop']:.2f}"
     risk = max(risk, entry * min_stop_pct / 100)
     stop = round(entry - sign * risk, 2)
-    target = round(entry + sign * target_r * risk, 2)
     risk_ps = round(abs(entry - stop), 2)
     if risk_ps < 0.02:
         return None, f"stop {stop:.2f} is too close to entry {entry:.2f}"
-    return {"entry": round(entry, 2), "stop": stop, "target": target, "risk_ps": risk_ps,
-            "planned_rr": round(abs(target - entry) / risk_ps, 2)}, None
+    step = round(entry * config.SCALE_STEP_PCT / 100, 2)
+    return {"entry": round(entry, 2), "stop": stop, "step": step, "target": round(entry + sign * step, 2),
+            "risk_ps": risk_ps, "planned_rr": round(step / risk_ps, 2)}, None
+
+
+def ladder_lots(qty):
+    """Share counts closed at step 1, 2, 3...: half of what is left each time (rounded up)."""
+    lots, left = [], int(qty)
+    while left > 0:
+        lots.append(math.ceil(left / 2))
+        left -= lots[-1]
+    return lots
+
+
+def step_price(base, step, sign, k):
+    return round(base + sign * k * step, 2)
+
+
+def stop_after(base, step, sign, initial_stop, steps_done):
+    """Where the stop belongs once `steps_done` steps have filled: one step behind."""
+    return initial_stop if steps_done == 0 else step_price(base, step, sign, steps_done - 1)
+
+
+def close_reason(exits):
+    steps = sum(1 for e in exits if e["reason"].startswith("Step"))
+    last = exits[-1]["reason"]
+    if last.startswith("Step"):
+        return f"All {steps} steps hit"
+    if last == "Stop":
+        return "Stop hit" if steps == 0 else f"{'Breakeven' if steps == 1 else 'Trailing'} stop after step {steps}"
+    return last if steps == 0 else f"{last} after step {steps}"
 
 
 def size(risk_ps, entry, risk_dollars, value_cap):
@@ -422,15 +460,15 @@ def build_context(signal, plan, daily, headlines, placed_at):
         "placed_at": f"{placed_at:%H:%M} ET",
         "news_count": len(headlines), "headlines": headlines[:3],
         **signal["ctx"],
-        **{k: plan[k] for k in ("risk_ps", "planned_rr")},
+        **{k: plan[k] for k in ("risk_ps", "planned_rr", "step")},
         "risk_pct": round(plan["risk_ps"] / plan["entry"] * 100, 3),
         **journal.daily_trend(daily, plan["entry"]),
     }
 
 
 def place(clients, key, signal, daily, dry_run):
-    """All gates, then the bracket order: at market, or a resting limit when the signal carries
-    a limit price. Returns True if an order was placed."""
+    """All gates, then the ladder: one bracket order per scale-out step (entry at market, or a
+    resting limit when the signal carries a limit price). Returns True if anything was placed."""
     model, client = MODELS[key], clients.trading
     symbol, tag = model["symbol"], f"{model['symbol']} {key}"
     now = bot.now_et()
@@ -438,7 +476,7 @@ def place(clients, key, signal, daily, dry_run):
     state = fresh_state()
     limit = signal.get("limit")
     price = round(limit, 2) if limit is not None else bot.latest_price(clients, symbol, signal["price"])
-    plan, why = plan_trade(signal, price, model["target_r"], model["min_stop_pct"])
+    plan, why = plan_trade(signal, price, model["min_stop_pct"])
     if not plan:
         log.info(f"{tag}: NO TRADE: {why}.")
         return False
@@ -469,11 +507,13 @@ def place(clients, key, signal, daily, dry_run):
     if blocked:
         reasons.append(f"blocked by APPROVED lessons.md rule(s) {', '.join(blocked)}")
 
+    sign = 1 if signal["direction"] == "long" else -1
+    sizes = ladder_lots(qty)
     how = f"limit {plan['entry']:.2f}" if limit is not None else f"market near {plan['entry']:.2f}"
     log.info(
-        f"{tag}: {signal['direction'].upper()} signal ({signal['summary']}): {how}, "
-        f"stop {plan['stop']:.2f}, target {plan['target']:.2f} ({plan['planned_rr']:g}R), {qty} sh, "
-        f"risk ${qty * plan['risk_ps']:.2f}."
+        f"{tag}: {signal['direction'].upper()} signal ({signal['summary']}): {how}, stop {plan['stop']:.2f}, "
+        f"{qty} sh, risk ${qty * plan['risk_ps']:.2f}. Scale-out every {plan['step']:.2f} "
+        f"({plan['planned_rr']:g}R): {' / '.join(str(q) for q in sizes) or 'none'} sh from {plan['target']:.2f}."
     )
     if reasons:
         log.info(f"{tag}: NO TRADE: {'; '.join(reasons)}.")
@@ -486,7 +526,7 @@ def place(clients, key, signal, daily, dry_run):
          f"({qty} sh, ${qty * plan['entry']:,.0f}); no margin", mark],
         [f"Hard limit: daily loss under ${config.MAX_DAILY_LOSS:,.0f} (today {today_pnl:+.2f})", mark],
         [f"Hard limit: max {config.MAX_TRADES_PER_DAY} trades per day", mark],
-        ["Hard limit: stop at entry (bracket order)", mark],
+        ["Hard limit: stop at entry (bracket order on every lot)", mark],
         ["No APPROVED lessons.md rule blocks the entry", mark],
     ]
     items = journal.checklist(context, gates, model["conditions"])
@@ -496,119 +536,304 @@ def place(clients, key, signal, daily, dry_run):
         log.info(f"{tag}: dry run: no order placed.")
         return False
 
-    request = dict(
-        symbol=symbol, qty=qty, side=OrderSide.BUY if signal["direction"] == "long" else OrderSide.SELL,
-        time_in_force=TimeInForce.GTC, order_class=OrderClass.BRACKET,
-        take_profit=TakeProfitRequest(limit_price=plan["target"]),
-        stop_loss=StopLossRequest(stop_price=plan["stop"]),
-    )
-    order = client.submit_order(
-        LimitOrderRequest(limit_price=plan["entry"], **request) if limit is not None else MarketOrderRequest(**request))
-    log.info(f"{tag}: submitted {signal['direction'].upper()} bracket id={order.id} status={order.status.value}")
+    lots = []
+    for k, lot_qty in enumerate(sizes, start=1):
+        take = step_price(plan["entry"], plan["step"], sign, k)
+        request = dict(
+            symbol=symbol, qty=lot_qty, side=OrderSide.BUY if sign == 1 else OrderSide.SELL,
+            time_in_force=TimeInForce.GTC, order_class=OrderClass.BRACKET,
+            take_profit=TakeProfitRequest(limit_price=take),
+            stop_loss=StopLossRequest(stop_price=plan["stop"]),
+        )
+        try:
+            order = client.submit_order(
+                LimitOrderRequest(limit_price=plan["entry"], **request) if limit is not None else MarketOrderRequest(**request))
+        except Exception as e:
+            log.error(f"{tag}: lot {k} ({lot_qty} sh, take-profit {take:.2f}) was rejected: {e}")
+            break
+        lots.append({"k": k, "qty": lot_qty, "order_id": str(order.id), "take": take, "stop": plan["stop"],
+                     "state": "pending", "tp_id": None, "stop_id": None})
+    if not lots:
+        return False
+    log.info(f"{tag}: submitted {signal['direction'].upper()} ladder of {len(lots)} bracket order(s), "
+             f"{sum(lot['qty'] for lot in lots)} sh.")
 
     state = fresh_state()
     state["entries_by_day"][day] = state["entries_by_day"].get(day, 0) + 1
     state.setdefault("intraday_trades_by_day", {}).setdefault(day, {})[key] = trades_today(state, day, key) + 1
     state["open"][symbol] = {
-        "symbol": symbol, "direction": signal["direction"], "model": key, "qty": qty,
-        "setup": model["setup"], "entry_order_id": str(order.id), "entry": None, "entry_time": None,
+        "symbol": symbol, "direction": signal["direction"], "model": key, "qty": sum(lot["qty"] for lot in lots),
+        "setup": model["setup"], "entry_order_id": lots[0]["order_id"], "entry": None, "entry_time": None,
         "stop": plan["stop"], "target": plan["target"], "stop_order_id": None, "target_order_id": None,
         "context": context, "checklist": items, "grade": grade, "grade_reason": grade_reason, "adopted": False,
+        "lots": lots, "base": plan["entry"], "step": plan["step"], "partials": [],
     }
     if limit is not None:
         state["open"][symbol].update(signal_start=signal["time"].isoformat(), expire=signal["expire"].isoformat())
     journal.save_state(state)
 
     if limit is not None:
-        log.info(f"{tag}: limit order resting until {signal['expire']:%H:%M} ET.")
-        return True
-    order = bot.wait_for_fill(client, order.id)
-    if order.status == OrderStatus.FILLED:
-        bot.reconcile(clients, fresh_state())  # records the fill price and the stop/target leg ids
+        log.info(f"{tag}: limit order(s) resting until {signal['expire']:%H:%M} ET.")
     else:
-        log.info(f"{tag}: not filled yet (status={order.status.value}); the next check will pick it up.")
+        time.sleep(2)
+        reconcile_ladder(clients, symbol)  # records the fills and the stop/take-profit leg ids
     return True
 
 
-def cancel_resting(clients, key, why):
-    """Cancel an unfilled limit entry. Returns "filled" if part of it had filled (that part is
-    kept as the day's trade), "cancelled" if nothing had, or None if there was nothing resting."""
-    symbol, tag = MODELS[key]["symbol"], f"{MODELS[key]['symbol']} {key}"
-    client = clients.trading
-    state = fresh_state()
-    trade = state["open"].get(symbol)
-    if not trade or trade.get("model") != key or trade["entry"] is not None:
-        return None
-    try:
-        client.cancel_order_by_id(trade["entry_order_id"])
-    except Exception:
-        pass  # already filled or cancelled; the status below says which
-    time.sleep(3)
-    order = client.get_order_by_id(trade["entry_order_id"])
-    filled = float(order.filled_qty or 0)
-    if filled > 0:
-        trade["qty"] = filled
-        trade["entry"] = round(float(order.filled_avg_price), 2)
-        trade["entry_time"] = journal.to_et(order.filled_at or bot.now_et()).isoformat()
-        trade["stop_order_id"], trade["target_order_id"] = bot.bracket_leg_ids(client, trade["entry_order_id"])
-        journal.save_state(state)
-        log.info(f"{tag}: entry filled {filled:g} sh at {trade['entry']:.2f} before the cancel ({why}); keeping the trade.")
-        return "filled"
+def follow(client, order_id):
+    """The order as it is now: a replaced order points to its replacement."""
+    order = client.get_order_by_id(order_id)
+    for _ in range(10):
+        if order.status != OrderStatus.REPLACED or not order.replaced_by:
+            break
+        order = client.get_order_by_id(order.replaced_by)
+    return order
+
+
+def forget_unfilled(state, symbol, key):
+    """Drop a trade none of whose entry orders filled; it doesn't use up the day's trade."""
     del state["open"][symbol]
-    day = bot.now_et().date().isoformat()  # an order that never filled doesn't use up the day's trade
+    day = bot.now_et().date().isoformat()
     state["entries_by_day"][day] = max(0, state["entries_by_day"].get(day, 0) - 1)
     by_model = state.setdefault("intraday_trades_by_day", {}).setdefault(day, {})
     by_model[key] = max(0, by_model.get(key, 0) - 1)
     journal.save_state(state)
-    log.info(f"{tag}: limit order cancelled unfilled ({why}).")
-    return "cancelled"
+    log.info(f"{symbol} {key}: entry order(s) cancelled unfilled.")
+
+
+def reconcile_ladder(clients, symbol, ratchet=True):
+    """One pass over a scale-out trade: pick up entry fills, take-profit steps and stops, move
+    the remaining stops one step behind the last step filled, and journal the trade once
+    nothing is left. Returns "open", "closed", or None when there is no such trade."""
+    client = clients.trading
+    state = fresh_state()
+    trade = state["open"].get(symbol)
+    if not trade or not trade.get("lots"):
+        return None
+    tag = f"{symbol} {trade['model']}"
+    sign = 1 if trade["direction"] == "long" else -1
+    now = bot.now_et()
+    expired = trade.get("expire") and now >= pd.Timestamp(trade["expire"])
+
+    def exit_fill(lot, order, reason, qty=None):
+        trade["partials"].append({"qty": qty or lot["qty"], "price": round(float(order.filled_avg_price), 2),
+                                  "time": journal.to_et(order.filled_at or now).isoformat(), "reason": reason})
+
+    for lot in trade["lots"]:
+        if lot["state"] == "pending":
+            order = client.get_order_by_id(lot["order_id"], GetOrderByIdRequest(nested=True))
+            filled = float(order.filled_qty or 0)
+            if order.status == OrderStatus.FILLED:
+                lot.update(state="open", fill=float(order.filled_avg_price),
+                           filled_at=journal.to_et(order.filled_at or now).isoformat())
+                for leg in order.legs or []:
+                    is_stop = leg.order_type in (OrderType.STOP, OrderType.STOP_LIMIT)
+                    lot["stop_id" if is_stop else "tp_id"] = str(leg.id)
+                log.info(f"{tag}: lot {lot['k']} filled, {lot['qty']} sh at {lot['fill']:.2f} "
+                         f"(take-profit {lot['take']:.2f}, stop {lot['stop']:.2f}).")
+            elif order.status in bot.DONE_STATUSES:
+                lot["state"] = "cancelled"
+                if filled > 0:  # part of the lot filled before the cancel: its exit legs never started, so close it
+                    lot.update(qty=filled, fill=float(order.filled_avg_price),
+                               filled_at=journal.to_et(order.filled_at or now).isoformat())
+                    out = client.submit_order(MarketOrderRequest(
+                        symbol=symbol, qty=filled, side=OrderSide.SELL if sign == 1 else OrderSide.BUY,
+                        time_in_force=TimeInForce.DAY))
+                    out = bot.wait_for_fill(client, out.id)
+                    if out.status == OrderStatus.FILLED:
+                        exit_fill(lot, out, "Partly filled lot closed", filled)
+                    log.warning(f"{tag}: lot {lot['k']} was cancelled with {filled:g} sh filled; closed them at market.")
+            elif expired:
+                try:
+                    client.cancel_order_by_id(lot["order_id"])
+                    log.info(f"{tag}: lot {lot['k']} not filled by {pd.Timestamp(trade['expire']):%H:%M}; cancelling it.")
+                except Exception:
+                    pass
+        if lot["state"] == "open":
+            for leg_key, new_state, reason in (("tp_id", "tp", f"Step {lot['k']}"), ("stop_id", "stop", "Stop")):
+                if not lot.get(leg_key):
+                    continue
+                order = follow(client, lot[leg_key])
+                lot[leg_key] = str(order.id)
+                if order.status == OrderStatus.FILLED:
+                    lot["state"] = new_state
+                    exit_fill(lot, order, reason)
+                    log.info(f"{tag}: {reason.lower()}: closed {lot['qty']} sh at {float(order.filled_avg_price):.2f}.")
+                    break
+
+    filled_lots = [lot for lot in trade["lots"] if "fill" in lot]
+    if filled_lots:
+        shares = sum(lot["qty"] for lot in filled_lots)
+        trade["entry"] = round(sum(lot["fill"] * lot["qty"] for lot in filled_lots) / shares, 2)
+        trade["entry_time"] = min(lot["filled_at"] for lot in filled_lots)
+        trade["qty"] = shares
+
+    live = [lot for lot in trade["lots"] if lot["state"] == "open"]
+    steps_done = max([lot["k"] for lot in trade["lots"] if lot["state"] == "tp"], default=0)
+    want = stop_after(trade["base"], trade["step"], sign, trade["stop"], steps_done)
+    crossed = False
+    if ratchet:
+        for lot in live:
+            if abs(lot["stop"] - want) < 0.005:
+                continue
+            try:
+                new = client.replace_order_by_id(lot["stop_id"], ReplaceOrderRequest(stop_price=want))
+                lot["stop_id"], lot["stop"] = str(new.id), want
+                log.info(f"{tag}: step {steps_done} filled; stop on lot {lot['k']} ({lot['qty']} sh) moved to {want:.2f}.")
+            except Exception as e:
+                price = bot.latest_price(clients, symbol, want)
+                crossed = crossed or (price - want) * sign <= 0.02
+                log.warning(f"{tag}: could not move the stop on lot {lot['k']} to {want:.2f} ({e}); price {price:.2f}.")
+    journal.save_state(state)
+
+    if crossed:  # price is already back through the new stop level: act as that stop would have
+        flatten_ladder(clients, symbol, "Stop")
+        return "closed"
+    if any(lot["state"] in ("pending", "open") for lot in trade["lots"]):
+        return "open"
+    if not trade["partials"]:
+        forget_unfilled(state, symbol, trade["model"])
+        return "closed"
+    journal.record_ladder_close(state, symbol, close_reason(trade["partials"]))
+    return "closed"
+
+
+def flatten_ladder(clients, symbol, reason):
+    """Cancel what is resting and close what is left of a scale-out trade at market."""
+    client = clients.trading
+    trade = fresh_state()["open"].get(symbol)
+    if not trade or not trade.get("lots"):
+        return
+    for lot in trade["lots"]:
+        order_id = lot["order_id"] if lot["state"] == "pending" else lot.get("stop_id") if lot["state"] == "open" else None
+        if order_id:
+            try:
+                client.cancel_order_by_id(order_id)  # cancelling one bracket leg cancels the other
+            except Exception:
+                pass  # already filled or cancelled
+    time.sleep(2)
+    if reconcile_ladder(clients, symbol, ratchet=False) != "open":
+        return  # everything had already filled or been cancelled; it is journaled
+    state = fresh_state()
+    trade = state["open"][symbol]
+    live = [lot for lot in trade["lots"] if lot["state"] == "open"]
+    if live:
+        order = None
+        for _ in range(10):  # the shares are free once the cancels land
+            try:
+                order = client.close_position(symbol)
+                break
+            except Exception:
+                time.sleep(1)
+        if order is None:
+            log.error(f"{symbol}: could not close {sum(lot['qty'] for lot in live)} sh at market; check Alpaca.")
+            return
+        order = bot.wait_for_fill(client, order.id)
+        if order.status != OrderStatus.FILLED:
+            log.warning(f"{symbol}: closing order not filled yet (status={order.status.value}); check Alpaca.")
+            return
+        for lot in live:
+            lot["state"] = "flat"
+        trade["partials"].append({"qty": sum(lot["qty"] for lot in live), "price": round(float(order.filled_avg_price), 2),
+                                  "time": journal.to_et(order.filled_at or bot.now_et()).isoformat(), "reason": reason})
+        log.info(f"{symbol}: closed the remaining {sum(lot['qty'] for lot in live)} sh at "
+                 f"{float(order.filled_avg_price):.2f} ({reason}).")
+    for lot in trade["lots"]:
+        if lot["state"] == "pending":
+            lot["state"] = "cancelled"
+    if trade["partials"]:
+        journal.record_ladder_close(state, symbol, close_reason(trade["partials"]))
+    else:
+        forget_unfilled(state, symbol, trade["model"])
+
+
+def cancel_resting(clients, key, why):
+    """Cancel entry orders that have not filled. Returns "filled" if some of the ladder had
+    filled (that part stays as the day's trade), "cancelled" if none had, None if nothing rested."""
+    symbol, tag = MODELS[key]["symbol"], f"{MODELS[key]['symbol']} {key}"
+    trade = fresh_state()["open"].get(symbol)
+    if not trade or trade.get("model") != key or not trade.get("lots"):
+        return None
+    pending = [lot for lot in trade["lots"] if lot["state"] == "pending"]
+    if not pending:
+        return None
+    log.info(f"{tag}: cancelling {len(pending)} unfilled entry order(s) ({why}).")
+    for lot in pending:
+        try:
+            clients.trading.cancel_order_by_id(lot["order_id"])
+        except Exception:
+            pass  # already filled or cancelled; the next look says which
+    time.sleep(3)
+    reconcile_ladder(clients, symbol)
+    return "filled" if symbol in fresh_state()["open"] else "cancelled"
+
+
+def sync(clients):
+    """Bring the state file up to date with Alpaca: crossover trades, then scale-out trades."""
+    bot.reconcile(clients, fresh_state())
+    for symbol in list(open_intraday(fresh_state())):
+        reconcile_ladder(clients, symbol)
+
+
+def wait_and_sync(clients, until):
+    """Sleep until `until`, checking open scale-out trades every POLL_SECONDS on the way."""
+    while (left := (until - bot.now_et()).total_seconds()) > 0:
+        time.sleep(min(left, POLL_SECONDS))
+        if open_intraday(fresh_state()):
+            try:
+                sync(clients)
+            except Exception:
+                log.exception("Intraday: trade check failed; trying again shortly")
 
 
 def flatten_open_trades(clients, reason, only_before=None):
     """Close (or cancel) open intraday trades. `only_before` limits it to trades opened before
     that day (leftovers). Returns how many it handled."""
-    state = fresh_state()
-    bot.reconcile(clients, state)
+    sync(clients)
     handled = 0
     for symbol, trade in open_intraday(fresh_state()).items():
         if only_before and trade.get("entry_time") and journal.to_et(trade["entry_time"]).date().isoformat() >= only_before:
             continue
-        state = fresh_state()
-        if trade["entry"] is None:
+        if trade.get("lots"):
+            flatten_ladder(clients, symbol, reason)
+        elif trade["entry"] is None:
+            state = fresh_state()
             clients.trading.cancel_order_by_id(trade["entry_order_id"])
             del state["open"][symbol]
             journal.save_state(state)
             log.info(f"{symbol}: cancelled an unfilled entry order ({reason}).")
         else:
-            bot.exit_trade(clients, state, symbol, False, reason=reason)
+            bot.exit_trade(clients, fresh_state(), symbol, False, reason=reason)
         handled += 1
     return handled
 
 
-def manage(clients, stay, flatten_at):
-    """Let stops and targets work. Local runs (and half days) stay until the flatten time and
-    close what is left; GitHub runs leave that to the separate --flatten job."""
+def manage(clients, flatten_at, deadline=None):
+    """Watch open trades (moving stops as steps fill) until they close or the flatten time.
+    A GitHub run stops at `deadline` and leaves the rest to the --flatten job; the stops and
+    take-profits stay on Alpaca in the meantime."""
     while True:
-        bot.reconcile(clients, fresh_state())
+        sync(clients)
         trades = open_intraday(fresh_state())
         if not trades:
             log.info("Intraday: no open intraday trade. Done for the day.")
             return
-        if bot.now_et() >= flatten_at:
+        now = bot.now_et()
+        if now >= flatten_at:
             flatten_open_trades(clients, f"End-of-day flatten ({flatten_at:%H:%M})")
             return
-        if not stay:
-            log.info(f"Intraday: still in {', '.join(trades)}; stops and targets are on Alpaca. "
-                     f"The {config.INTRADAY_FLATTEN_AT} job closes what is left.")
+        if deadline is not None and now >= deadline:
+            log.info(f"Intraday: still in {', '.join(trades)} at this run's time limit; stops and take-profits "
+                     f"are on Alpaca and the {config.INTRADAY_FLATTEN_AT} job takes over.")
             return
-        time.sleep(30)
+        time.sleep(POLL_SECONDS)
 
 
 def run_flatten(scheduled):
-    """The 15:55 job on GitHub. GitHub often starts scheduled jobs 30-50 minutes late, so the
-    job starts from about 15:00 ET and waits for 15:55 itself. Starts outside 14:45-15:58 ET
-    (the other daylight-saving season's UTC times) exit at once, and so does any day with no
-    open intraday trade, so the wait only costs Actions minutes when there is a trade to close."""
+    """The 15:55 job on GitHub. GitHub often starts scheduled jobs 30-50 minutes late, and this
+    job also takes over the watching of open trades when the morning job reaches its time limit,
+    so it starts from early afternoon and manages until 15:55 itself. Starts outside
+    13:30-15:58 ET exit at once, and so does any day with no open intraday trade."""
     now = bot.now_et()
     day = now.date().isoformat()
     lo, hi = (et_time(day, t) for t in FLATTEN_START_WINDOW)
@@ -624,14 +849,8 @@ def run_flatten(scheduled):
         clients = bot.Clients()
         flatten_at = flatten_time(clients, day)
         if bot.now_et() < flatten_at:
-            bot.reconcile(clients, fresh_state())  # they may already have hit a stop or target
-            if not open_intraday(fresh_state()):
-                log.info("Intraday: every trade already closed at its stop or target; nothing to flatten.")
-                return
-            log.info(f"Intraday: trade(s) still open; waiting until {flatten_at:%H:%M} ET to close.")
-            sleep_until(flatten_at)
-        if not flatten_open_trades(clients, f"End-of-day flatten ({flatten_at:%H:%M})"):
-            log.info("Intraday: the trade(s) had already closed.")
+            log.info(f"Intraday: watching open trade(s) until {flatten_at:%H:%M} ET.")
+        manage(clients, flatten_at)
     except Exception:
         log.exception("Intraday: flatten failed")
         sys.exit(1)
@@ -672,8 +891,8 @@ def check_model(clients, key, day, daily, dry_run, cache):
 
 
 def check_limit_model(clients, key, day, daily, dry_run, cache):
-    """One look at a limit-entry model after a 5-minute bar completes: watch a resting order,
-    or place one for a setup that just completed. Returns True when it is done for the day."""
+    """One look at a limit-entry model after a 5-minute bar completes: watch resting orders,
+    or place them for a setup that just completed. Returns True when it is done for the day."""
     model = MODELS[key]
     symbol, tag = model["symbol"], f"{model['symbol']} {key}"
     now = bot.now_et()
@@ -682,7 +901,7 @@ def check_limit_model(clients, key, day, daily, dry_run, cache):
     trade = state["open"].get(symbol)
     resting = trade is not None and trade.get("model") == key and trade["entry"] is None
     if trade is not None and not resting:
-        return True  # filled: the stop and target are working
+        return True  # filled: the stops and take-profits are working
     if not resting and trades_today(state, day, key) >= config.INTRADAY_MAX_TRADES_PER_MODEL:
         return True
     if not resting and now > cutoff + pd.Timedelta(seconds=90):
@@ -713,8 +932,9 @@ def decision_end(day, key):
 
 
 def run_live(args):
+    started = bot.now_et()
     clients = bot.Clients()
-    day = bot.now_et().date().isoformat()
+    day = started.date().isoformat()
     keys = [args.model] if args.model else list(MODELS)
     names = ", ".join(f"{MODELS[k]['symbol']} {k}" for k in keys)
     log.info(f"===== Intraday models started ({names}{', dry run' if args.dry_run else ''}) =====")
@@ -726,12 +946,12 @@ def run_live(args):
         log.info("Intraday: market is closed today. Nothing to do.")
         return
     flatten_at = flatten_time(clients, day)
-    stay = not args.scheduled or flatten_at < et_time(day, config.INTRADAY_FLATTEN_AT)  # half days: stay and flatten
+    deadline = started + RUN_BUDGET if args.scheduled else None
     last_decision = max(decision_end(day, k) for k in keys)
 
     if bot.now_et() < last_decision:
         sleep_until(et_time(day, "09:35:05"))  # the first 5-minute bar completes at 9:35
-    bot.reconcile(clients, fresh_state())
+    sync(clients)
     if flatten_open_trades(clients, "Flatten of a previous day's trade (missed the end-of-day close)", only_before=day):
         log.info("Intraday: closed a trade left open from a previous day.")
 
@@ -741,7 +961,7 @@ def run_live(args):
         symbol = MODELS[key]["symbol"]
         trade = state["open"].get(symbol)
         if trade and trade.get("model") == key and trade["entry"] is None:
-            log.info(f"{symbol} {key}: an entry order is already resting; watching it.")
+            log.info(f"{symbol} {key}: entry order(s) already resting; watching them.")
             pending.append(key)
         elif trades_today(state, day, key) >= config.INTRADAY_MAX_TRADES_PER_MODEL:
             log.info(f"{symbol} {key}: already traded today.")
@@ -764,15 +984,38 @@ def run_live(args):
                 log.exception(f"{MODELS[key]['symbol']} {key}: check failed; trying again on the next bar")
         if not pending or bot.now_et() >= min(last_decision + pd.Timedelta(minutes=2), flatten_at):
             break
-        sleep_until(bot.now_et().floor("5min") + FIVE + pd.Timedelta(seconds=5))
-        bot.reconcile(clients, fresh_state())  # journal an entry, stop or target that filled meanwhile
+        # until the next 5-minute bar: pick up fills and move stops on anything already open
+        wait_and_sync(clients, bot.now_et().floor("5min") + FIVE + pd.Timedelta(seconds=5))
     for key in pending:  # never leave an entry order resting with nobody watching it
         if MODELS[key].get("limit"):
             cancel_resting(clients, key, "end of the entry window")
-    manage(clients, stay, flatten_at)
+    manage(clients, flatten_at, deadline)
 
 
 # --------------------------------------------------------------------------- replay
+
+def simulate_ladder(after, plan, sign, qty, skip_first_step):
+    """Walk 1-minute bars through the scale-out. Returns the exits as [(qty, price, time, reason)].
+    The stop is checked first in every bar, and a stop moved by a step applies from the next bar."""
+    lots, done, stop, exits = ladder_lots(qty), 0, plan["stop"], []
+    for i, (t, bar) in enumerate(after.iterrows()):
+        if (bar["low"] <= stop) if sign == 1 else (bar["high"] >= stop):
+            exits.append((sum(lots[done:]), stop, t, "Stop"))
+            return exits
+        if skip_first_step and i == 0:
+            continue  # the bar a limit order fills in can stop out but is not credited with a step
+        while done < len(lots):
+            level = step_price(plan["entry"], plan["step"], sign, done + 1)
+            if not ((bar["high"] >= level) if sign == 1 else (bar["low"] <= level)):
+                break
+            exits.append((lots[done], level, t, f"Step {done + 1}"))
+            done += 1
+        if done == len(lots):
+            return exits
+        stop = stop_after(plan["entry"], plan["step"], sign, plan["stop"], done)
+    exits.append((sum(lots[done:]), float(after["close"].iloc[-1]), after.index[-1], "End-of-day flatten"))
+    return exits
+
 
 def replay_day(key, day, m1, daily, verbose, prev_m1=None):
     """Simulate one past day for one model. Returns a result dict."""
@@ -813,32 +1056,30 @@ def replay_day(key, day, m1, daily, verbose, prev_m1=None):
         if after.empty:
             return {"day": day, "result": "no data", "why": "no bars after the signal"}
         entry = float(after["open"].iloc[0])
-    plan, why = plan_trade(signal, entry, model["target_r"], model["min_stop_pct"])
+    plan, why = plan_trade(signal, entry, model["min_stop_pct"])
     if not plan:
         say(f"NO TRADE: {why}")
         return {"day": day, "result": "no trade", "why": why}
-    long_ = signal["direction"] == "long"
+    sign = 1 if signal["direction"] == "long" else -1
     qty = size(plan["risk_ps"], entry, config.INTRADAY_RISK_PER_TRADE, config.INTRADAY_POSITION_VALUE)
+    if qty < 1:
+        say("NO TRADE: size rounds to 0 shares")
+        return {"day": day, "result": "no trade", "why": "size rounds to 0 shares"}
     say(f"{signal['time']:%H:%M} {signal['direction'].upper()} ({signal['summary']}): "
         f"{'filled ' + format(after.index[0], '%H:%M') + ' at' if is_limit else 'entry'} {entry:.2f}, "
-        f"stop {plan['stop']:.2f}, target {plan['target']:.2f}, {qty} sh")
-    exit_price = None
-    for i, (t, bar) in enumerate(after.iterrows()):
-        if (bar["low"] <= plan["stop"]) if long_ else (bar["high"] >= plan["stop"]):
-            exit_price, reason, exit_t = plan["stop"], "stop", t  # stop first if both in one bar
-            break
-        if is_limit and i == 0:
-            continue  # the bar a limit order fills in can stop out but is not credited with the target
-        if (bar["high"] >= plan["target"]) if long_ else (bar["low"] <= plan["target"]):
-            exit_price, reason, exit_t = plan["target"], "target", t
-            break
-    if exit_price is None:
-        exit_price, reason, exit_t = float(after["close"].iloc[-1]), "flatten", after.index[-1]
-    points = (exit_price - entry) if long_ else (entry - exit_price)
-    r = points / plan["risk_ps"]
-    say(f"{exit_t:%H:%M} exit {exit_price:.2f} ({reason}) = {r:+.2f}R, ${points * qty:+.2f}")
-    return {"day": day, "result": "trade", "direction": signal["direction"], "r": r, "exit": reason,
-            "pnl": points * qty, "qty": qty, **plan}
+        f"stop {plan['stop']:.2f}, step {plan['step']:.2f} ({plan['planned_rr']:g}R), {qty} sh")
+    exits = simulate_ladder(after, plan, sign, qty, is_limit)
+    for lot_qty, price, t, reason in exits:
+        say(f"{t:%H:%M} {reason}: {lot_qty} sh at {price:.2f}")
+    pnl = sum((price - entry) * sign * lot_qty for lot_qty, price, _, _ in exits)
+    r = pnl / (plan["risk_ps"] * qty)
+    steps = sum(1 for e in exits if e[3].startswith("Step"))
+    reason = close_reason([{"reason": e[3]} for e in exits])
+    say(f"closed ({reason}) = {r:+.2f}R, ${pnl:+.2f}")
+    exit_kind = "all steps" if exits[-1][3].startswith("Step") else "stop" if exits[-1][3] == "Stop" else "flatten"
+    return {"day": day, "result": "trade", "direction": signal["direction"], "r": r, "pnl": pnl, "qty": qty,
+            "exit": f"{exit_kind} after {steps} step(s)" if steps and exit_kind != "all steps" else exit_kind,
+            "steps": steps, **plan}
 
 
 def history_minutes(clients, symbol, start, end, premarket=False):
@@ -882,6 +1123,7 @@ def summarise(key, results, start, end):
     for d, g in df.groupby("direction"):
         print(f"  {d:5}: {len(g)} trades, win rate {(g.r > 0).mean():.0%}, avg {g.r.mean():+.2f}R, total {g.r.sum():+.2f}R")
     print("  exits:", df["exit"].value_counts().to_dict())
+    print(f"  steps reached: {df.steps.value_counts().sort_index().to_dict()} (trades by number of scale-out steps filled)")
     print(f"  at the configured size (avg {df.qty.mean():.0f} sh, avg risk ${(df.qty * df.risk_ps).mean():.0f}): "
           f"P&L ${df.pnl.sum():+,.0f}, worst day ${df.pnl.min():+,.0f}, max drawdown ${drawdown:,.0f}, "
           f"longest losing streak {longest}")

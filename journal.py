@@ -376,16 +376,31 @@ def fmt_time(iso):
 
 
 def record_close(state, symbol, exit_price, exit_time, exit_reason):
+    """Close a trade that left in one piece."""
     trade = state["open"].pop(symbol)
+    exits = [{"qty": trade["qty"], "price": float(exit_price), "time": to_et(exit_time).isoformat(), "reason": exit_reason}]
+    return _close(state, trade, exits, exit_reason)
+
+
+def record_ladder_close(state, symbol, exit_reason):
+    """Close a scale-out trade from its recorded partial exits (trade["partials"])."""
+    trade = state["open"].pop(symbol)
+    return _close(state, trade, trade["partials"], exit_reason)
+
+
+def _close(state, trade, exits, exit_reason):
     sign = 1 if trade["direction"] == "long" else -1
     risk = abs(trade["entry"] - trade["stop"])
-    points = (float(exit_price) - trade["entry"]) * sign
+    qty = sum(e["qty"] for e in exits)
+    pnl = sum((e["price"] - trade["entry"]) * sign * e["qty"] for e in exits)
+    points = pnl / qty if qty else 0.0
     trade.update(
-        exit=round(float(exit_price), 2),
-        exit_time=to_et(exit_time).isoformat(),
+        qty=qty,
+        exit=round(sum(e["price"] * e["qty"] for e in exits) / qty, 2) if qty else trade["entry"],
+        exit_time=exits[-1]["time"],
         exit_reason=exit_reason,
         points=round(points, 2),
-        pnl=round(points * trade["qty"], 2),
+        pnl=round(pnl, 2),
         r=round(points / risk, 2) if risk > 0 else 0.0,
     )
     if trade["pnl"] < 0:
@@ -394,7 +409,7 @@ def record_close(state, symbol, exit_price, exit_time, exit_reason):
     save_state(state)
     write_journal_entry(trade, len(state["closed"]))
     log.info(
-        f"{symbol}: trade closed ({exit_reason}) at {trade['exit']:.2f}, "
+        f"{trade['symbol']}: trade closed ({exit_reason}) at {trade['exit']:.2f}, "
         f"P&L {trade['pnl']:+.2f} ({trade['r']:+.2f}R, grade {trade['grade']}). Journal updated."
     )
     maybe_review(state)
@@ -433,7 +448,8 @@ def _ifvg_setup_lines(trade, ctx):
         f"**Setup:** {trade['setup']}: order flow {ctx['flow']} (last break of structure), then a 5-min close "
         f"{ctx['inversion_close']:.2f} {through} the {old} fair value gap {ctx['gap_low']:.2f}–{ctx['gap_high']:.2f} "
         f"(formed {ctx['gap_time']}) at {ctx['signal_time']}. Limit at the retest of the gap ({ctx['limit']:.2f}), "
-        f"stop beyond the leg's extreme ({ctx['leg_extreme']:.2f}), target {ctx['planned_rr']:g}R. "
+        f"stop beyond the leg's extreme ({ctx['leg_extreme']:.2f}), scaling out every {ctx['step']:.2f} "
+        f"(first step {ctx['planned_rr']:g}R). "
         f"Order placed {ctx['placed_at']}.",
         f"- Gap age when inverted: {ctx['gap_age_bars']} five-minute bar(s)",
         f"- Stop distance: {ctx['risk_ps']:.2f} per share ({ctx['risk_pct']:.2f}% of price)",
@@ -447,7 +463,7 @@ def _sweep_setup_lines(trade, ctx):
         f"**Setup:** {trade['setup']}: price traded {beyond} the {ctx['swept_level']} ({ctx['swept_price']:.2f}) at "
         f"{ctx['sweep_time']} (extreme {ctx['sweep_extreme']:.2f}), then a 5-min close {ctx['reclaim_close']:.2f} back "
         f"{back} it at {ctx['signal_time']}. Market entry, stop behind the sweep extreme, "
-        f"target {ctx['planned_rr']:g}R. Order placed {ctx['placed_at']}.",
+        f"scaling out every {ctx['step']:.2f} (first step {ctx['planned_rr']:g}R). Order placed {ctx['placed_at']}.",
         f"- Reclaim: {reclaim}",
         f"- Levels: premarket {ctx['levels']['pm_low']}–{ctx['levels']['pm_high']}, "
         f"prior day {ctx['levels']['pd_low']}–{ctx['levels']['pd_high']}",
@@ -480,11 +496,15 @@ def write_journal_entry(trade, number):
         f"**Opened:** {fmt_time(trade['entry_time'])} ({ctx['session']})  ",
         f"**Closed:** {fmt_time(trade['exit_time'])} ({trade['exit_reason']})",
         "",
-        "| Entry | Stop | Target | Exit | Points | R | P&L |",
+        f"| Entry | Stop | {'First step' if trade.get('partials') else 'Target'} | {'Avg exit' if trade.get('partials') else 'Exit'} "
+        "| Points | R | P&L |",
         "|---|---|---|---|---|---|---|",
         f"| {trade['entry']:.2f} | {trade['stop']:.2f} | {trade['target']:.2f} | {trade['exit']:.2f} "
         f"| {trade['points']:+.2f} | {trade['r']:+.2f}R | {trade['pnl']:+.2f} ({trade['qty']:g} sh) |",
         "",
+        *[f"- Exit: {e['qty']:g} sh at {e['price']:.2f} ({fmt_time(e['time'])[11:16]}, {e['reason']})"
+          for e in trade.get("partials", [])],
+        *([""] if trade.get("partials") else []),
         *setup,
         "",
         f"**Higher-timeframe bias:** {ctx['htf_bias']} (weekly). The {trade['direction']} {agrees} with it.",

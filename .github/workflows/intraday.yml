@@ -29,7 +29,7 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 280  # normal days end about 12:45; half days stay to flatten at 12:55
+    timeout-minutes: 350  # stays while a trade is open; the script stops itself after 5h35m (GitHub's limit is 6h)
     steps:
       - uses: actions/checkout@v4
 

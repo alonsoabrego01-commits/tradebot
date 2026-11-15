@@ -228,6 +228,8 @@ def reconcile(clients, state):
     client = clients.trading
     for symbol in list(state["open"]):
         trade = state["open"][symbol]
+        if trade.get("lots"):
+            continue  # scale-out trades are tracked lot by lot in intraday.reconcile_ladder
 
         if trade["entry"] is None:  # entry order was waiting for the market to open
             parent = client.get_order_by_id(trade["entry_order_id"])

@@ -2,9 +2,11 @@ name: Intraday flatten (15:55 ET)
 
 on:
   schedule:
-    # GitHub often starts scheduled jobs 30-50 minutes late, so this starts around 15:00 and
-    # 15:30 ET (19:xx UTC in summer, 20:xx UTC in winter) and the script waits for 15:55 itself.
-    # Starts outside 14:45-15:58 ET, and days with no open intraday trade, exit within seconds.
+    # GitHub often starts scheduled jobs 30-50 minutes late, and this job also takes over the
+    # watching of an open trade when the morning job reaches its time limit. It starts between
+    # 14:00 and 15:30 ET (19:xx UTC in summer, 20:xx UTC in winter, plus the other season's
+    # times), waits its turn behind the morning job, and manages the trade until 15:55 itself.
+    # Starts outside 13:30-15:58 ET, and days with no open intraday trade, exit within seconds.
     - cron: "0 19 * * 1-5"
     - cron: "30 19 * * 1-5"
     - cron: "0 20 * * 1-5"
@@ -21,7 +23,7 @@ permissions:
 jobs:
   flatten:
     runs-on: ubuntu-latest
-    timeout-minutes: 80  # a 14:45 start waits up to 70 minutes for 15:55
+    timeout-minutes: 160  # a 13:30 start manages an open trade for up to 145 minutes
     steps:
       - uses: actions/checkout@v4
 
