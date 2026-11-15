@@ -1,13 +1,16 @@
-name: QQQ 10am model
+name: Intraday models (QQQ breakout, SPY VWAP pullback)
 
 on:
   schedule:
-    # UTC times; GitHub ignores daylight saving and can start late. tenam.py --scheduled only
-    # acts on the first start between 9:40 and 10:30 ET (9:50 ET in both seasons, 10:05 backup).
+    # UTC times; GitHub ignores daylight saving and often starts jobs up to an hour late, so
+    # these aim at 8:20 and 8:50 ET in both seasons, with later backups. intraday.py --scheduled
+    # only acts on the first start between 8:40 and 10:30 ET, waits for 9:35 itself, and reads
+    # the opening bars from market data, so a late start still sees the whole morning.
+    - cron: "20 12 * * 1-5"
+    - cron: "50 12 * * 1-5"
+    - cron: "20 13 * * 1-5"
     - cron: "50 13 * * 1-5"
-    - cron: "05 14 * * 1-5"
-    - cron: "50 14 * * 1-5"
-    - cron: "05 15 * * 1-5"
+    - cron: "20 14 * * 1-5"
   workflow_dispatch:
     inputs:
       mode:
@@ -26,7 +29,7 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 200  # normal days end at 11:00; half days stay to flatten at 12:55
+    timeout-minutes: 280  # normal days end at 11:00; half days stay to flatten at 12:55
     steps:
       - uses: actions/checkout@v4
 
@@ -38,9 +41,9 @@ jobs:
       - run: pip install -r requirements.txt
 
       # Backup for the daily crossover: when GitHub starts the crossover's own job late, or cancels
-      # it while it waits behind this one, it runs here first. bot.py --scheduled still runs only
-      # once per day between 9:30 and 12:00 ET, so on most days this exits in a second.
-      - name: Daily crossover, if it hasn't run yet today
+      # it while it waits behind this one, it runs here. bot.py --scheduled still runs only once
+      # per day between 9:30 and 12:00 ET, so on most days these steps exit in a second.
+      - name: Daily crossover, if this job started late and it hasn't run yet today
         if: github.event_name == 'schedule'
         continue-on-error: true
         env:
@@ -48,16 +51,24 @@ jobs:
           ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
         run: python bot.py --scheduled
 
-      - name: Run 10am model
+      - name: Run intraday models
         env:
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
           ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
         run: |
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            python tenam.py --scheduled
+            python intraday.py --scheduled
           else
-            python tenam.py --dry-run
+            python intraday.py --dry-run
           fi
+
+      - name: Daily crossover, if it hasn't run yet today
+        if: always() && github.event_name == 'schedule'
+        continue-on-error: true
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        run: python bot.py --scheduled
 
       - name: Save journal, lessons, state and log
         if: always()
@@ -68,7 +79,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "Nothing to save."
           else
-            git commit -m "10am run $(TZ=America/New_York date '+%Y-%m-%d %H:%M ET')"
+            git commit -m "Intraday run $(TZ=America/New_York date '+%Y-%m-%d %H:%M ET')"
             git pull --rebase
             git push
           fi

@@ -2,7 +2,7 @@
 
 Run:  python bot.py            (checks every symbol in config.SYMBOLS and trades on signals)
       python bot.py --dry-run  (checks for signals but places no orders)
-      python bot.py --symbol QQQ  (only checks one symbol)
+      python bot.py --symbol AAPL  (only checks one symbol)
       python bot.py --force buy --symbol AAPL  (places an order without checking, for testing)
       python bot.py --scheduled  (how GitHub Actions runs it: once a day, 9:30-12:00 ET only)
 
@@ -247,7 +247,7 @@ def reconcile(clients, state):
         exits = [
             (trade.get("stop_order_id"), "Stop hit"),
             (trade.get("target_order_id"), "Target hit"),
-            (trade.get("exit_order_id"), "Crossover sell signal"),
+            (trade.get("exit_order_id"), trade.get("exit_reason", "Crossover sell signal")),
         ]
         closed = False
         for order_id, reason in exits:
@@ -443,6 +443,7 @@ def exit_trade(clients, state, symbol, dry_run, reason="Crossover sell signal"):
         symbol=symbol, qty=trade["qty"], side=OrderSide.SELL if trade["direction"] == "long" else OrderSide.BUY, time_in_force=TimeInForce.DAY,
     ))
     trade["exit_order_id"] = str(order.id)
+    trade["exit_reason"] = reason  # so a later run journals a slow fill under the right reason
     journal.save_state(state)
     log.info(f"{symbol}: submitted SELL id={order.id}")
 

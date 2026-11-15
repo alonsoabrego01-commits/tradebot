@@ -1,4 +1,4 @@
-"""Learning loop shared by both models: trade journal, post-mortems, reviews, rules.
+"""Learning loop shared by all models: trade journal, post-mortems, reviews, rules.
 
 Files (next to this script):
   trades_state.json  open and closed trades (the bots' memory between runs)
@@ -29,7 +29,8 @@ LESSONS_FILE = os.path.join(BASE, "lessons.md")
 log = logging.getLogger("tradebot")
 
 SETUP = f"{config.SHORT_WINDOW}/{config.LONG_WINDOW} MA golden cross"
-TENAM_SETUP = "QQQ 10am model"
+ORB_SETUP = "Opening range breakout"
+VWAP_SETUP = "Trend-day VWAP pullback"
 FIB_LEVELS = (0.62, 0.65, 0.705, 0.79)
 MET, BORDERLINE, NOT_MET = "MET", "BORDERLINE", "NOT MET"
 
@@ -76,40 +77,58 @@ def htf_aligned(c):
     )
 
 
-TENAM_CONDITIONS = {
-    "tenam_htf_not_aligned": (
+ORB_CONDITIONS = {
+    "orb_htf_not_aligned": (
+        "Higher-timeframe (weekly) bias agrees with the trade direction",
+        "weekly bias not aligned with the breakout direction",
+        lambda c: not htf_aligned(c),
+    ),
+    "orb_wide_range": (
+        "Opening range at most 1% of price",
+        "opening range wider than 1% of price",
+        lambda c: c["range_pct"] > 1.0,
+    ),
+    "orb_extended": (
+        "Entry within half a range-width of the breakout level",
+        "entry more than half a range-width past the breakout level",
+        lambda c: c["extension"] > 0.5,
+    ),
+    "orb_late": (
+        "Breakout by 10:15 ET",
+        "breakout after 10:15 ET",
+        lambda c: c["signal_minute"] > 10 * 60 + 15,
+    ),
+}
+
+VWAP_CONDITIONS = {
+    "vwap_htf_not_aligned": (
         "Higher-timeframe (weekly) bias agrees with the trade direction",
         "weekly bias not aligned with the trade direction",
         lambda c: not htf_aligned(c),
     ),
-    "tenam_weak_wick": (
-        "Sweep candle has a clear rejection wick (at least 30% of its range)",
-        "weak rejection wick on the sweep candle (under 30% of its range)",
-        lambda c: c["wick_ratio"] < 0.30,
+    "vwap_weak_open": (
+        "Opening move at least 0.4 daily ATR",
+        "opening move under 0.4 daily ATR",
+        lambda c: c["open_move_atr"] < 0.4,
     ),
-    "tenam_tight_stop": (
-        "Stop at least $0.40 from entry",
-        "stop under $0.40 from entry",
-        lambda c: c["risk_ps"] < 0.40,
+    "vwap_pierced": (
+        "Pullback held VWAP (no trade through it)",
+        "pullback traded through VWAP before the entry",
+        lambda c: c["pierced_vwap"],
     ),
-    "tenam_low_rr": (
-        "Planned reward at least 2R",
-        "target under 2R (prior-day level close to entry)",
-        lambda c: c["planned_rr"] < 2.0,
+    "vwap_tight_stop": (
+        "Stop at least 0.08% of price from entry",
+        "stop under 0.08% of price from entry",
+        lambda c: c["risk_pct"] < 0.08,
     ),
-    "tenam_late": (
-        "Order placed by 10:40 ET",
-        "order placed after 10:40 ET",
-        lambda c: c["placed_minute"] > 10 * 60 + 40,
-    ),
-    "tenam_heavy_news": (
-        "News: fewer than 5 QQQ headlines in the prior 24h",
-        "5+ QQQ headlines in the 24h before entry",
-        lambda c: c["news_count"] >= 5,
+    "vwap_late": (
+        "Entry signal by 10:40 ET",
+        "entry signal after 10:40 ET",
+        lambda c: c["signal_minute"] > 10 * 60 + 40,
     ),
 }
 
-ALL_CONDITIONS = {**CROSSOVER_CONDITIONS, **TENAM_CONDITIONS}
+ALL_CONDITIONS = {**CROSSOVER_CONDITIONS, **ORB_CONDITIONS, **VWAP_CONDITIONS}
 
 LESSONS_TEMPLATE = """# Lessons
 
@@ -221,7 +240,7 @@ def weekly_bias(df):
 
 
 def daily_trend(df, price):
-    """Trend and volatility from completed daily bars, shared by both models."""
+    """Trend and volatility from completed daily bars, shared by all models."""
     long_ma = df["Close"].rolling(config.LONG_WINDOW).mean()
     ma50 = float(long_ma.iloc[-1])
     ma50_slope = (ma50 / float(long_ma.iloc[-11]) - 1) * 100
@@ -413,19 +432,32 @@ def _crossover_setup_lines(trade, ctx):
     ]
 
 
-def _tenam_setup_lines(trade, ctx):
-    side = "below" if trade["direction"] == "long" else "above"
-    back = "above" if trade["direction"] == "long" else "below"
+def _orb_setup_lines(trade, ctx):
+    side = "above" if trade["direction"] == "long" else "below"
     return [
-        f"**Setup:** {trade['setup']}: wick {side} the {ctx['swept_level']} ({ctx['swept_price']:.2f}) at "
-        f"{ctx['sweep_time']}, then a 1-min close back {back} O10 ({ctx['o10']:.2f}) at {ctx['reclaim_time']}. "
-        f"Limit at O10, stop {config.TENAM_STOP_BUFFER:.2f} beyond the manipulation extreme, "
-        f"target = {ctx['tp_basis']} (planned {ctx['planned_rr']:.2f}R). Order placed {ctx['placed_at']}.",
-        f"- Fib level of entry: {ctx['fib_level']} (O10 at a {ctx['fib_retrace']:.3f} retracement of the "
-        f"manipulation {ctx['manip']:.2f} → extreme {ctx['extreme']:.2f} range); OTE zone: {'yes' if ctx['in_ote'] else 'no'}",
-        f"- Rejection wick: {ctx['wick_strength']} ({ctx['wick_ratio']:.0%} of the sweep candle's range)",
-        f"- Liquidity before entry: {ctx['liquidity']}",
+        f"**Setup:** {trade['setup']}: {config.ORB_RANGE_MINUTES}-minute opening range "
+        f"{ctx['range_low']:.2f}–{ctx['range_high']:.2f} ({ctx['range_pct']:.2f}% of price), then a 5-min close "
+        f"{ctx['breakout_close']:.2f} {side} it at {ctx['signal_time']}. Market entry, stop {ctx['stop_basis']}, "
+        f"target {ctx['planned_rr']:g}R. Order placed {ctx['placed_at']}.",
+        f"- Entry extension: {ctx['extension']:.0%} of the range-width past the breakout level",
+        f"- Stop distance: {ctx['risk_ps']:.2f} per share ({ctx['risk_pct']:.2f}% of price)",
     ]
+
+
+def _vwap_setup_lines(trade, ctx):
+    beyond = "above" if trade["direction"] == "long" else "below"
+    return [
+        f"**Setup:** {trade['setup']}: strong open ({ctx['open_move']:+.2f}, {ctx['open_move_atr']:.2f} daily ATR, "
+        f"{ctx['side_closes']} 5-min closes {beyond} VWAP), first pullback to the {ctx['touch_level']} "
+        f"({ctx['touch_price']:.2f}) at {ctx['touch_time']}, then a 5-min close back {beyond} the "
+        f"{config.VWAP_FAST_EMA} EMA at {ctx['signal_time']}. Market entry, stop behind the pullback extreme "
+        f"({ctx['pullback_extreme']:.2f}), target {ctx['planned_rr']:g}R. Order placed {ctx['placed_at']}.",
+        f"- Pullback depth: {'traded through VWAP' if ctx['pierced_vwap'] else 'held VWAP'} (VWAP {ctx['vwap']:.2f})",
+        f"- Stop distance: {ctx['risk_ps']:.2f} per share ({ctx['risk_pct']:.2f}% of price)",
+    ]
+
+
+SETUP_LINES = {"orb": _orb_setup_lines, "vwap": _vwap_setup_lines}
 
 
 def write_journal_entry(trade, number):
@@ -436,13 +468,13 @@ def write_journal_entry(trade, number):
             "# Trade Journal",
             "",
             "Grades: A = all rules met, B = one borderline, C = a rule broken (or 2+ borderline). "
-            "Crossover trades measure Fib, wick and liquidity on daily candles; 10am trades on 1-minute candles.",
+            "Crossover trades are read on daily candles; intraday trades (opening range breakout, VWAP pullback) on 5-minute candles.",
             "",
         ]
     result = "WIN" if trade["pnl"] > 0 else "LOSS" if trade["pnl"] < 0 else "BREAKEVEN"
     agrees = "agrees" if htf_aligned({**ctx, "direction": trade["direction"]}) else (
         "neutral" if ctx["htf_bias"] == "neutral" else "goes against")
-    setup = _tenam_setup_lines(trade, ctx) if trade.get("model") == "10am" else _crossover_setup_lines(trade, ctx)
+    setup = SETUP_LINES.get(trade.get("model"), _crossover_setup_lines)(trade, ctx)
     lines += [
         f"## #{number} · {fmt_time(trade['entry_time'])[:10]} · {trade['symbol']} · {trade['direction'].upper()} · "
         f"{result} {trade['r']:+.2f}R · Grade {trade['grade']}",

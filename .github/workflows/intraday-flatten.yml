@@ -1,10 +1,10 @@
-name: QQQ 10am flatten (15:55 ET)
+name: Intraday flatten (15:55 ET)
 
 on:
   schedule:
     # GitHub often starts scheduled jobs 30-50 minutes late, so this starts around 15:00 and
     # 15:30 ET (19:xx UTC in summer, 20:xx UTC in winter) and the script waits for 15:55 itself.
-    # Starts outside 14:45-15:58 ET, and days with no open 10am trade, exit within seconds.
+    # Starts outside 14:45-15:58 ET, and days with no open intraday trade, exit within seconds.
     - cron: "0 19 * * 1-5"
     - cron: "30 19 * * 1-5"
     - cron: "0 20 * * 1-5"
@@ -32,15 +32,15 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - name: Close an open 10am trade
+      - name: Close open intraday trades
         env:
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
           ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
         run: |
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            python tenam.py --flatten --scheduled
+            python intraday.py --flatten --scheduled
           else
-            python tenam.py --flatten
+            python intraday.py --flatten
           fi
 
       - name: Save journal, lessons, state and log
@@ -52,7 +52,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "Nothing to save."
           else
-            git commit -m "10am flatten $(TZ=America/New_York date '+%Y-%m-%d %H:%M ET')"
+            git commit -m "Intraday flatten $(TZ=America/New_York date '+%Y-%m-%d %H:%M ET')"
             git pull --rebase
             git push
           fi
