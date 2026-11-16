@@ -690,3 +690,19 @@
 2026-11-13 10:01:04  INFO    10am: 10:00 long: wick below the 9:30-10:00 low (680.72)
 2026-11-13 11:00:00  INFO    10am: NO TRADE: no setup completed before 11:00 ET.
 2026-11-13 11:00:00  INFO    ===== 10am model finished =====
+2026-11-16 10:05:00  INFO    ===== Intraday models started (QQQ ifvg, SPY sweep, dry run) =====
+2026-11-16 10:05:00  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-16 10:05:00  INFO    Journal: no closed trades yet.
+2026-11-16 10:05:01  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-16 10:05:01  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-16 10:05:01  INFO    SPY sweep: premarket 747.96-753.01 | prior day 747.88-760.12
+2026-11-16 10:05:01  INFO    SPY sweep: NO TRADE: the signal (swept the premarket low 747.96 to 746.85, 5-min close 749.12 back above it) completed at 09:40, before the bot was watching (now 10:05); too late to act on it.
+2026-11-16 10:55:06  INFO    QQQ ifvg: LONG signal (bullish order flow, 5-min close 668.15 above the bearish gap 665.94-667.68): limit 667.68, stop 663.02, 26 sh, risk $121.16. Scale-out every 2.40 (0.52R): 13 / 7 / 3 / 2 / 1 sh from 670.08.
+2026-11-16 10:55:06  INFO    QQQ ifvg: grade C (3 borderline: Higher-timeframe (weekly) bias agrees with the trade direction; Gap formed within the last 30 minutes; Stop at most 0.6% of price from entry).
+2026-11-16 10:55:06  INFO    QQQ ifvg: dry run: no order placed.
+2026-11-16 12:00:07  INFO    QQQ ifvg: LONG signal (bullish order flow, 5-min close 668.14 above the bearish gap 667.63-667.73): limit 667.73, stop 666.76, 37 sh, risk $35.89. Scale-out every 2.40 (2.47R): 19 / 9 / 5 / 2 / 1 / 1 sh from 670.13.
+2026-11-16 12:00:07  INFO    QQQ ifvg: grade B (one borderline: Higher-timeframe (weekly) bias agrees with the trade direction).
+2026-11-16 12:00:07  INFO    QQQ ifvg: dry run: no order placed.
+2026-11-16 12:05:05  INFO    QQQ ifvg: NO TRADE: no setup filled by 12:00 ET.
+2026-11-16 12:05:05  INFO    Intraday: no open intraday trade. Done for the day.
+2026-11-16 12:05:05  INFO    ===== Intraday models finished =====
