@@ -1,13 +1,509 @@
 {
   "open": {},
-  "closed": [],
+  "closed": [
+    {
+      "symbol": "SPY",
+      "direction": "long",
+      "model": "sweep",
+      "qty": 33,
+      "setup": "Liquidity sweep and reversal",
+      "entry_order_id": "7ba0be97-8e07-4e0c-965b-3afad88dc7c8",
+      "entry": 738.01,
+      "entry_time": "2026-11-17T09:40:09.175516-05:00",
+      "stop": 737.44,
+      "target": 740.77,
+      "stop_order_id": null,
+      "target_order_id": null,
+      "context": {
+        "session": "NY AM",
+        "direction": "long",
+        "signal_time": "09:40",
+        "signal_minute": 580,
+        "placed_at": "09:40 ET",
+        "news_count": 0,
+        "headlines": [],
+        "swept_level": "prior-day low",
+        "swept_price": 738.07,
+        "sweep_time": "09:35",
+        "sweep_extreme": 737.49,
+        "reclaim_bars": 2,
+        "reclaim_close": 738.12,
+        "levels": {
+          "pm_high": 741.73,
+          "pm_low": 735.7,
+          "pd_high": 749.82,
+          "pd_low": 738.07
+        },
+        "risk_ps": 0.67,
+        "planned_rr": 3.97,
+        "step": 2.66,
+        "risk_pct": 0.091,
+        "trend": "downtrend",
+        "volatility": "normal",
+        "atr": 13.51,
+        "atr_pct": 1.83,
+        "price_vs_ma50_pct": -3.33,
+        "ma50_slope_pct": -0.39,
+        "htf_bias": "bearish"
+      },
+      "checklist": [
+        [
+          "Level in play at the open: prior-day low 738.07",
+          "MET",
+          null
+        ],
+        [
+          "Sweep: a 5-min bar traded below it at 09:35 (extreme 737.49)",
+          "MET",
+          null
+        ],
+        [
+          "Reclaim: 5-min close 738.12 back above it within 3 bars (09:40)",
+          "MET",
+          null
+        ],
+        [
+          "Entry signal between 09:35 and 11:30 ET",
+          "MET",
+          null
+        ],
+        [
+          "One trade per day for this model",
+          "MET",
+          null
+        ],
+        [
+          "Hard limit: max 100 shares and $50,000 per position (33 sh, $24,358); no margin",
+          "MET",
+          null
+        ],
+        [
+          "Hard limit: daily loss under $250 (today +0.00)",
+          "MET",
+          null
+        ],
+        [
+          "Hard limit: max 3 trades per day",
+          "MET",
+          null
+        ],
+        [
+          "Hard limit: stop at entry (bracket order on every lot)",
+          "MET",
+          null
+        ],
+        [
+          "No APPROVED lessons.md rule blocks the entry",
+          "MET",
+          null
+        ],
+        [
+          "Higher-timeframe (weekly) bias agrees with the trade direction",
+          "BORDERLINE",
+          "sweep_htf_not_aligned"
+        ],
+        [
+          "Level reclaimed on the sweep bar itself",
+          "BORDERLINE",
+          "sweep_slow_reclaim"
+        ],
+        [
+          "Stop at least 0.08% of price from entry",
+          "MET",
+          "sweep_tight_stop"
+        ],
+        [
+          "Entry signal by 10:45 ET",
+          "MET",
+          "sweep_late"
+        ]
+      ],
+      "grade": "C",
+      "grade_reason": "2 borderline: Higher-timeframe (weekly) bias agrees with the trade direction; Level reclaimed on the sweep bar itself",
+      "adopted": false,
+      "lots": [
+        {
+          "k": 1,
+          "qty": 17,
+          "order_id": "7ba0be97-8e07-4e0c-965b-3afad88dc7c8",
+          "take": 740.77,
+          "stop": 737.44,
+          "state": "stop",
+          "tp_id": "c4ac4d82-e177-427a-bcc0-fe48739bf8d1",
+          "stop_id": "3079fd3a-59be-4980-9807-64926e100546",
+          "fill": 738.004118,
+          "filled_at": "2026-11-17T09:40:10.991152-05:00"
+        },
+        {
+          "k": 2,
+          "qty": 8,
+          "order_id": "16bbd935-d916-49e4-949a-6bff6a62949e",
+          "take": 743.43,
+          "stop": 737.44,
+          "state": "stop",
+          "tp_id": "30748ff8-c835-406b-96e9-1201028d65ef",
+          "stop_id": "830747da-8a45-4276-991c-e742430d7f88",
+          "fill": 738.015,
+          "filled_at": "2026-11-17T09:40:12.704891-05:00"
+        },
+        {
+          "k": 3,
+          "qty": 4,
+          "order_id": "1fb35d67-beda-414c-8996-3686947cd7e5",
+          "take": 746.09,
+          "stop": 737.44,
+          "state": "stop",
+          "tp_id": "8b8e3bdf-e6b4-4dd4-9d89-280fc032e182",
+          "stop_id": "967f4da8-0990-46c5-ba78-e9beac3bb6cf",
+          "fill": 738.02,
+          "filled_at": "2026-11-17T09:40:09.663030-05:00"
+        },
+        {
+          "k": 4,
+          "qty": 2,
+          "order_id": "f971d7a2-2c67-496c-a5eb-40aa84f6ffae",
+          "take": 748.75,
+          "stop": 737.44,
+          "state": "stop",
+          "tp_id": "14626d60-a450-4766-ba02-1a6df375b21f",
+          "stop_id": "1aaab2af-7f81-45cd-a331-3955648332d8",
+          "fill": 738.08,
+          "filled_at": "2026-11-17T09:40:10.535127-05:00"
+        },
+        {
+          "k": 5,
+          "qty": 1,
+          "order_id": "8dca58e4-f5ce-4f3d-ba01-60df9cd40ecd",
+          "take": 751.41,
+          "stop": 737.44,
+          "state": "stop",
+          "tp_id": "59d78952-7fef-4e3f-992b-7d3be358ca38",
+          "stop_id": "70d625de-2d4f-4fca-ae14-4b6620a27ccd",
+          "fill": 738.01,
+          "filled_at": "2026-11-17T09:40:09.175516-05:00"
+        },
+        {
+          "k": 6,
+          "qty": 1,
+          "order_id": "14946907-20ef-4f64-8cd4-d7b1b07e2d2b",
+          "take": 754.07,
+          "stop": 737.44,
+          "state": "stop",
+          "tp_id": "fb1028c5-5c8a-4879-b80d-51793d172634",
+          "stop_id": "755a16d0-d30f-49d0-aa63-67352284b1db",
+          "fill": 738.01,
+          "filled_at": "2026-11-17T09:40:09.201279-05:00"
+        }
+      ],
+      "base": 738.11,
+      "step": 2.66,
+      "partials": [
+        {
+          "qty": 2,
+          "price": 737.35,
+          "time": "2026-11-17T10:05:45.961196-05:00",
+          "reason": "Stop"
+        },
+        {
+          "qty": 1,
+          "price": 737.34,
+          "time": "2026-11-17T10:05:46.342032-05:00",
+          "reason": "Stop"
+        },
+        {
+          "qty": 17,
+          "price": 737.39,
+          "time": "2026-11-17T10:05:49.048020-05:00",
+          "reason": "Stop"
+        },
+        {
+          "qty": 8,
+          "price": 737.38,
+          "time": "2026-11-17T10:05:49.968809-05:00",
+          "reason": "Stop"
+        },
+        {
+          "qty": 4,
+          "price": 737.35,
+          "time": "2026-11-17T10:05:47.678118-05:00",
+          "reason": "Stop"
+        },
+        {
+          "qty": 1,
+          "price": 737.38,
+          "time": "2026-11-17T10:05:46.922820-05:00",
+          "reason": "Stop"
+        }
+      ],
+      "exit": 737.38,
+      "exit_time": "2026-11-17T10:05:46.922820-05:00",
+      "exit_reason": "Stop hit",
+      "points": -0.63,
+      "pnl": -20.84,
+      "r": -1.11,
+      "loss_class": "b",
+      "post_mortem": "**(b) Weak/borderline setup.** Filter that would have kept me out: `skip_sweep_htf_not_aligned` (weekly bias not aligned with the trade direction), `skip_sweep_slow_reclaim` (level reclaimed one or two bars after the sweep, not on the sweep bar)."
+    },
+    {
+      "symbol": "QQQ",
+      "direction": "short",
+      "model": "ifvg",
+      "qty": 38,
+      "setup": "Inverse fair value gap with the order flow",
+      "entry_order_id": "f77f44f8-1ae0-41bd-b8b8-24d883c38eb4",
+      "entry": 653.45,
+      "entry_time": "2026-11-17T11:25:23.373271-05:00",
+      "stop": 656.54,
+      "target": 651.04,
+      "stop_order_id": null,
+      "target_order_id": null,
+      "context": {
+        "session": "NY AM",
+        "direction": "short",
+        "signal_time": "11:25",
+        "signal_minute": 685,
+        "placed_at": "11:25 ET",
+        "news_count": 0,
+        "headlines": [],
+        "flow": "bearish",
+        "gap_low": 653.39,
+        "gap_high": 653.62,
+        "gap_time": "11:10",
+        "gap_age_bars": 3,
+        "inversion_close": 653.21,
+        "limit": 653.39,
+        "leg_extreme": 656.49,
+        "risk_ps": 3.15,
+        "planned_rr": 0.75,
+        "step": 2.35,
+        "risk_pct": 0.482,
+        "trend": "downtrend",
+        "volatility": "normal",
+        "atr": 19.23,
+        "atr_pct": 2.94,
+        "price_vs_ma50_pct": -8.82,
+        "ma50_slope_pct": -1.03,
+        "htf_bias": "bearish"
+      },
+      "checklist": [
+        [
+          "Order flow bearish: the last break of structure was down",
+          "MET",
+          null
+        ],
+        [
+          "Bullish fair value gap 653.39-653.62 formed at 11:10, within 12 bars",
+          "MET",
+          null
+        ],
+        [
+          "Inverted: 5-min close 653.21 below it at 11:25",
+          "MET",
+          null
+        ],
+        [
+          "Setup completed between 10:00 and 12:00 ET",
+          "MET",
+          null
+        ],
+        [
+          "Limit entry at the retest of the gap (653.39), good for 45 minutes",
+          "MET",
+          null
+        ],
+        [
+          "One trade per day for this model",
+          "MET",
+          null
+        ],
+        [
+          "Hard limit: max 100 shares and $50,000 per position (38 sh, $24,829); no margin",
+          "MET",
+          null
+        ],
+        [
+          "Hard limit: daily loss under $250 (today -20.94)",
+          "MET",
+          null
+        ],
+        [
+          "Hard limit: max 3 trades per day",
+          "MET",
+          null
+        ],
+        [
+          "Hard limit: stop at entry (bracket order on every lot)",
+          "MET",
+          null
+        ],
+        [
+          "No APPROVED lessons.md rule blocks the entry",
+          "MET",
+          null
+        ],
+        [
+          "Higher-timeframe (weekly) bias agrees with the trade direction",
+          "MET",
+          "ifvg_htf_not_aligned"
+        ],
+        [
+          "Gap formed within the last 30 minutes",
+          "MET",
+          "ifvg_old_gap"
+        ],
+        [
+          "Stop at least 0.08% of price from entry",
+          "MET",
+          "ifvg_tight_stop"
+        ],
+        [
+          "Stop at most 0.6% of price from entry",
+          "MET",
+          "ifvg_wide_stop"
+        ]
+      ],
+      "grade": "A",
+      "grade_reason": "all rules met",
+      "adopted": false,
+      "lots": [
+        {
+          "k": 1,
+          "qty": 19,
+          "order_id": "f77f44f8-1ae0-41bd-b8b8-24d883c38eb4",
+          "take": 651.04,
+          "stop": 656.54,
+          "state": "tp",
+          "tp_id": "832036fd-ac7f-4320-8237-1832adb9e6b1",
+          "stop_id": "abecd201-6115-40cb-9072-f222ac026036",
+          "fill": 653.491579,
+          "filled_at": "2026-11-17T11:25:27.366068-05:00"
+        },
+        {
+          "k": 2,
+          "qty": 10,
+          "order_id": "4d198cad-3c27-4249-9d61-7e50d014f59a",
+          "take": 648.69,
+          "stop": 653.39,
+          "state": "stop",
+          "tp_id": "d3458688-6691-4462-965f-0a163117f69f",
+          "stop_id": "6291d777-5c14-4ba3-9258-db99f5bf5cfd",
+          "fill": 653.4,
+          "filled_at": "2026-11-17T11:25:23.373271-05:00"
+        },
+        {
+          "k": 3,
+          "qty": 5,
+          "order_id": "5f4d2cb5-3dfb-40eb-8027-557b958481e2",
+          "take": 646.34,
+          "stop": 653.39,
+          "state": "stop",
+          "tp_id": "9a101208-3623-4fa3-b058-9bb29816a61d",
+          "stop_id": "51ae06d3-5276-4b24-b145-d6e9c7e8bf10",
+          "fill": 653.45,
+          "filled_at": "2026-11-17T11:25:25.474915-05:00"
+        },
+        {
+          "k": 4,
+          "qty": 2,
+          "order_id": "7677d225-a9bf-4971-8823-36f7facc6f32",
+          "take": 643.99,
+          "stop": 653.39,
+          "state": "stop",
+          "tp_id": "84b806cc-c103-4282-bd65-43a25a0cf992",
+          "stop_id": "ab229f3e-2c37-4e31-971c-46f0aede98c4",
+          "fill": 653.41,
+          "filled_at": "2026-11-17T11:25:24.385821-05:00"
+        },
+        {
+          "k": 5,
+          "qty": 1,
+          "order_id": "e3afc786-f27b-406d-a31b-a56d8691f08f",
+          "take": 641.64,
+          "stop": 653.39,
+          "state": "stop",
+          "tp_id": "16e86b79-aa17-4f4f-a086-0ccd6ae5e459",
+          "stop_id": "899f3934-18e3-4874-9ff9-e8196251bd15",
+          "fill": 653.41,
+          "filled_at": "2026-11-17T11:25:24.434639-05:00"
+        },
+        {
+          "k": 6,
+          "qty": 1,
+          "order_id": "35c5745b-e13b-4515-b397-721e76d3c627",
+          "take": 639.29,
+          "stop": 653.39,
+          "state": "stop",
+          "tp_id": "32a59316-7579-4733-8b1f-33493e6fba44",
+          "stop_id": "884d1041-33e4-4397-a952-e90d32ae334a",
+          "fill": 653.44,
+          "filled_at": "2026-11-17T11:25:23.779494-05:00"
+        }
+      ],
+      "base": 653.39,
+      "step": 2.35,
+      "partials": [
+        {
+          "qty": 19,
+          "price": 650.99,
+          "time": "2026-11-17T11:45:54.406338-05:00",
+          "reason": "Step 1"
+        },
+        {
+          "qty": 10,
+          "price": 653.09,
+          "time": "2026-11-17T12:05:23.436195-05:00",
+          "reason": "Stop"
+        },
+        {
+          "qty": 5,
+          "price": 652.93,
+          "time": "2026-11-17T12:05:25.884426-05:00",
+          "reason": "Stop"
+        },
+        {
+          "qty": 2,
+          "price": 653.01,
+          "time": "2026-11-17T12:05:24.600959-05:00",
+          "reason": "Stop"
+        },
+        {
+          "qty": 1,
+          "price": 653.03,
+          "time": "2026-11-17T12:05:22.621234-05:00",
+          "reason": "Stop"
+        },
+        {
+          "qty": 1,
+          "price": 653.09,
+          "time": "2026-11-17T12:05:22.786036-05:00",
+          "reason": "Stop"
+        }
+      ],
+      "signal_start": "2026-11-17T11:25:00-05:00",
+      "expire": "2026-11-17T12:10:00-05:00",
+      "exit": 652.01,
+      "exit_time": "2026-11-17T12:05:22.786036-05:00",
+      "exit_reason": "Breakeven stop after step 1",
+      "points": 1.44,
+      "pnl": 54.6,
+      "r": 0.46
+    }
+  ],
   "last_review_at": 0,
   "entries_by_day": {
-    "2026-11-10": 1
+    "2026-11-10": 1,
+    "2026-11-17": 2
   },
   "last_scheduled_run": "2026-11-13",
   "tenam_last_start": "2026-11-13",
   "tenam_trades_by_day": {
     "2026-11-10": 1
+  },
+  "intraday_last_start": "2026-11-17",
+  "intraday_trades_by_day": {
+    "2026-11-17": {
+      "sweep": 1,
+      "ifvg": 1
+    }
   }
 }

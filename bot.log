@@ -706,3 +706,50 @@
 2026-11-16 12:05:05  INFO    QQQ ifvg: NO TRADE: no setup filled by 12:00 ET.
 2026-11-16 12:05:05  INFO    Intraday: no open intraday trade. Done for the day.
 2026-11-16 12:05:05  INFO    ===== Intraday models finished =====
+2026-11-17 08:58:52  INFO    ===== Intraday models started (QQQ ifvg, SPY sweep) =====
+2026-11-17 08:58:52  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-17 08:58:52  INFO    Journal: no closed trades yet.
+2026-11-17 09:35:05  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-17 09:35:05  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-17 09:35:06  INFO    SPY sweep: premarket 735.70-741.73 | prior day 738.07-749.82
+2026-11-17 09:35:06  INFO    SPY sweep: 09:35 no sweep and reclaim yet.
+2026-11-17 09:40:05  INFO    SPY sweep: LONG signal (swept the prior-day low 738.07 to 737.49, 5-min close 738.12 back above it): market near 738.11, stop 737.44, 33 sh, risk $22.11. Scale-out every 2.66 (3.97R): 17 / 8 / 4 / 2 / 1 / 1 sh from 740.77.
+2026-11-17 09:40:05  INFO    SPY sweep: grade C (2 borderline: Higher-timeframe (weekly) bias agrees with the trade direction; Level reclaimed on the sweep bar itself).
+2026-11-17 09:40:06  INFO    SPY sweep: submitted LONG ladder of 6 bracket order(s), 33 sh.
+2026-11-17 09:40:28  INFO    SPY sweep: lot 1 filled, 17 sh at 738.00 (take-profit 740.77, stop 737.44).
+2026-11-17 09:40:28  INFO    SPY sweep: lot 2 filled, 8 sh at 738.01 (take-profit 743.43, stop 737.44).
+2026-11-17 09:40:28  INFO    SPY sweep: lot 3 filled, 4 sh at 738.02 (take-profit 746.09, stop 737.44).
+2026-11-17 09:40:28  INFO    SPY sweep: lot 4 filled, 2 sh at 738.08 (take-profit 748.75, stop 737.44).
+2026-11-17 09:40:28  INFO    SPY sweep: lot 5 filled, 1 sh at 738.01 (take-profit 751.41, stop 737.44).
+2026-11-17 09:40:28  INFO    SPY sweep: lot 6 filled, 1 sh at 738.01 (take-profit 754.07, stop 737.44).
+2026-11-17 10:05:46  INFO    SPY sweep: stop: closed 2 sh at 737.35.
+2026-11-17 10:05:46  INFO    SPY sweep: stop: closed 1 sh at 737.34.
+2026-11-17 10:06:06  INFO    SPY sweep: stop: closed 17 sh at 737.39.
+2026-11-17 10:06:06  INFO    SPY sweep: stop: closed 8 sh at 737.38.
+2026-11-17 10:06:06  INFO    SPY sweep: stop: closed 4 sh at 737.35.
+2026-11-17 10:06:06  INFO    SPY sweep: stop: closed 1 sh at 737.38.
+2026-11-17 10:06:06  INFO    SPY: trade closed (Stop hit) at 737.38, P&L -20.84 (-1.11R, grade C). Journal updated.
+2026-11-17 11:25:05  INFO    QQQ ifvg: SHORT signal (bearish order flow, 5-min close 653.21 below the bullish gap 653.39-653.62): limit 653.39, stop 656.54, 38 sh, risk $119.70. Scale-out every 2.35 (0.75R): 19 / 10 / 5 / 2 / 1 / 1 sh from 651.04.
+2026-11-17 11:25:05  INFO    QQQ ifvg: grade A (all rules met).
+2026-11-17 11:25:06  INFO    QQQ ifvg: submitted SHORT ladder of 6 bracket order(s), 38 sh.
+2026-11-17 11:25:06  INFO    QQQ ifvg: limit order(s) resting until 12:10 ET.
+2026-11-17 11:25:26  INFO    QQQ ifvg: lot 2 filled, 10 sh at 653.40 (take-profit 648.69, stop 656.54).
+2026-11-17 11:25:26  INFO    QQQ ifvg: lot 3 filled, 5 sh at 653.45 (take-profit 646.34, stop 656.54).
+2026-11-17 11:25:26  INFO    QQQ ifvg: lot 4 filled, 2 sh at 653.41 (take-profit 643.99, stop 656.54).
+2026-11-17 11:25:26  INFO    QQQ ifvg: lot 5 filled, 1 sh at 653.41 (take-profit 641.64, stop 656.54).
+2026-11-17 11:25:26  INFO    QQQ ifvg: lot 6 filled, 1 sh at 653.44 (take-profit 639.29, stop 656.54).
+2026-11-17 11:25:46  INFO    QQQ ifvg: lot 1 filled, 19 sh at 653.49 (take-profit 651.04, stop 656.54).
+2026-11-17 11:46:13  INFO    QQQ ifvg: step 1: closed 19 sh at 650.99.
+2026-11-17 11:46:14  INFO    QQQ ifvg: step 1 filled; stop on lot 2 (10 sh) moved to 653.39.
+2026-11-17 11:46:14  INFO    QQQ ifvg: step 1 filled; stop on lot 3 (5 sh) moved to 653.39.
+2026-11-17 11:46:14  INFO    QQQ ifvg: step 1 filled; stop on lot 4 (2 sh) moved to 653.39.
+2026-11-17 11:46:14  INFO    QQQ ifvg: step 1 filled; stop on lot 5 (1 sh) moved to 653.39.
+2026-11-17 11:46:14  INFO    QQQ ifvg: step 1 filled; stop on lot 6 (1 sh) moved to 653.39.
+2026-11-17 12:05:38  INFO    QQQ ifvg: stop: closed 10 sh at 653.09.
+2026-11-17 12:05:38  INFO    QQQ ifvg: stop: closed 5 sh at 652.93.
+2026-11-17 12:05:38  INFO    QQQ ifvg: stop: closed 2 sh at 653.01.
+2026-11-17 12:05:38  INFO    QQQ ifvg: stop: closed 1 sh at 653.03.
+2026-11-17 12:05:39  INFO    QQQ ifvg: stop: closed 1 sh at 653.09.
+2026-11-17 12:05:39  INFO    QQQ: trade closed (Breakeven stop after step 1) at 652.01, P&L +54.60 (+0.46R, grade A). Journal updated.
+2026-11-17 12:05:39  INFO    Intraday: no open intraday trade. Done for the day.
+2026-11-17 12:05:39  INFO    ===== Intraday models finished =====
