@@ -820,3 +820,6 @@
 2026-11-18 12:24:12  INFO    SPY sweep: step 1 filled; stop on lot 6 (1 sh) moved to 729.62.
 2026-11-18 14:33:36  INFO    Intraday: still in SPY at this run's time limit; stops and take-profits are on Alpaca and the 15:55 job takes over.
 2026-11-18 14:33:36  INFO    ===== Intraday models finished =====
+2026-11-18 14:48:58  INFO    ===== Intraday flatten job =====
+2026-11-18 14:48:58  INFO    Intraday: watching open trade(s) until 15:55 ET.
+2026-11-18 15:55:24  ERROR   SPY: could not close 17 sh at market; check Alpaca.
