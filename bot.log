@@ -753,3 +753,70 @@
 2026-11-17 12:05:39  INFO    QQQ: trade closed (Breakeven stop after step 1) at 652.01, P&L +54.60 (+0.46R, grade A). Journal updated.
 2026-11-17 12:05:39  INFO    Intraday: no open intraday trade. Done for the day.
 2026-11-17 12:05:39  INFO    ===== Intraday models finished =====
+2026-11-18 08:58:18  INFO    ===== Intraday models started (QQQ ifvg, SPY sweep) =====
+2026-11-18 08:58:18  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-18 08:58:18  INFO    Last 2 trades: win rate 50%, avg R -0.33, grades {'A': 1, 'C': 1}, losses by class {'b': 1}
+2026-11-18 09:35:05  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-18 09:35:05  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-18 09:35:06  INFO    SPY sweep: premarket 732.54-737.39 | prior day 727.00-739.76
+2026-11-18 09:35:06  INFO    SPY sweep: 09:35 no sweep and reclaim yet.
+2026-11-18 09:40:05  INFO    SPY sweep: 09:40 no sweep and reclaim yet.
+2026-11-18 09:45:05  INFO    SPY sweep: 09:45 no sweep and reclaim yet.
+2026-11-18 09:50:05  INFO    SPY sweep: 09:50 no sweep and reclaim yet.
+2026-11-18 09:55:05  INFO    SPY sweep: 09:55 no sweep and reclaim yet.
+2026-11-18 10:00:06  INFO    SPY sweep: 10:00 no sweep and reclaim yet.
+2026-11-18 10:05:05  INFO    SPY sweep: 10:05 no sweep and reclaim yet.
+2026-11-18 10:10:05  INFO    SPY sweep: 10:10 no sweep and reclaim yet.
+2026-11-18 10:15:06  INFO    SPY sweep: 10:15 no sweep and reclaim yet.
+2026-11-18 10:20:05  INFO    SPY sweep: 10:20 no sweep and reclaim yet.
+2026-11-18 10:25:05  INFO    SPY sweep: 10:25 no sweep and reclaim yet.
+2026-11-18 10:30:05  INFO    SPY sweep: 10:30 no sweep and reclaim yet.
+2026-11-18 10:35:05  INFO    SPY sweep: 10:35 no sweep and reclaim yet.
+2026-11-18 10:40:05  INFO    QQQ ifvg: SHORT signal (bearish order flow, 5-min close 657.04 below the bullish gap 658.50-659.49): limit 658.50, stop 662.85, 28 sh, risk $121.80. Scale-out every 2.37 (0.54R): 14 / 7 / 4 / 2 / 1 sh from 656.13.
+2026-11-18 10:40:05  INFO    QQQ ifvg: grade C (2 borderline: Gap formed within the last 30 minutes; Stop at most 0.6% of price from entry).
+2026-11-18 10:40:05  INFO    QQQ ifvg: submitted SHORT ladder of 5 bracket order(s), 28 sh.
+2026-11-18 10:40:05  INFO    QQQ ifvg: limit order(s) resting until 11:25 ET.
+2026-11-18 10:40:05  INFO    SPY sweep: 10:40 no sweep and reclaim yet.
+2026-11-18 10:45:05  INFO    SPY sweep: 10:45 no sweep and reclaim yet.
+2026-11-18 10:50:05  INFO    SPY sweep: 10:50 no sweep and reclaim yet.
+2026-11-18 10:55:06  INFO    SPY sweep: 10:55 no sweep and reclaim yet.
+2026-11-18 11:00:05  INFO    QQQ ifvg: lot 1 filled, 14 sh at 658.50 (take-profit 656.13, stop 662.85).
+2026-11-18 11:00:06  INFO    QQQ ifvg: lot 3 filled, 4 sh at 658.50 (take-profit 651.39, stop 662.85).
+2026-11-18 11:00:06  INFO    QQQ ifvg: lot 4 filled, 2 sh at 658.51 (take-profit 649.02, stop 662.85).
+2026-11-18 11:00:06  INFO    QQQ ifvg: lot 5 filled, 1 sh at 658.52 (take-profit 646.65, stop 662.85).
+2026-11-18 11:00:07  INFO    SPY sweep: 11:00 no sweep and reclaim yet.
+2026-11-18 11:00:27  INFO    QQQ ifvg: lot 2 filled, 7 sh at 658.50 (take-profit 653.76, stop 662.85).
+2026-11-18 11:05:05  INFO    SPY sweep: 11:05 no sweep and reclaim yet.
+2026-11-18 11:10:05  INFO    SPY sweep: 11:10 no sweep and reclaim yet.
+2026-11-18 11:13:46  INFO    QQQ ifvg: step 1: closed 14 sh at 656.12.
+2026-11-18 11:13:46  INFO    QQQ ifvg: step 1 filled; stop on lot 2 (7 sh) moved to 658.50.
+2026-11-18 11:13:46  INFO    QQQ ifvg: step 1 filled; stop on lot 3 (4 sh) moved to 658.50.
+2026-11-18 11:13:46  INFO    QQQ ifvg: step 1 filled; stop on lot 4 (2 sh) moved to 658.50.
+2026-11-18 11:13:46  INFO    QQQ ifvg: step 1 filled; stop on lot 5 (1 sh) moved to 658.50.
+2026-11-18 11:15:06  INFO    SPY sweep: 11:15 no sweep and reclaim yet.
+2026-11-18 11:20:05  INFO    SPY sweep: 11:20 no sweep and reclaim yet.
+2026-11-18 11:20:45  INFO    QQQ ifvg: step 2: closed 7 sh at 653.64.
+2026-11-18 11:20:45  INFO    QQQ ifvg: step 2 filled; stop on lot 3 (4 sh) moved to 656.13.
+2026-11-18 11:20:45  INFO    QQQ ifvg: step 2 filled; stop on lot 4 (2 sh) moved to 656.13.
+2026-11-18 11:20:45  INFO    QQQ ifvg: step 2 filled; stop on lot 5 (1 sh) moved to 656.13.
+2026-11-18 11:24:26  INFO    QQQ ifvg: stop: closed 4 sh at 656.13.
+2026-11-18 11:24:26  INFO    QQQ ifvg: stop: closed 2 sh at 656.14.
+2026-11-18 11:24:26  INFO    QQQ ifvg: stop: closed 1 sh at 656.18.
+2026-11-18 11:24:26  INFO    QQQ: trade closed (Trailing stop after step 2) at 655.50, P&L +83.86 (+0.69R, grade C). Journal updated.
+2026-11-18 11:25:05  INFO    SPY sweep: LONG signal (swept the prior-day low 727.00 to 726.90, 5-min close 729.83 back above it): market near 729.62, stop 726.85, 34 sh, risk $94.18. Scale-out every 2.63 (0.95R): 17 / 9 / 4 / 2 / 1 / 1 sh from 732.25.
+2026-11-18 11:25:05  INFO    SPY sweep: grade C (2 borderline: Higher-timeframe (weekly) bias agrees with the trade direction; Entry signal by 10:45 ET).
+2026-11-18 11:25:05  INFO    SPY sweep: submitted LONG ladder of 6 bracket order(s), 34 sh.
+2026-11-18 11:25:07  INFO    SPY sweep: lot 2 filled, 9 sh at 729.42 (take-profit 734.88, stop 726.85).
+2026-11-18 11:25:07  INFO    SPY sweep: lot 3 filled, 4 sh at 729.40 (take-profit 737.51, stop 726.85).
+2026-11-18 11:25:07  INFO    SPY sweep: lot 4 filled, 2 sh at 729.39 (take-profit 740.14, stop 726.85).
+2026-11-18 11:25:07  INFO    SPY sweep: lot 5 filled, 1 sh at 729.39 (take-profit 742.77, stop 726.85).
+2026-11-18 11:25:07  INFO    SPY sweep: lot 6 filled, 1 sh at 729.41 (take-profit 745.40, stop 726.85).
+2026-11-18 11:25:27  INFO    SPY sweep: lot 1 filled, 17 sh at 729.40 (take-profit 732.25, stop 726.85).
+2026-11-18 12:24:11  INFO    SPY sweep: step 1: closed 17 sh at 732.29.
+2026-11-18 12:24:12  INFO    SPY sweep: step 1 filled; stop on lot 2 (9 sh) moved to 729.62.
+2026-11-18 12:24:12  INFO    SPY sweep: step 1 filled; stop on lot 3 (4 sh) moved to 729.62.
+2026-11-18 12:24:12  INFO    SPY sweep: step 1 filled; stop on lot 4 (2 sh) moved to 729.62.
+2026-11-18 12:24:12  INFO    SPY sweep: step 1 filled; stop on lot 5 (1 sh) moved to 729.62.
+2026-11-18 12:24:12  INFO    SPY sweep: step 1 filled; stop on lot 6 (1 sh) moved to 729.62.
+2026-11-18 14:33:36  INFO    Intraday: still in SPY at this run's time limit; stops and take-profits are on Alpaca and the 15:55 job takes over.
+2026-11-18 14:33:36  INFO    ===== Intraday models finished =====

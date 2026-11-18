@@ -90,3 +90,45 @@ Grades: A = all rules met, B = one borderline, C = a rule broken (or 2+ borderli
 
 **Grade:** A (all rules met)
 
+## #3 · 2026-11-18 · QQQ · SHORT · WIN +0.69R · Grade C
+
+**Opened:** 2026-11-18 10:59 ET (NY AM)  
+**Closed:** 2026-11-18 11:24 ET (Trailing stop after step 2)
+
+| Entry | Stop | First step | Avg exit | Points | R | P&L |
+|---|---|---|---|---|---|---|
+| 658.50 | 662.85 | 656.13 | 655.50 | +3.00 | +0.69R | +83.86 (28 sh) |
+
+- Exit: 14 sh at 656.12 (11:13, Step 1)
+- Exit: 7 sh at 653.64 (11:20, Step 2)
+- Exit: 4 sh at 656.13 (11:24, Stop)
+- Exit: 2 sh at 656.14 (11:24, Stop)
+- Exit: 1 sh at 656.18 (11:24, Stop)
+
+**Setup:** Inverse fair value gap with the order flow: order flow bearish (last break of structure), then a 5-min close 657.04 below the bullish fair value gap 658.50–659.49 (formed 10:05) at 10:40. Limit at the retest of the gap (658.50), stop beyond the leg's extreme (662.80), scaling out every 2.37 (first step 0.54R). Order placed 10:40 ET.
+- Gap age when inverted: 7 five-minute bar(s)
+- Stop distance: 4.35 per share (0.66% of price)
+
+**Higher-timeframe bias:** bearish (weekly). The short agrees with it.
+
+**Market context:** trend downtrend (price -7.95% vs 50-day MA, 50-day MA -1.15% over 10 days) · volatility high (daily ATR 3.04% of price) · news: 0 headline(s) in the prior 24h
+
+**Checklist:**
+- MET: Order flow bearish: the last break of structure was down
+- MET: Bullish fair value gap 658.50-659.49 formed at 10:05, within 12 bars
+- MET: Inverted: 5-min close 657.04 below it at 10:40
+- MET: Setup completed between 10:00 and 12:00 ET
+- MET: Limit entry at the retest of the gap (658.50), good for 45 minutes
+- MET: One trade per day for this model
+- MET: Hard limit: max 100 shares and $50,000 per position (28 sh, $18,438); no margin
+- MET: Hard limit: daily loss under $250 (today +0.00)
+- MET: Hard limit: max 3 trades per day
+- MET: Hard limit: stop at entry (bracket order on every lot)
+- MET: No APPROVED lessons.md rule blocks the entry
+- MET: Higher-timeframe (weekly) bias agrees with the trade direction
+- BORDERLINE: Gap formed within the last 30 minutes
+- MET: Stop at least 0.08% of price from entry
+- BORDERLINE: Stop at most 0.6% of price from entry
+
+**Grade:** C (2 borderline: Gap formed within the last 30 minutes; Stop at most 0.6% of price from entry)
+
