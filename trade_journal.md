@@ -132,3 +132,42 @@ Grades: A = all rules met, B = one borderline, C = a rule broken (or 2+ borderli
 
 **Grade:** C (2 borderline: Gap formed within the last 30 minutes; Stop at most 0.6% of price from entry)
 
+## #4 · 2026-11-18 · SPY · LONG · WIN +1.27R · Grade C
+
+**Opened:** 2026-11-18 11:25 ET (NY AM)  
+**Closed:** 2026-11-18 12:26 ET (Closed outside the bot after step 1)
+
+| Entry | Stop | First step | Avg exit | Points | R | P&L |
+|---|---|---|---|---|---|---|
+| 729.40 | 726.85 | 732.25 | 732.64 | +3.25 | +1.27R | +110.33 (34 sh) |
+
+- Exit: 17 sh at 732.29 (12:23, Step 1)
+- Exit: 17 sh at 733.00 (12:26, Closed outside the bot)
+
+**Setup:** Liquidity sweep and reversal: price traded below the prior-day low (727.00) at 11:25 (extreme 726.90), then a 5-min close 729.83 back above it at 11:25. Market entry, stop behind the sweep extreme, scaling out every 2.63 (first step 0.95R). Order placed 11:25 ET.
+- Reclaim: on the sweep bar
+- Levels: premarket 732.54–737.39, prior day 727.0–739.76
+- Stop distance: 2.77 per share (0.38% of price)
+
+**Higher-timeframe bias:** bearish (weekly). The long goes against with it.
+
+**Market context:** trend downtrend (price -4.36% vs 50-day MA, 50-day MA -0.46% over 10 days) · volatility normal (daily ATR 1.94% of price) · news: 0 headline(s) in the prior 24h
+
+**Checklist:**
+- MET: Level in play at the open: prior-day low 727.00
+- MET: Sweep: a 5-min bar traded below it at 11:25 (extreme 726.90)
+- MET: Reclaim: 5-min close 729.83 back above it within 3 bars (11:25)
+- MET: Entry signal between 09:35 and 11:30 ET
+- MET: One trade per day for this model
+- MET: Hard limit: max 100 shares and $50,000 per position (34 sh, $24,807); no margin
+- MET: Hard limit: daily loss under $250 (today +83.97)
+- MET: Hard limit: max 3 trades per day
+- MET: Hard limit: stop at entry (bracket order on every lot)
+- MET: No APPROVED lessons.md rule blocks the entry
+- BORDERLINE: Higher-timeframe (weekly) bias agrees with the trade direction
+- MET: Level reclaimed on the sweep bar itself
+- MET: Stop at least 0.08% of price from entry
+- BORDERLINE: Entry signal by 10:45 ET
+
+**Grade:** C (2 borderline: Higher-timeframe (weekly) bias agrees with the trade direction; Entry signal by 10:45 ET)
+

@@ -73,9 +73,9 @@ import pandas as pd
 from alpaca.data.enums import Adjustment, DataFeed
 from alpaca.data.requests import StockBarsRequest
 from alpaca.data.timeframe import TimeFrame
-from alpaca.trading.enums import OrderClass, OrderSide, OrderStatus, OrderType, TimeInForce
+from alpaca.trading.enums import OrderClass, OrderSide, OrderStatus, OrderType, QueryOrderStatus, TimeInForce
 from alpaca.trading.requests import (
-    GetCalendarRequest, GetOrderByIdRequest, LimitOrderRequest, MarketOrderRequest, ReplaceOrderRequest,
+    GetCalendarRequest, GetOrderByIdRequest, GetOrdersRequest, LimitOrderRequest, MarketOrderRequest, ReplaceOrderRequest,
     StopLossRequest, TakeProfitRequest,
 )
 
@@ -610,10 +610,11 @@ def forget_unfilled(state, symbol, key):
     log.info(f"{symbol} {key}: entry order(s) cancelled unfilled.")
 
 
-def reconcile_ladder(clients, symbol, ratchet=True):
+def reconcile_ladder(clients, symbol, ratchet=True, own_cancels=False):
     """One pass over a scale-out trade: pick up entry fills, take-profit steps and stops, move
     the remaining stops one step behind the last step filled, and journal the trade once
-    nothing is left. Returns "open", "closed", or None when there is no such trade."""
+    nothing is left. own_cancels: the bot just cancelled the exits itself (flatten), so cancelled
+    exits are not taken as a close outside the bot. Returns "open", "closed", or None when there is no such trade."""
     client = clients.trading
     state = fresh_state()
     trade = state["open"].get(symbol)
@@ -659,16 +660,24 @@ def reconcile_ladder(clients, symbol, ratchet=True):
                 except Exception:
                     pass
         if lot["state"] == "open":
+            leg_statuses = []
             for leg_key, new_state, reason in (("tp_id", "tp", f"Step {lot['k']}"), ("stop_id", "stop", "Stop")):
                 if not lot.get(leg_key):
                     continue
                 order = follow(client, lot[leg_key])
                 lot[leg_key] = str(order.id)
+                leg_statuses.append(order.status)
                 if order.status == OrderStatus.FILLED:
                     lot["state"] = new_state
                     exit_fill(lot, order, reason)
                     log.info(f"{tag}: {reason.lower()}: closed {lot['qty']} sh at {float(order.filled_avg_price):.2f}.")
                     break
+            if not own_cancels and lot["state"] == "open" and leg_statuses and all(st in bot.DONE_STATUSES for st in leg_statuses):
+                lot["state"] = "orphaned"  # its exits were cancelled by someone else (e.g. on the Alpaca site)
+
+    orphaned = [lot for lot in trade["lots"] if lot["state"] == "orphaned"]
+    if orphaned:
+        settle_orphaned(clients, symbol, trade, orphaned, now, exit_fill)
 
     filled_lots = [lot for lot in trade["lots"] if "fill" in lot]
     if filled_lots:
@@ -707,6 +716,52 @@ def reconcile_ladder(clients, symbol, ratchet=True):
     return "closed"
 
 
+def settle_orphaned(clients, symbol, trade, lots, now, exit_fill):
+    """Lots whose stop and take-profit were cancelled outside the bot. Shares no longer in the
+    Alpaca position were closed by hand: record them at that closing fill. Shares still held have
+    no stop any more, so close them at market."""
+    client = clients.trading
+    tag = f"{symbol} {trade['model']}"
+    sign = 1 if trade["direction"] == "long" else -1
+    close_side = OrderSide.SELL if sign == 1 else OrderSide.BUY
+    try:
+        position = client.get_open_position(symbol)
+        held = abs(float(position.qty)) if (float(position.qty) > 0) == (sign == 1) else 0.0
+    except Exception:
+        held = 0.0
+    still_open = sum(lot["qty"] for lot in trade["lots"] if lot["state"] == "open")
+    by_hand = max(0.0, min(sum(lot["qty"] for lot in lots), sum(lot["qty"] for lot in lots) + still_open - held))
+
+    if by_hand:
+        ours = {str(v) for lot in trade["lots"] for k, v in lot.items() if k.endswith("_id") and v}
+        since = min(pd.Timestamp(lot["filled_at"]) for lot in trade["lots"] if "filled_at" in lot)
+        try:
+            fills = client.get_orders(GetOrdersRequest(
+                status=QueryOrderStatus.CLOSED, symbols=[symbol], side=close_side, limit=50,
+                after=since.tz_convert("UTC").to_pydatetime()))
+        except Exception:
+            fills = []
+        fills = sorted((o for o in fills if o.status == OrderStatus.FILLED and str(o.id) not in ours and o.filled_at),
+                       key=lambda o: o.filled_at)
+
+        class Fill:  # what exit_fill reads from an order
+            filled_avg_price = (float(fills[-1].filled_avg_price) if fills
+                                else bot.latest_price(clients, symbol, trade["entry"]))
+            filled_at = fills[-1].filled_at if fills else now
+        exit_fill(None, Fill, "Closed outside the bot", by_hand)
+        log.warning(f"{tag}: {by_hand:g} sh were closed outside the bot at {Fill.filled_avg_price:.2f}; recorded.")
+
+    rest = sum(lot["qty"] for lot in lots) - by_hand
+    if rest > 0:
+        out = bot.wait_for_fill(client, client.submit_order(MarketOrderRequest(
+            symbol=symbol, qty=rest, side=close_side, time_in_force=TimeInForce.DAY)).id)
+        if out.status == OrderStatus.FILLED:
+            exit_fill(None, out, "Orders cancelled outside the bot; closed at market", rest)
+        log.warning(f"{tag}: the stop on {rest:g} sh was cancelled outside the bot; closed them at market.")
+    for lot in lots:
+        lot["state"] = "outside"
+
+
 def flatten_ladder(clients, symbol, reason):
     """Cancel what is resting and close what is left of a scale-out trade at market."""
     client = clients.trading
@@ -721,7 +776,7 @@ def flatten_ladder(clients, symbol, reason):
             except Exception:
                 pass  # already filled or cancelled
     time.sleep(2)
-    if reconcile_ladder(clients, symbol, ratchet=False) != "open":
+    if reconcile_ladder(clients, symbol, ratchet=False, own_cancels=True) != "open":
         return  # everything had already filled or been cancelled; it is journaled
     state = fresh_state()
     trade = state["open"][symbol]
