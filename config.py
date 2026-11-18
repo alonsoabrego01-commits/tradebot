@@ -39,6 +39,7 @@ SWEEP_PREMARKET_END = "09:15"  # Premarket range = 4:00 ET to this time (later m
 SWEEP_FIRST_ENTRY = "09:35"    # The reclaim bar must complete at or after this ET time
 SWEEP_ENTRY_CUTOFF = "11:30"   # The reclaim bar must complete by this ET time
 SWEEP_MIN_STOP_PCT = 0.05      # Stop is at least this % of price from entry
+SWEEP_TARGET_R = 3.0           # Fixed target at this many R; one bracket, no scale-out
 
 # ---------------------------------------------------------------------------
 # HARD LIMITS. Set by the account owner. Only a human edits these.

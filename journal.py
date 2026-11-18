@@ -456,6 +456,12 @@ def _ifvg_setup_lines(trade, ctx):
     ]
 
 
+def _exit_text(ctx):
+    if ctx.get("single"):
+        return f"fixed target {ctx['planned_rr']:g}R away ({ctx['step']:.2f} per share)"
+    return f"scaling out every {ctx['step']:.2f} (first step {ctx['planned_rr']:g}R)"
+
+
 def _sweep_setup_lines(trade, ctx):
     beyond, back = ("below", "above") if trade["direction"] == "long" else ("above", "below")
     reclaim = "on the sweep bar" if ctx["reclaim_bars"] == 1 else f"{ctx['reclaim_bars'] - 1} bar(s) after the sweep"
@@ -463,7 +469,7 @@ def _sweep_setup_lines(trade, ctx):
         f"**Setup:** {trade['setup']}: price traded {beyond} the {ctx['swept_level']} ({ctx['swept_price']:.2f}) at "
         f"{ctx['sweep_time']} (extreme {ctx['sweep_extreme']:.2f}), then a 5-min close {ctx['reclaim_close']:.2f} back "
         f"{back} it at {ctx['signal_time']}. Market entry, stop behind the sweep extreme, "
-        f"scaling out every {ctx['step']:.2f} (first step {ctx['planned_rr']:g}R). Order placed {ctx['placed_at']}.",
+        f"{_exit_text(ctx)}. Order placed {ctx['placed_at']}.",
         f"- Reclaim: {reclaim}",
         f"- Levels: premarket {ctx['levels']['pm_low']}–{ctx['levels']['pm_high']}, "
         f"prior day {ctx['levels']['pd_low']}–{ctx['levels']['pd_high']}",
@@ -496,7 +502,7 @@ def write_journal_entry(trade, number):
         f"**Opened:** {fmt_time(trade['entry_time'])} ({ctx['session']})  ",
         f"**Closed:** {fmt_time(trade['exit_time'])} ({trade['exit_reason']})",
         "",
-        f"| Entry | Stop | {'First step' if trade.get('partials') else 'Target'} | {'Avg exit' if trade.get('partials') else 'Exit'} "
+        f"| Entry | Stop | {'First step' if len(trade.get('partials') or []) > 1 else 'Target'} | {'Avg exit' if len(trade.get('partials') or []) > 1 else 'Exit'} "
         "| Points | R | P&L |",
         "|---|---|---|---|---|---|---|",
         f"| {trade['entry']:.2f} | {trade['stop']:.2f} | {trade['target']:.2f} | {trade['exit']:.2f} "

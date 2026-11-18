@@ -24,7 +24,9 @@ SPY liquidity sweep and reversal (config.SWEEP_*):
      one setup.
   4. Stop $0.05 beyond the sweep's extreme (at least 0.05% of price away).
 
-Exits, both models (config.SCALE_STEP_PCT): a step is 0.36% of the entry price, about 100
+Exits, SPY sweep (config.SWEEP_TARGET_R): one bracket order, take-profit at 3R, stop as above.
+
+Exits, QQQ inverse FVG (config.SCALE_STEP_PCT): a step is 0.36% of the entry price, about 100
 Nasdaq futures points. Each time price gains another step, half of what is left is closed and
 the stop on the rest moves to one step behind: to entry after step 1, to step 1 after step 2,
 and so on until nothing is left. On Alpaca each trade is a ladder of bracket orders, one lot
@@ -300,15 +302,16 @@ MODELS = {
     },
     "sweep": {
         "symbol": config.SWEEP_SYMBOL, "setup": journal.SWEEP_SETUP, "find": sweep_signal,
-        "cutoff": config.SWEEP_ENTRY_CUTOFF,
+        "cutoff": config.SWEEP_ENTRY_CUTOFF, "target_r": config.SWEEP_TARGET_R,
         "min_stop_pct": config.SWEEP_MIN_STOP_PCT, "conditions": journal.SWEEP_CONDITIONS, "levels": True, "premarket": True,
     },
 }
 assert len({m["symbol"] for m in MODELS.values()}) == len(MODELS), "each intraday model needs its own symbol"
 
 
-def plan_trade(signal, entry, min_stop_pct=0.0):
-    """Stop and scale-out step for an entry at `entry`. Returns (plan, None) or (None, reason)."""
+def plan_trade(signal, entry, min_stop_pct=0.0, target_r=None):
+    """Stop and scale-out step for an entry at `entry`. Returns (plan, None) or (None, reason).
+    With `target_r` the trade is a single lot whose one "step" is a fixed target target_r * risk away."""
     sign = 1 if signal["direction"] == "long" else -1
     risk = (entry - signal["stop"]) * sign
     if risk <= 0:
@@ -318,9 +321,13 @@ def plan_trade(signal, entry, min_stop_pct=0.0):
     risk_ps = round(abs(entry - stop), 2)
     if risk_ps < 0.02:
         return None, f"stop {stop:.2f} is too close to entry {entry:.2f}"
-    step = round(entry * config.SCALE_STEP_PCT / 100, 2)
+    step = round(target_r * risk_ps if target_r else entry * config.SCALE_STEP_PCT / 100, 2)
     return {"entry": round(entry, 2), "stop": stop, "step": step, "target": round(entry + sign * step, 2),
-            "risk_ps": risk_ps, "planned_rr": round(step / risk_ps, 2)}, None
+            "risk_ps": risk_ps, "planned_rr": round(step / risk_ps, 2), "single": bool(target_r)}, None
+
+
+def plan_lots(plan, qty):
+    return [int(qty)] if plan.get("single") and qty > 0 else ladder_lots(qty)
 
 
 def ladder_lots(qty):
@@ -345,7 +352,7 @@ def close_reason(exits):
     steps = sum(1 for e in exits if e["reason"].startswith("Step"))
     last = exits[-1]["reason"]
     if last.startswith("Step"):
-        return f"All {steps} steps hit"
+        return "Target hit" if len(exits) == 1 else f"All {steps} steps hit"
     if last == "Stop":
         return "Stop hit" if steps == 0 else f"{'Breakeven' if steps == 1 else 'Trailing'} stop after step {steps}"
     return last if steps == 0 else f"{last} after step {steps}"
@@ -460,7 +467,7 @@ def build_context(signal, plan, daily, headlines, placed_at):
         "placed_at": f"{placed_at:%H:%M} ET",
         "news_count": len(headlines), "headlines": headlines[:3],
         **signal["ctx"],
-        **{k: plan[k] for k in ("risk_ps", "planned_rr", "step")},
+        **{k: plan[k] for k in ("risk_ps", "planned_rr", "step", "single")},
         "risk_pct": round(plan["risk_ps"] / plan["entry"] * 100, 3),
         **journal.daily_trend(daily, plan["entry"]),
     }
@@ -476,7 +483,7 @@ def place(clients, key, signal, daily, dry_run):
     state = fresh_state()
     limit = signal.get("limit")
     price = round(limit, 2) if limit is not None else bot.latest_price(clients, symbol, signal["price"])
-    plan, why = plan_trade(signal, price, model["min_stop_pct"])
+    plan, why = plan_trade(signal, price, model["min_stop_pct"], model.get("target_r"))
     if not plan:
         log.info(f"{tag}: NO TRADE: {why}.")
         return False
@@ -508,12 +515,14 @@ def place(clients, key, signal, daily, dry_run):
         reasons.append(f"blocked by APPROVED lessons.md rule(s) {', '.join(blocked)}")
 
     sign = 1 if signal["direction"] == "long" else -1
-    sizes = ladder_lots(qty)
+    sizes = plan_lots(plan, qty)
     how = f"limit {plan['entry']:.2f}" if limit is not None else f"market near {plan['entry']:.2f}"
     log.info(
         f"{tag}: {signal['direction'].upper()} signal ({signal['summary']}): {how}, stop {plan['stop']:.2f}, "
-        f"{qty} sh, risk ${qty * plan['risk_ps']:.2f}. Scale-out every {plan['step']:.2f} "
-        f"({plan['planned_rr']:g}R): {' / '.join(str(q) for q in sizes) or 'none'} sh from {plan['target']:.2f}."
+        f"{qty} sh, risk ${qty * plan['risk_ps']:.2f}. "
+        + (f"Target {plan['target']:.2f} ({plan['planned_rr']:g}R), one bracket." if plan["single"] else
+           f"Scale-out every {plan['step']:.2f} ({plan['planned_rr']:g}R): "
+           f"{' / '.join(str(q) for q in sizes) or 'none'} sh from {plan['target']:.2f}.")
     )
     if reasons:
         log.info(f"{tag}: NO TRADE: {'; '.join(reasons)}.")
@@ -997,7 +1006,7 @@ def run_live(args):
 def simulate_ladder(after, plan, sign, qty, skip_first_step):
     """Walk 1-minute bars through the scale-out. Returns the exits as [(qty, price, time, reason)].
     The stop is checked first in every bar, and a stop moved by a step applies from the next bar."""
-    lots, done, stop, exits = ladder_lots(qty), 0, plan["stop"], []
+    lots, done, stop, exits = plan_lots(plan, qty), 0, plan["stop"], []
     for i, (t, bar) in enumerate(after.iterrows()):
         if (bar["low"] <= stop) if sign == 1 else (bar["high"] >= stop):
             exits.append((sum(lots[done:]), stop, t, "Stop"))
@@ -1056,7 +1065,7 @@ def replay_day(key, day, m1, daily, verbose, prev_m1=None):
         if after.empty:
             return {"day": day, "result": "no data", "why": "no bars after the signal"}
         entry = float(after["open"].iloc[0])
-    plan, why = plan_trade(signal, entry, model["min_stop_pct"])
+    plan, why = plan_trade(signal, entry, model["min_stop_pct"], model.get("target_r"))
     if not plan:
         say(f"NO TRADE: {why}")
         return {"day": day, "result": "no trade", "why": why}
