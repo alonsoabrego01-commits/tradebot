@@ -20,8 +20,11 @@ A failed webhook is logged and never stops the Alpaca side.
 import json
 import math
 import os
+import time
 import urllib.error
 import urllib.request
+
+import pandas as pd
 
 import bot
 import config
@@ -34,11 +37,52 @@ def enabled():
     return bool(os.getenv(URL_ENV, "").strip())
 
 
+def per_etf_dollar(spec):
+    """Futures dollars per contract for a $1 move in the ETF."""
+    return spec["ratio"] * spec["point_value"]
+
+
+_ratio_cache = {}
+
+
+def live_ratio(symbol, spec):
+    """Futures/ETF price ratio from the last 15 minutes where Yahoo has both (its futures quotes are
+    ~10 min late, but the ratio barely moves within a day). Falls back to config's ratio."""
+    cached = _ratio_cache.get(symbol)
+    if cached and time.time() - cached[1] < 600:
+        return cached[0]
+    ratio = spec["ratio"]
+    try:
+        import yfinance as yf
+        df = yf.download([spec["yahoo"], symbol], period="1d", interval="1m", progress=False,
+                         auto_adjust=False, threads=False)["Close"].dropna()
+        if len(df) >= 5:
+            measured = float((df[spec["yahoo"]] / df[symbol]).tail(15).median())
+            if abs(measured / spec["ratio"] - 1) < 0.03:
+                ratio = measured
+            else:
+                log.warning(f"Futures: measured {spec['yahoo']}/{symbol} ratio {measured:.4f} is far from "
+                            f"{spec['ratio']}; using {spec['ratio']}.")
+        else:
+            log.warning(f"Futures: too few Yahoo minutes for the {spec['yahoo']}/{symbol} ratio; using {ratio}.")
+    except Exception as e:
+        log.warning(f"Futures: could not measure the {spec['yahoo']}/{symbol} ratio ({e}); using {ratio}.")
+    _ratio_cache[symbol] = (ratio, time.time())
+    return ratio
+
+
+def futures_price(symbol, etf_price):
+    """Estimated futures price for an ETF price, rounded to the contract's tick."""
+    spec = config.FUTURES[symbol]
+    raw = etf_price * live_ratio(symbol, spec)
+    return round(round(raw / spec["tick"]) * spec["tick"], 2)
+
+
 def contracts(symbol, risk_ps):
     spec = config.FUTURES.get(symbol)
     if not spec or risk_ps <= 0:
         return 0
-    per_contract = risk_ps * spec["per_etf_dollar"]
+    per_contract = risk_ps * per_etf_dollar(spec)
     return max(0, min(config.FUTURES_MAX_CONTRACTS, math.floor(config.FUTURES_RISK_PER_TRADE / per_contract)))
 
 
@@ -86,13 +130,14 @@ def open_trade(symbol, trade):
     risk_ps = abs(entry - float(trade["stop"]))
     n = contracts(symbol, risk_ps)
     if n < 1:
-        per = risk_ps * spec["per_etf_dollar"]
+        per = risk_ps * per_etf_dollar(spec)
         log.info(f"Futures: {symbol} trade not sent: one {spec['ticker']} risks ${per:.0f}, "
                  f"over the ${config.FUTURES_RISK_PER_TRADE:.0f} budget.")
         return {"contracts": 0, "why": "one contract is over the risk budget"}
     single = len(trade["lots"]) == 1
     sizes = lots_for(n, single)
     stop_pct = round(risk_ps / entry * 100, 4)
+    price = futures_price(symbol, entry)  # TradersPost needs an entry price for percent stops/targets
     sent = []
     for k, qty in enumerate(sizes, start=1):
         take_pct = round(abs(base + sign * k * step - entry) / entry * 100, 4)
@@ -101,15 +146,16 @@ def open_trade(symbol, trade):
             "action": ("buy" if sign == 1 else "sell") if k == 1 else "add",
             "quantity": qty,
             "orderType": "market",
+            "price": price,
             "takeProfit": {"percent": take_pct},
             "stopLoss": {"type": "stop", "percent": stop_pct},
             "message": f"{trade['model']} {trade['direction']} lot {k}/{len(sizes)}"[:255],
         }
         sent.append(send(payload))
-    risk = n * risk_ps * spec["per_etf_dollar"]
-    log.info(f"Futures: {symbol} -> {spec['ticker']} {trade['direction']} {n} contract(s) in lots "
+    risk = n * risk_ps * per_etf_dollar(spec)
+    log.info(f"Futures: {symbol} -> {spec['ticker']} {trade['direction']} {n} contract(s) near {price:.2f} in lots "
              f"{' / '.join(map(str, sizes))}, stop {stop_pct:g}% away, risk about ${risk:.0f}.")
-    return {"ticker": spec["ticker"], "contracts": n, "lots": sizes, "stop_pct": stop_pct,
+    return {"ticker": spec["ticker"], "contracts": n, "lots": sizes, "price": price, "stop_pct": stop_pct,
             "risk": round(risk, 2), "sent": sent}
 
 

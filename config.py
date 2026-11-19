@@ -43,10 +43,10 @@ SWEEP_TARGET_R = 3.0           # Fixed target at this many R; one bracket, no sc
 
 # Futures mirror (webhook.py): intraday trades are also sent to TradersPost -> Tradovate (e.g. Apex)
 # when the TRADERSPOST_WEBHOOK_URL environment variable is set. Unset = off (payloads only logged).
-FUTURES = {  # per_etf_dollar: futures dollars per contract for a $1 move in the ETF
-    "QQQ": {"ticker": "MNQ1!", "per_etf_dollar": 41.2 * 2},  # NQ ~ 41.2 x QQQ, MNQ $2 a point
+FUTURES = {  # ratio: futures price / ETF price (fallback; measured live from Yahoo when possible)
+    "QQQ": {"ticker": "MNQ1!", "yahoo": "MNQ=F", "ratio": 41.2, "point_value": 2.0, "tick": 0.25},  # MNQ $2 a point
     # SPY (MES) is not mirrored: the Apex 50K test passed 100% with QQQ alone vs 71% with SPY added.
-    # To add it back: "SPY": {"ticker": "MES1!", "per_etf_dollar": 10.0 * 5},
+    # To add it back: "SPY": {"ticker": "MES1!", "yahoo": "MES=F", "ratio": 10.0, "point_value": 5.0, "tick": 0.25},
 }
 FUTURES_RISK_PER_TRADE = 350.0  # Dollars to the stop per futures trade (Apex 50K test: ~$350 on QQQ)
 FUTURES_MAX_CONTRACTS = 10      # Max micro contracts per futures trade
