@@ -823,3 +823,64 @@
 2026-11-18 14:48:58  INFO    ===== Intraday flatten job =====
 2026-11-18 14:48:58  INFO    Intraday: watching open trade(s) until 15:55 ET.
 2026-11-18 15:55:24  ERROR   SPY: could not close 17 sh at market; check Alpaca.
+2026-11-19 09:00:06  INFO    ===== Intraday models started (QQQ ifvg, SPY sweep) =====
+2026-11-19 09:00:06  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-19 09:00:06  INFO    Last 4 trades: win rate 75%, avg R +0.33, grades {'A': 1, 'C': 3}, losses by class {'b': 1}
+2026-11-19 09:35:05  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-19 09:35:05  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-19 09:35:05  INFO    SPY sweep: premarket 734.49-740.25 | prior day 726.79-735.06
+2026-11-19 09:35:05  INFO    SPY sweep: 09:35 no sweep and reclaim yet.
+2026-11-19 09:40:05  INFO    SPY sweep: 09:40 no sweep and reclaim yet.
+2026-11-19 09:45:05  INFO    SPY sweep: 09:45 no sweep and reclaim yet.
+2026-11-19 09:50:05  INFO    SPY sweep: 09:50 no sweep and reclaim yet.
+2026-11-19 09:55:05  INFO    SPY sweep: 09:55 no sweep and reclaim yet.
+2026-11-19 10:00:05  INFO    SPY sweep: 10:00 no sweep and reclaim yet.
+2026-11-19 10:05:05  INFO    QQQ ifvg: LONG signal (bullish order flow, 5-min close 673.09 above the bearish gap 671.81-672.18): limit 672.18, stop 670.08, 37 sh, risk $77.70. Scale-out every 2.42 (1.15R): 19 / 9 / 5 / 2 / 1 / 1 sh from 674.60.
+2026-11-19 10:05:05  INFO    QQQ ifvg: grade B (one borderline: Higher-timeframe (weekly) bias agrees with the trade direction).
+2026-11-19 10:05:05  INFO    QQQ ifvg: submitted LONG ladder of 6 bracket order(s), 37 sh.
+2026-11-19 10:05:05  INFO    QQQ ifvg: limit order(s) resting until 10:50 ET.
+2026-11-19 10:05:05  INFO    SPY sweep: 10:05 no sweep and reclaim yet.
+2026-11-19 10:06:25  INFO    QQQ ifvg: lot 1 filled, 19 sh at 672.15 (take-profit 674.60, stop 670.08).
+2026-11-19 10:06:25  INFO    QQQ ifvg: lot 3 filled, 5 sh at 672.15 (take-profit 679.44, stop 670.08).
+2026-11-19 10:06:25  INFO    QQQ ifvg: lot 4 filled, 2 sh at 672.14 (take-profit 681.86, stop 670.08).
+2026-11-19 10:06:25  INFO    QQQ ifvg: lot 5 filled, 1 sh at 672.17 (take-profit 684.28, stop 670.08).
+2026-11-19 10:06:25  INFO    QQQ ifvg: lot 6 filled, 1 sh at 672.17 (take-profit 686.70, stop 670.08).
+2026-11-19 10:06:26  INFO    Futures: sent {"ticker": "MNQ1!", "action": "buy", "quantity": 1, "orderType": "market", "takeProfit": {"percent": 0.3645}, "stopLoss": {"type": "stop", "percent": 0.308}, "message": "ifvg long lot 1/2"} -> ok
+2026-11-19 10:06:26  INFO    Futures: sent {"ticker": "MNQ1!", "action": "add", "quantity": 1, "orderType": "market", "takeProfit": {"percent": 0.7245}, "stopLoss": {"type": "stop", "percent": 0.308}, "message": "ifvg long lot 2/2"} -> ok
+2026-11-19 10:06:26  INFO    Futures: QQQ -> MNQ1! long 2 contract(s) in lots 1 / 1, stop 0.308% away, risk about $341.
+2026-11-19 10:07:06  INFO    QQQ ifvg: lot 2 filled, 9 sh at 672.15 (take-profit 677.02, stop 670.08).
+2026-11-19 10:10:05  INFO    SPY sweep: 10:10 no sweep and reclaim yet.
+2026-11-19 10:12:26  INFO    QQQ ifvg: stop: closed 19 sh at 670.17.
+2026-11-19 10:12:26  INFO    QQQ ifvg: stop: closed 9 sh at 670.21.
+2026-11-19 10:12:26  INFO    QQQ ifvg: stop: closed 5 sh at 670.16.
+2026-11-19 10:12:26  INFO    QQQ ifvg: stop: closed 2 sh at 670.14.
+2026-11-19 10:12:26  INFO    QQQ ifvg: stop: closed 1 sh at 670.16.
+2026-11-19 10:12:26  INFO    QQQ ifvg: stop: closed 1 sh at 670.16.
+2026-11-19 10:12:26  INFO    Futures: sent {"ticker": "MNQ1!", "action": "exit", "orderType": "market", "cancel": true, "message": "ifvg: Stop hit"} -> ok
+2026-11-19 10:12:26  INFO    QQQ: trade closed (Stop hit) at 670.18, P&L -73.03 (-0.95R, grade B). Journal updated.
+2026-11-19 10:15:05  INFO    SPY sweep: 10:15 no sweep and reclaim yet.
+2026-11-19 10:20:05  INFO    SPY sweep: 10:20 no sweep and reclaim yet.
+2026-11-19 10:25:05  INFO    SPY sweep: 10:25 no sweep and reclaim yet.
+2026-11-19 10:30:05  INFO    SPY sweep: 10:30 no sweep and reclaim yet.
+2026-11-19 10:35:05  INFO    SPY sweep: 10:35 no sweep and reclaim yet.
+2026-11-19 10:40:05  INFO    SPY sweep: LONG signal (swept the prior-day low 726.79 to 725.67, 5-min close 726.89 back above it): market near 727.05, stop 725.62, 34 sh, risk $48.62. Target 731.34 (3R), one bracket.
+2026-11-19 10:40:05  INFO    SPY sweep: grade B (one borderline: Higher-timeframe (weekly) bias agrees with the trade direction).
+2026-11-19 10:40:05  INFO    SPY sweep: submitted LONG ladder of 1 bracket order(s), 34 sh.
+2026-11-19 10:40:27  INFO    SPY sweep: lot 1 filled, 34 sh at 726.96 (take-profit 731.34, stop 725.62).
+2026-11-19 11:41:13  INFO    SPY sweep: step 1: closed 34 sh at 731.45.
+2026-11-19 11:41:13  INFO    SPY: trade closed (Target hit) at 731.45, P&L +152.66 (+3.35R, grade B). Journal updated.
+2026-11-19 11:41:13  INFO    Intraday: no open intraday trade. Done for the day.
+2026-11-19 11:41:13  INFO    ===== Intraday models finished =====
+2026-11-19 11:41:14  INFO    ===== Run started (AAPL 20/50 MA) =====
+2026-11-19 11:41:14  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-19 11:41:14  INFO    Last 6 trades: win rate 67%, avg R +0.62, grades {'A': 1, 'B': 2, 'C': 3}, losses by class {'b': 2}
+2026-11-19 11:41:14  INFO    Account PA3LHFO6L: cash 50,305.73, equity 50,305.73 (today +79.65), shares held: AAPL 0
+2026-11-19 11:41:14  INFO    --- AAPL ---
+2026-11-19 11:41:14  INFO    AAPL: ignoring today's incomplete bar; using completed days only.
+2026-11-19 11:41:14  INFO    AAPL: today: NY AM, trend uptrend, weekly bias bullish, volatility normal (ATR 2.69%), 2 headline(s). Active rules applying: none
+2026-11-19 11:41:14  INFO    Latest close: 2026-11-18 at 352.45
+2026-11-19 11:41:14  INFO    20-day MA: 347.05 -> 347.49
+2026-11-19 11:41:14  INFO    50-day MA: 340.17 -> 340.92
+2026-11-19 11:41:14  INFO    AAPL: no crossover. Nothing to do.
+2026-11-19 11:41:14  INFO    Account PA3LHFO6L: cash 50,305.73, equity 50,305.73 (today +79.65), shares held: AAPL 0
+2026-11-19 11:41:14  INFO    ===== Run finished =====

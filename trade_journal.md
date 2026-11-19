@@ -171,3 +171,86 @@ Grades: A = all rules met, B = one borderline, C = a rule broken (or 2+ borderli
 
 **Grade:** C (2 borderline: Higher-timeframe (weekly) bias agrees with the trade direction; Entry signal by 10:45 ET)
 
+## #5 · 2026-11-19 · QQQ · LONG · LOSS -0.95R · Grade B
+
+**Opened:** 2026-11-19 10:06 ET (NY AM)  
+**Closed:** 2026-11-19 10:12 ET (Stop hit)
+
+| Entry | Stop | First step | Avg exit | Points | R | P&L |
+|---|---|---|---|---|---|---|
+| 672.15 | 670.08 | 674.60 | 670.18 | -1.97 | -0.95R | -73.03 (37 sh) |
+
+- Exit: 19 sh at 670.17 (10:12, Stop)
+- Exit: 9 sh at 670.21 (10:12, Stop)
+- Exit: 5 sh at 670.16 (10:12, Stop)
+- Exit: 2 sh at 670.14 (10:12, Stop)
+- Exit: 1 sh at 670.16 (10:12, Stop)
+- Exit: 1 sh at 670.16 (10:12, Stop)
+
+**Setup:** Inverse fair value gap with the order flow: order flow bullish (last break of structure), then a 5-min close 673.09 above the bearish fair value gap 671.81–672.18 (formed 10:00) at 10:05. Limit at the retest of the gap (672.18), stop beyond the leg's extreme (670.13), scaling out every 2.42 (first step 1.15R). Order placed 10:05 ET.
+- Gap age when inverted: 1 five-minute bar(s)
+- Stop distance: 2.10 per share (0.31% of price)
+
+**Higher-timeframe bias:** bearish (weekly). The long goes against with it.
+
+**Market context:** trend downtrend (price -5.89% vs 50-day MA, 50-day MA -1.25% over 10 days) · volatility normal (daily ATR 2.93% of price) · news: 0 headline(s) in the prior 24h
+
+**Checklist:**
+- MET: Order flow bullish: the last break of structure was up
+- MET: Bearish fair value gap 671.81-672.18 formed at 10:00, within 12 bars
+- MET: Inverted: 5-min close 673.09 above it at 10:05
+- MET: Setup completed between 10:00 and 12:00 ET
+- MET: Limit entry at the retest of the gap (672.18), good for 45 minutes
+- MET: One trade per day for this model
+- MET: Hard limit: max 100 shares and $50,000 per position (37 sh, $24,871); no margin
+- MET: Hard limit: daily loss under $250 (today +0.00)
+- MET: Hard limit: max 3 trades per day
+- MET: Hard limit: stop at entry (bracket order on every lot)
+- MET: No APPROVED lessons.md rule blocks the entry
+- BORDERLINE: Higher-timeframe (weekly) bias agrees with the trade direction
+- MET: Gap formed within the last 30 minutes
+- MET: Stop at least 0.08% of price from entry
+- MET: Stop at most 0.6% of price from entry
+
+**Grade:** B (one borderline: Higher-timeframe (weekly) bias agrees with the trade direction)
+
+**Post-mortem:** **(b) Weak/borderline setup.** Filter that would have kept me out: `skip_ifvg_htf_not_aligned` (weekly bias not aligned with the trade direction).
+
+## #6 · 2026-11-19 · SPY · LONG · WIN +3.35R · Grade B
+
+**Opened:** 2026-11-19 10:40 ET (NY AM)  
+**Closed:** 2026-11-19 11:40 ET (Target hit)
+
+| Entry | Stop | Target | Exit | Points | R | P&L |
+|---|---|---|---|---|---|---|
+| 726.96 | 725.62 | 731.34 | 731.45 | +4.49 | +3.35R | +152.66 (34 sh) |
+
+- Exit: 34 sh at 731.45 (11:40, Step 1)
+
+**Setup:** Liquidity sweep and reversal: price traded below the prior-day low (726.79) at 10:40 (extreme 725.67), then a 5-min close 726.89 back above it at 10:40. Market entry, stop behind the sweep extreme, fixed target 3R away (4.29 per share). Order placed 10:40 ET.
+- Reclaim: on the sweep bar
+- Levels: premarket 734.49–740.25, prior day 726.79–735.06
+- Stop distance: 1.43 per share (0.20% of price)
+
+**Higher-timeframe bias:** bearish (weekly). The long goes against with it.
+
+**Market context:** trend downtrend (price -4.62% vs 50-day MA, 50-day MA -0.54% over 10 days) · volatility normal (daily ATR 1.97% of price) · news: 0 headline(s) in the prior 24h
+
+**Checklist:**
+- MET: Level in play at the open: prior-day low 726.79
+- MET: Sweep: a 5-min bar traded below it at 10:40 (extreme 725.67)
+- MET: Reclaim: 5-min close 726.89 back above it within 3 bars (10:40)
+- MET: Entry signal between 09:35 and 11:30 ET
+- MET: One trade per day for this model
+- MET: Hard limit: max 100 shares and $50,000 per position (34 sh, $24,720); no margin
+- MET: Hard limit: daily loss under $250 (today -72.91)
+- MET: Hard limit: max 3 trades per day
+- MET: Hard limit: stop at entry (bracket order on every lot)
+- MET: No APPROVED lessons.md rule blocks the entry
+- BORDERLINE: Higher-timeframe (weekly) bias agrees with the trade direction
+- MET: Level reclaimed on the sweep bar itself
+- MET: Stop at least 0.08% of price from entry
+- MET: Entry signal by 10:45 ET
+
+**Grade:** B (one borderline: Higher-timeframe (weekly) bias agrees with the trade direction)
+
