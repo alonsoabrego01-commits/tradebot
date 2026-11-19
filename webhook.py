@@ -121,5 +121,5 @@ def close_trade(symbol, trade, reason):
     if not futures.get("contracts") or futures.get("closed"):
         return None
     futures["closed"] = True
-    return send({"ticker": futures["ticker"], "action": "exit", "cancel": True,
+    return send({"ticker": futures["ticker"], "action": "exit", "orderType": "market", "cancel": True,
                  "message": f"{trade['model']}: {reason}"[:255]})
