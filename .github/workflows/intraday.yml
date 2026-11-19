@@ -55,6 +55,7 @@ jobs:
         env:
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
           ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+          TRADERSPOST_WEBHOOK_URL: ${{ secrets.TRADERSPOST_WEBHOOK_URL }}
         run: |
           if [ "${{ github.event_name }}" = "schedule" ]; then
             python intraday.py --scheduled

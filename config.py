@@ -41,6 +41,15 @@ SWEEP_ENTRY_CUTOFF = "11:30"   # The reclaim bar must complete by this ET time
 SWEEP_MIN_STOP_PCT = 0.05      # Stop is at least this % of price from entry
 SWEEP_TARGET_R = 3.0           # Fixed target at this many R; one bracket, no scale-out
 
+# Futures mirror (webhook.py): intraday trades are also sent to TradersPost -> Tradovate (e.g. Apex)
+# when the TRADERSPOST_WEBHOOK_URL environment variable is set. Unset = off (payloads only logged).
+FUTURES = {  # per_etf_dollar: futures dollars per contract for a $1 move in the ETF
+    "QQQ": {"ticker": "MNQ1!", "per_etf_dollar": 41.2 * 2},  # NQ ~ 41.2 x QQQ, MNQ $2 a point
+    "SPY": {"ticker": "MES1!", "per_etf_dollar": 10.0 * 5},  # ES ~ 10 x SPY, MES $5 a point
+}
+FUTURES_RISK_PER_TRADE = 350.0  # Dollars to the stop per futures trade (Apex 50K test: ~$350 on QQQ)
+FUTURES_MAX_CONTRACTS = 10      # Max micro contracts per futures trade
+
 # ---------------------------------------------------------------------------
 # HARD LIMITS. Set by the account owner. Only a human edits these.
 # lessons.md rules can't override them, and the bot never changes them.

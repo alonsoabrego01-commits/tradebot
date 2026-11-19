@@ -81,6 +81,7 @@ from alpaca.trading.requests import (
 
 import bot
 import config
+import webhook
 import journal
 
 log = bot.log
@@ -685,6 +686,8 @@ def reconcile_ladder(clients, symbol, ratchet=True, own_cancels=False):
         trade["entry"] = round(sum(lot["fill"] * lot["qty"] for lot in filled_lots) / shares, 2)
         trade["entry_time"] = min(lot["filled_at"] for lot in filled_lots)
         trade["qty"] = shares
+        if "futures" not in trade:  # first fill: send the same trade to the futures account
+            trade["futures"] = webhook.open_trade(symbol, trade)
 
     live = [lot for lot in trade["lots"] if lot["state"] == "open"]
     steps_done = max([lot["k"] for lot in trade["lots"] if lot["state"] == "tp"], default=0)
@@ -712,7 +715,9 @@ def reconcile_ladder(clients, symbol, ratchet=True, own_cancels=False):
     if not trade["partials"]:
         forget_unfilled(state, symbol, trade["model"])
         return "closed"
-    journal.record_ladder_close(state, symbol, close_reason(trade["partials"]))
+    reason = close_reason(trade["partials"])
+    webhook.close_trade(symbol, trade, reason)
+    journal.record_ladder_close(state, symbol, reason)
     return "closed"
 
 
@@ -765,9 +770,12 @@ def settle_orphaned(clients, symbol, trade, lots, now, exit_fill):
 def flatten_ladder(clients, symbol, reason):
     """Cancel what is resting and close what is left of a scale-out trade at market."""
     client = clients.trading
-    trade = fresh_state()["open"].get(symbol)
+    state = fresh_state()
+    trade = state["open"].get(symbol)
     if not trade or not trade.get("lots"):
         return
+    if webhook.close_trade(symbol, trade, reason) is not None:  # futures first, whatever happens on Alpaca
+        journal.save_state(state)
     for lot in trade["lots"]:
         order_id = lot["order_id"] if lot["state"] == "pending" else lot.get("stop_id") if lot["state"] == "open" else None
         if order_id:
