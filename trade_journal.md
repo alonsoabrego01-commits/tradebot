@@ -254,3 +254,43 @@ Grades: A = all rules met, B = one borderline, C = a rule broken (or 2+ borderli
 
 **Grade:** B (one borderline: Higher-timeframe (weekly) bias agrees with the trade direction)
 
+## #7 · 2026-11-20 · SPY · SHORT · LOSS -0.99R · Grade A
+
+**Opened:** 2026-11-20 09:50 ET (NY AM)  
+**Closed:** 2026-11-20 09:54 ET (Stop hit)
+
+| Entry | Stop | Target | Exit | Points | R | P&L |
+|---|---|---|---|---|---|---|
+| 712.89 | 715.05 | 707.17 | 715.02 | -2.13 | -0.99R | -74.55 (35 sh) |
+
+- Exit: 35 sh at 715.02 (09:54, Stop)
+
+**Setup:** Liquidity sweep and reversal: price traded above the premarket high (714.96) at 09:50 (extreme 715.00), then a 5-min close 713.78 back below it at 09:50. Market entry, stop behind the sweep extreme, fixed target 3R away (5.91 per share). Order placed 09:50 ET.
+- Reclaim: on the sweep bar
+- Levels: premarket 692.15–714.96, prior day 714.92–739.9
+- Stop distance: 1.97 per share (0.28% of price)
+
+**Higher-timeframe bias:** bearish (weekly). The short agrees with it.
+
+**Market context:** trend downtrend (price -6.36% vs 50-day MA, 50-day MA -0.57% over 10 days) · volatility normal (daily ATR 2.06% of price) · news: 0 headline(s) in the prior 24h
+
+**Checklist:**
+- MET: Level in play at the open: premarket high 714.96
+- MET: Sweep: a 5-min bar traded above it at 09:50 (extreme 715.00)
+- MET: Reclaim: 5-min close 713.78 back below it within 3 bars (09:50)
+- MET: Entry signal between 09:35 and 11:30 ET
+- MET: One trade per day for this model
+- MET: Hard limit: max 100 shares and $50,000 per position (35 sh, $24,958); no margin
+- MET: Hard limit: daily loss under $250 (today +0.00)
+- MET: Hard limit: max 3 trades per day
+- MET: Hard limit: stop at entry (bracket order on every lot)
+- MET: No APPROVED lessons.md rule blocks the entry
+- MET: Higher-timeframe (weekly) bias agrees with the trade direction
+- MET: Level reclaimed on the sweep bar itself
+- MET: Stop at least 0.08% of price from entry
+- MET: Entry signal by 10:45 ET
+
+**Grade:** A (all rules met)
+
+**Post-mortem:** **(c) Valid setup, normal loss.** No change needed.
+

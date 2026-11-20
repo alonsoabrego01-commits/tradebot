@@ -1348,6 +1348,164 @@
       "points": 4.49,
       "pnl": 152.66,
       "r": 3.35
+    },
+    {
+      "symbol": "SPY",
+      "direction": "short",
+      "model": "sweep",
+      "qty": 35,
+      "setup": "Liquidity sweep and reversal",
+      "entry_order_id": "4296b0e9-0d39-474f-a95c-6d714e5a9680",
+      "entry": 712.89,
+      "entry_time": "2026-11-20T09:50:10.295052-05:00",
+      "stop": 715.05,
+      "target": 707.17,
+      "stop_order_id": null,
+      "target_order_id": null,
+      "context": {
+        "session": "NY AM",
+        "direction": "short",
+        "signal_time": "09:50",
+        "signal_minute": 590,
+        "placed_at": "09:50 ET",
+        "news_count": 0,
+        "headlines": [],
+        "swept_level": "premarket high",
+        "swept_price": 714.96,
+        "sweep_time": "09:50",
+        "sweep_extreme": 715.0,
+        "reclaim_bars": 1,
+        "reclaim_close": 713.78,
+        "levels": {
+          "pm_high": 714.96,
+          "pm_low": 692.15,
+          "pd_high": 739.9,
+          "pd_low": 714.92
+        },
+        "risk_ps": 1.97,
+        "planned_rr": 3.0,
+        "step": 5.91,
+        "single": true,
+        "risk_pct": 0.276,
+        "trend": "downtrend",
+        "volatility": "normal",
+        "atr": 14.7,
+        "atr_pct": 2.06,
+        "price_vs_ma50_pct": -6.36,
+        "ma50_slope_pct": -0.57,
+        "htf_bias": "bearish"
+      },
+      "checklist": [
+        [
+          "Level in play at the open: premarket high 714.96",
+          "MET",
+          null
+        ],
+        [
+          "Sweep: a 5-min bar traded above it at 09:50 (extreme 715.00)",
+          "MET",
+          null
+        ],
+        [
+          "Reclaim: 5-min close 713.78 back below it within 3 bars (09:50)",
+          "MET",
+          null
+        ],
+        [
+          "Entry signal between 09:35 and 11:30 ET",
+          "MET",
+          null
+        ],
+        [
+          "One trade per day for this model",
+          "MET",
+          null
+        ],
+        [
+          "Hard limit: max 100 shares and $50,000 per position (35 sh, $24,958); no margin",
+          "MET",
+          null
+        ],
+        [
+          "Hard limit: daily loss under $250 (today +0.00)",
+          "MET",
+          null
+        ],
+        [
+          "Hard limit: max 3 trades per day",
+          "MET",
+          null
+        ],
+        [
+          "Hard limit: stop at entry (bracket order on every lot)",
+          "MET",
+          null
+        ],
+        [
+          "No APPROVED lessons.md rule blocks the entry",
+          "MET",
+          null
+        ],
+        [
+          "Higher-timeframe (weekly) bias agrees with the trade direction",
+          "MET",
+          "sweep_htf_not_aligned"
+        ],
+        [
+          "Level reclaimed on the sweep bar itself",
+          "MET",
+          "sweep_slow_reclaim"
+        ],
+        [
+          "Stop at least 0.08% of price from entry",
+          "MET",
+          "sweep_tight_stop"
+        ],
+        [
+          "Entry signal by 10:45 ET",
+          "MET",
+          "sweep_late"
+        ]
+      ],
+      "grade": "A",
+      "grade_reason": "all rules met",
+      "adopted": false,
+      "lots": [
+        {
+          "k": 1,
+          "qty": 35,
+          "order_id": "4296b0e9-0d39-474f-a95c-6d714e5a9680",
+          "take": 707.17,
+          "stop": 715.05,
+          "state": "stop",
+          "tp_id": "d7e635bc-1b5e-48ab-9b97-7bc8eac02af8",
+          "stop_id": "decb99d5-05b4-4fc6-ae6f-9ef1730ee9c2",
+          "fill": 712.886857,
+          "filled_at": "2026-11-20T09:50:10.295052-05:00"
+        }
+      ],
+      "base": 713.08,
+      "step": 5.91,
+      "partials": [
+        {
+          "qty": 35,
+          "price": 715.02,
+          "time": "2026-11-20T09:54:18.713304-05:00",
+          "reason": "Stop"
+        }
+      ],
+      "futures": {
+        "contracts": 0,
+        "why": "no futures mapping"
+      },
+      "exit": 715.02,
+      "exit_time": "2026-11-20T09:54:18.713304-05:00",
+      "exit_reason": "Stop hit",
+      "points": -2.13,
+      "pnl": -74.55,
+      "r": -0.99,
+      "loss_class": "c",
+      "post_mortem": "**(c) Valid setup, normal loss.** No change needed."
     }
   ],
   "last_review_at": 0,
@@ -1355,14 +1513,15 @@
     "2026-11-10": 1,
     "2026-11-17": 2,
     "2026-11-18": 2,
-    "2026-11-19": 2
+    "2026-11-19": 2,
+    "2026-11-20": 1
   },
   "last_scheduled_run": "2026-11-19",
   "tenam_last_start": "2026-11-13",
   "tenam_trades_by_day": {
     "2026-11-10": 1
   },
-  "intraday_last_start": "2026-11-19",
+  "intraday_last_start": "2026-11-20",
   "intraday_trades_by_day": {
     "2026-11-17": {
       "sweep": 1,
@@ -1374,6 +1533,9 @@
     },
     "2026-11-19": {
       "ifvg": 1,
+      "sweep": 1
+    },
+    "2026-11-20": {
       "sweep": 1
     }
   }

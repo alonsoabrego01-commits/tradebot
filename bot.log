@@ -884,3 +884,21 @@
 2026-11-19 11:41:14  INFO    AAPL: no crossover. Nothing to do.
 2026-11-19 11:41:14  INFO    Account PA3LHFO6L: cash 50,305.73, equity 50,305.73 (today +79.65), shares held: AAPL 0
 2026-11-19 11:41:14  INFO    ===== Run finished =====
+2026-11-20 08:58:45  INFO    ===== Intraday models started (QQQ ifvg, SPY sweep) =====
+2026-11-20 08:58:45  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-20 08:58:45  INFO    Last 6 trades: win rate 67%, avg R +0.62, grades {'A': 1, 'B': 2, 'C': 3}, losses by class {'b': 2}
+2026-11-20 09:35:05  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-20 09:35:05  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-20 09:35:05  INFO    SPY sweep: premarket 692.15-714.96 | prior day 714.92-739.90
+2026-11-20 09:35:05  INFO    SPY sweep: 09:35 no sweep and reclaim yet.
+2026-11-20 09:40:05  INFO    SPY sweep: 09:40 no sweep and reclaim yet.
+2026-11-20 09:45:05  INFO    SPY sweep: 09:45 no sweep and reclaim yet.
+2026-11-20 09:50:05  INFO    SPY sweep: SHORT signal (swept the premarket high 714.96 to 715.00, 5-min close 713.78 back below it): market near 713.08, stop 715.05, 35 sh, risk $68.95. Target 707.17 (3R), one bracket.
+2026-11-20 09:50:05  INFO    SPY sweep: grade A (all rules met).
+2026-11-20 09:50:05  INFO    SPY sweep: submitted SHORT ladder of 1 bracket order(s), 35 sh.
+2026-11-20 09:50:27  INFO    SPY sweep: lot 1 filled, 35 sh at 712.89 (take-profit 707.17, stop 715.05).
+2026-11-20 09:54:29  INFO    SPY sweep: stop: closed 35 sh at 715.02.
+2026-11-20 09:54:29  INFO    SPY: trade closed (Stop hit) at 715.02, P&L -74.55 (-0.99R, grade A). Journal updated.
+2026-11-20 12:05:05  INFO    QQQ ifvg: NO TRADE: no setup filled by 12:00 ET.
+2026-11-20 12:05:05  INFO    Intraday: no open intraday trade. Done for the day.
+2026-11-20 12:05:05  INFO    ===== Intraday models finished =====
