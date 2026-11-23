@@ -902,3 +902,47 @@
 2026-11-20 12:05:05  INFO    QQQ ifvg: NO TRADE: no setup filled by 12:00 ET.
 2026-11-20 12:05:05  INFO    Intraday: no open intraday trade. Done for the day.
 2026-11-20 12:05:05  INFO    ===== Intraday models finished =====
+2026-11-23 09:06:40  INFO    ===== Intraday models started (QQQ ifvg, SPY sweep) =====
+2026-11-23 09:06:40  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-23 09:06:40  INFO    Last 7 trades: win rate 57%, avg R +0.39, grades {'A': 2, 'B': 2, 'C': 3}, losses by class {'b': 2, 'c': 1}
+2026-11-23 09:35:05  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-23 09:35:05  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-23 09:35:05  INFO    SPY sweep: premarket 704.06-720.92 | prior day 686.75-718.29
+2026-11-23 09:35:05  INFO    SPY sweep: 09:35 no sweep and reclaim yet.
+2026-11-23 09:40:05  INFO    SPY sweep: 09:40 no sweep and reclaim yet.
+2026-11-23 09:45:05  INFO    SPY sweep: 09:45 no sweep and reclaim yet.
+2026-11-23 09:50:05  INFO    SPY sweep: 09:50 no sweep and reclaim yet.
+2026-11-23 09:55:05  INFO    SPY sweep: 09:55 no sweep and reclaim yet.
+2026-11-23 10:00:07  INFO    QQQ ifvg: LONG signal (bullish order flow, 5-min close 649.47 above the bearish gap 646.67-648.20): limit 648.20, stop 641.90, 19 sh, risk $119.70. Scale-out every 2.33 (0.37R): 10 / 5 / 2 / 1 / 1 sh from 650.53.
+2026-11-23 10:00:07  INFO    QQQ ifvg: grade C (2 borderline: Higher-timeframe (weekly) bias agrees with the trade direction; Stop at most 0.6% of price from entry).
+2026-11-23 10:00:08  INFO    QQQ ifvg: submitted LONG ladder of 5 bracket order(s), 19 sh.
+2026-11-23 10:00:08  INFO    QQQ ifvg: limit order(s) resting until 10:45 ET.
+2026-11-23 10:00:08  INFO    SPY sweep: 10:00 no sweep and reclaim yet.
+2026-11-23 10:05:06  INFO    SPY sweep: 10:05 no sweep and reclaim yet.
+2026-11-23 10:10:06  INFO    SPY sweep: 10:10 no sweep and reclaim yet.
+2026-11-23 10:15:06  INFO    SPY sweep: 10:15 no sweep and reclaim yet.
+2026-11-23 10:20:05  INFO    SPY sweep: 10:20 no sweep and reclaim yet.
+2026-11-23 10:25:05  INFO    SPY sweep: 10:25 no sweep and reclaim yet.
+2026-11-23 10:30:07  INFO    SPY sweep: 10:30 no sweep and reclaim yet.
+2026-11-23 10:35:05  INFO    SPY sweep: 10:35 no sweep and reclaim yet.
+2026-11-23 10:40:06  INFO    SPY sweep: 10:40 no sweep and reclaim yet.
+2026-11-23 10:45:05  INFO    QQQ ifvg: lot 1 not filled by 10:45; cancelling it.
+2026-11-23 10:45:05  INFO    QQQ ifvg: lot 2 not filled by 10:45; cancelling it.
+2026-11-23 10:45:06  INFO    QQQ ifvg: lot 3 not filled by 10:45; cancelling it.
+2026-11-23 10:45:06  INFO    QQQ ifvg: lot 4 not filled by 10:45; cancelling it.
+2026-11-23 10:45:06  INFO    QQQ ifvg: lot 5 not filled by 10:45; cancelling it.
+2026-11-23 10:45:06  INFO    QQQ ifvg: cancelling 5 unfilled entry order(s) (not filled in 45 minutes).
+2026-11-23 10:45:10  INFO    QQQ ifvg: entry order(s) cancelled unfilled.
+2026-11-23 10:45:11  INFO    SPY sweep: 10:45 no sweep and reclaim yet.
+2026-11-23 10:50:05  INFO    SPY sweep: 10:50 no sweep and reclaim yet.
+2026-11-23 10:55:05  INFO    SPY sweep: 10:55 no sweep and reclaim yet.
+2026-11-23 11:00:05  INFO    SPY sweep: 11:00 no sweep and reclaim yet.
+2026-11-23 11:05:05  INFO    SPY sweep: 11:05 no sweep and reclaim yet.
+2026-11-23 11:10:05  INFO    SPY sweep: 11:10 no sweep and reclaim yet.
+2026-11-23 11:15:05  INFO    SPY sweep: 11:15 no sweep and reclaim yet.
+2026-11-23 11:20:05  INFO    SPY sweep: 11:20 no sweep and reclaim yet.
+2026-11-23 11:25:05  INFO    SPY sweep: 11:25 no sweep and reclaim yet.
+2026-11-23 11:30:05  INFO    SPY sweep: NO TRADE: no level swept and reclaimed between 09:35 and 11:30.
+2026-11-23 12:05:05  INFO    QQQ ifvg: NO TRADE: no setup filled by 12:00 ET.
+2026-11-23 12:05:05  INFO    Intraday: no open intraday trade. Done for the day.
+2026-11-23 12:05:05  INFO    ===== Intraday models finished =====
