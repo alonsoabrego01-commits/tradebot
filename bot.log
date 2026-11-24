@@ -946,3 +946,40 @@
 2026-11-23 12:05:05  INFO    QQQ ifvg: NO TRADE: no setup filled by 12:00 ET.
 2026-11-23 12:05:05  INFO    Intraday: no open intraday trade. Done for the day.
 2026-11-23 12:05:05  INFO    ===== Intraday models finished =====
+2026-11-24 09:01:42  INFO    ===== Intraday models started (QQQ ifvg, SPY sweep) =====
+2026-11-24 09:01:42  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-24 09:01:42  INFO    Last 7 trades: win rate 57%, avg R +0.39, grades {'A': 2, 'B': 2, 'C': 3}, losses by class {'b': 2, 'c': 1}
+2026-11-24 09:35:05  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-24 09:35:05  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-24 09:35:05  INFO    SPY sweep: premarket 711.40-725.16 | prior day 713.53-727.98
+2026-11-24 09:35:05  INFO    SPY sweep: LONG signal (swept the prior-day low 713.53 to 712.16, 5-min close 714.35 back above it): market near 713.94, stop 712.12, 35 sh, risk $63.70. Target 719.40 (3R), one bracket.
+2026-11-24 09:35:05  INFO    SPY sweep: grade B (one borderline: Higher-timeframe (weekly) bias agrees with the trade direction).
+2026-11-24 09:35:05  INFO    SPY sweep: submitted LONG ladder of 1 bracket order(s), 35 sh.
+2026-11-24 09:35:48  INFO    SPY sweep: lot 1 filled, 35 sh at 713.73 (take-profit 719.40, stop 712.12).
+2026-11-24 09:51:05  INFO    SPY sweep: step 1: closed 35 sh at 719.48.
+2026-11-24 09:51:05  INFO    SPY: trade closed (Target hit) at 719.48, P&L +201.25 (+3.57R, grade B). Journal updated.
+2026-11-24 11:50:05  INFO    QQQ ifvg: LONG signal (bullish order flow, 5-min close 635.76 above the bearish gap 635.00-635.72): limit 635.72, stop 631.10, 27 sh, risk $124.74. Scale-out every 2.29 (0.5R): 14 / 7 / 3 / 2 / 1 sh from 638.01.
+2026-11-24 11:50:05  INFO    QQQ ifvg: grade C (3 borderline: Higher-timeframe (weekly) bias agrees with the trade direction; Gap formed within the last 30 minutes; Stop at most 0.6% of price from entry).
+2026-11-24 11:50:05  INFO    QQQ ifvg: submitted LONG ladder of 5 bracket order(s), 27 sh.
+2026-11-24 11:50:05  INFO    QQQ ifvg: limit order(s) resting until 12:35 ET.
+2026-11-24 11:50:26  INFO    QQQ ifvg: lot 3 filled, 3 sh at 635.71 (take-profit 642.59, stop 631.10).
+2026-11-24 11:50:26  INFO    QQQ ifvg: lot 4 filled, 2 sh at 635.70 (take-profit 644.88, stop 631.10).
+2026-11-24 11:50:26  INFO    QQQ ifvg: lot 5 filled, 1 sh at 635.72 (take-profit 647.17, stop 631.10).
+2026-11-24 11:50:26  INFO    Futures: QQQ trade not sent: one MNQ1! risks $380, over the $350 budget.
+2026-11-24 11:50:46  INFO    QQQ ifvg: lot 1 filled, 14 sh at 635.71 (take-profit 638.01, stop 631.10).
+2026-11-24 11:50:46  INFO    QQQ ifvg: lot 2 filled, 7 sh at 635.71 (take-profit 640.30, stop 631.10).
+2026-11-24 12:10:42  INFO    QQQ ifvg: step 1: closed 14 sh at 638.30.
+2026-11-24 12:10:42  INFO    QQQ ifvg: step 1 filled; stop on lot 2 (7 sh) moved to 635.72.
+2026-11-24 12:10:42  INFO    QQQ ifvg: step 1 filled; stop on lot 3 (3 sh) moved to 635.72.
+2026-11-24 12:10:42  INFO    QQQ ifvg: step 1 filled; stop on lot 4 (2 sh) moved to 635.72.
+2026-11-24 12:10:42  INFO    QQQ ifvg: step 1 filled; stop on lot 5 (1 sh) moved to 635.72.
+2026-11-24 12:34:04  INFO    QQQ ifvg: step 2: closed 7 sh at 640.36.
+2026-11-24 12:34:05  INFO    QQQ ifvg: step 2 filled; stop on lot 3 (3 sh) moved to 638.01.
+2026-11-24 12:34:05  INFO    QQQ ifvg: step 2 filled; stop on lot 4 (2 sh) moved to 638.01.
+2026-11-24 12:34:05  INFO    QQQ ifvg: step 2 filled; stop on lot 5 (1 sh) moved to 638.01.
+2026-11-24 12:52:41  INFO    QQQ ifvg: stop: closed 3 sh at 637.98.
+2026-11-24 12:52:41  INFO    QQQ ifvg: stop: closed 2 sh at 637.98.
+2026-11-24 12:52:41  INFO    QQQ ifvg: stop: closed 1 sh at 637.98.
+2026-11-24 12:52:41  INFO    QQQ: trade closed (Trailing stop after step 2) at 638.76, P&L +82.43 (+0.66R, grade C). Journal updated.
+2026-11-24 12:52:41  INFO    Intraday: no open intraday trade. Done for the day.
+2026-11-24 12:52:41  INFO    ===== Intraday models finished =====
