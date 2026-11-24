@@ -49,6 +49,8 @@ FUTURES = {  # ratio: futures price / ETF price (fallback; measured live from Ya
     # To add it back: "SPY": {"ticker": "MES1!", "yahoo": "MES=F", "ratio": 10.0, "point_value": 5.0, "tick": 0.25},
 }
 FUTURES_RISK_PER_TRADE = 350.0  # Dollars to the stop per futures trade (Apex 50K test: ~$350 on QQQ)
+FUTURES_MIN_ONE_CONTRACT_UP_TO = 1000.0  # If one contract risks more than the budget, still trade 1 if
+                                         # its risk is at most this (2026 worst: ~$890; Apex test still 100%)
 FUTURES_MAX_CONTRACTS = 10      # Max micro contracts per futures trade
 
 # ---------------------------------------------------------------------------

@@ -3,7 +3,8 @@
 The bot keeps trading QQQ/SPY on Alpaca and stays the brain. When an Alpaca intraday trade gets
 its first fill, the same trade is sent to TradersPost in micro futures (config.FUTURES):
   - size: config.FUTURES_RISK_PER_TRADE / (stop distance in dollars per contract), whole contracts,
-    at most config.FUTURES_MAX_CONTRACTS;
+    at most config.FUTURES_MAX_CONTRACTS; when even one contract risks more than the budget, one
+    contract anyway, up to config.FUTURES_MIN_ONE_CONTRACT_UP_TO of risk;
   - one market order per lot, each with its own stop and take-profit as percent distances from
     the fill (so no QQQ->NQ price conversion is needed). QQQ lots take profit at step 1, 2, 3...
     like the Alpaca ladder; SPY is one lot with the fixed 3R target;
@@ -83,7 +84,10 @@ def contracts(symbol, risk_ps):
     if not spec or risk_ps <= 0:
         return 0
     per_contract = risk_ps * per_etf_dollar(spec)
-    return max(0, min(config.FUTURES_MAX_CONTRACTS, math.floor(config.FUTURES_RISK_PER_TRADE / per_contract)))
+    n = math.floor(config.FUTURES_RISK_PER_TRADE / per_contract)
+    if n < 1 and per_contract <= config.FUTURES_MIN_ONE_CONTRACT_UP_TO:
+        n = 1  # wide stop: one contract even though it risks more than the budget
+    return max(0, min(config.FUTURES_MAX_CONTRACTS, n))
 
 
 def lots_for(n, single):
@@ -132,8 +136,8 @@ def open_trade(symbol, trade):
     if n < 1:
         per = risk_ps * per_etf_dollar(spec)
         log.info(f"Futures: {symbol} trade not sent: one {spec['ticker']} risks ${per:.0f}, "
-                 f"over the ${config.FUTURES_RISK_PER_TRADE:.0f} budget.")
-        return {"contracts": 0, "why": "one contract is over the risk budget"}
+                 f"over the ${config.FUTURES_MIN_ONE_CONTRACT_UP_TO:.0f} ceiling for a single contract.")
+        return {"contracts": 0, "why": "one contract is over the single-contract ceiling"}
     single = len(trade["lots"]) == 1
     sizes = lots_for(n, single)
     stop_pct = round(risk_ps / entry * 100, 4)
