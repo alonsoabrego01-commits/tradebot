@@ -79,13 +79,17 @@ def futures_price(symbol, etf_price):
     return round(round(raw / spec["tick"]) * spec["tick"], 2)
 
 
+def budget(spec):
+    return float(spec.get("risk", config.FUTURES_RISK_PER_TRADE))
+
+
 def contracts(symbol, risk_ps):
     spec = config.FUTURES.get(symbol)
     if not spec or risk_ps <= 0:
         return 0
     per_contract = risk_ps * per_etf_dollar(spec)
-    n = math.floor(config.FUTURES_RISK_PER_TRADE / per_contract)
-    if n < 1 and per_contract <= config.FUTURES_MIN_ONE_CONTRACT_UP_TO:
+    n = math.floor(budget(spec) / per_contract)
+    if n < 1 and spec.get("min_one", True) and per_contract <= config.FUTURES_MIN_ONE_CONTRACT_UP_TO:
         n = 1  # wide stop: one contract even though it risks more than the budget
     return max(0, min(config.FUTURES_MAX_CONTRACTS, n))
 
@@ -135,9 +139,9 @@ def open_trade(symbol, trade):
     n = contracts(symbol, risk_ps)
     if n < 1:
         per = risk_ps * per_etf_dollar(spec)
-        log.info(f"Futures: {symbol} trade not sent: one {spec['ticker']} risks ${per:.0f}, "
-                 f"over the ${config.FUTURES_MIN_ONE_CONTRACT_UP_TO:.0f} ceiling for a single contract.")
-        return {"contracts": 0, "why": "one contract is over the single-contract ceiling"}
+        limit = config.FUTURES_MIN_ONE_CONTRACT_UP_TO if spec.get("min_one", True) else budget(spec)
+        log.info(f"Futures: {symbol} trade not sent: one {spec['ticker']} risks ${per:.0f}, over ${limit:.0f}.")
+        return {"contracts": 0, "why": "one contract is over the risk limit"}
     single = len(trade["lots"]) == 1
     sizes = lots_for(n, single)
     stop_pct = round(risk_ps / entry * 100, 4)

@@ -45,10 +45,12 @@ SWEEP_TARGET_R = 3.0           # Fixed target at this many R; one bracket, no sc
 # when the TRADERSPOST_WEBHOOK_URL environment variable is set. Unset = off (payloads only logged).
 FUTURES = {  # ratio: futures price / ETF price (fallback; measured live from Yahoo when possible)
     "QQQ": {"ticker": "MNQ1!", "yahoo": "MNQ=F", "ratio": 41.2, "point_value": 2.0, "tick": 0.25},  # MNQ $2 a point
-    # SPY (MES) is not mirrored: the Apex 50K test passed 100% with QQQ alone vs 71% with SPY added.
-    # To add it back: "SPY": {"ticker": "MES1!", "yahoo": "MES=F", "ratio": 10.0, "point_value": 5.0, "tick": 0.25},
+    # SPY at a smaller size: Apex 50K test on 2026 with QQQ at $350 + SPY at $100 passed 100%
+    # (median 44 days vs 50 for QQQ alone); SPY at $150-200: 94%; at $350: 78%.
+    "SPY": {"ticker": "MES1!", "yahoo": "MES=F", "ratio": 10.0, "point_value": 5.0, "tick": 0.25,
+            "risk": 100.0, "min_one": False},  # MES $5 a point
 }
-FUTURES_RISK_PER_TRADE = 350.0  # Dollars to the stop per futures trade (Apex 50K test: ~$350 on QQQ)
+FUTURES_RISK_PER_TRADE = 350.0  # Dollars to the stop per futures trade, unless FUTURES[symbol]["risk"] is set
 FUTURES_MIN_ONE_CONTRACT_UP_TO = 1000.0  # If one contract risks more than the budget, still trade 1 if
                                          # its risk is at most this (2026 worst: ~$890; Apex test still 100%)
 FUTURES_MAX_CONTRACTS = 10      # Max micro contracts per futures trade
