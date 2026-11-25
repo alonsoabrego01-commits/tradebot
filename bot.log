@@ -983,3 +983,57 @@
 2026-11-24 12:52:41  INFO    QQQ: trade closed (Trailing stop after step 2) at 638.76, P&L +82.43 (+0.66R, grade C). Journal updated.
 2026-11-24 12:52:41  INFO    Intraday: no open intraday trade. Done for the day.
 2026-11-24 12:52:41  INFO    ===== Intraday models finished =====
+2026-11-25 09:00:38  INFO    ===== Intraday models started (QQQ ifvg, SPY sweep) =====
+2026-11-25 09:00:38  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-25 09:00:38  INFO    Last 9 trades: win rate 67%, avg R +0.77, grades {'A': 2, 'B': 3, 'C': 4}, losses by class {'b': 2, 'c': 1}
+2026-11-25 09:35:05  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-25 09:35:05  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-25 09:35:06  INFO    SPY sweep: premarket 703.46-714.24 | prior day 712.14-720.93
+2026-11-25 09:35:06  INFO    SPY sweep: 09:35 no sweep and reclaim yet.
+2026-11-25 09:40:05  INFO    SPY sweep: 09:40 no sweep and reclaim yet.
+2026-11-25 09:45:05  INFO    SPY sweep: 09:45 no sweep and reclaim yet.
+2026-11-25 09:50:05  INFO    SPY sweep: 09:50 no sweep and reclaim yet.
+2026-11-25 09:55:05  INFO    SPY sweep: 09:55 no sweep and reclaim yet.
+2026-11-25 10:00:07  INFO    QQQ ifvg: LONG signal (bullish order flow, 5-min close 618.22 above the bearish gap 612.97-616.92): limit 616.92, stop 607.76, 13 sh, risk $119.08. Scale-out every 2.22 (0.24R): 7 / 3 / 2 / 1 sh from 619.14.
+2026-11-25 10:00:07  INFO    QQQ ifvg: grade C (2 borderline: Higher-timeframe (weekly) bias agrees with the trade direction; Stop at most 0.6% of price from entry).
+2026-11-25 10:00:08  INFO    QQQ ifvg: submitted LONG ladder of 4 bracket order(s), 13 sh.
+2026-11-25 10:00:08  INFO    QQQ ifvg: limit order(s) resting until 10:45 ET.
+2026-11-25 10:00:09  INFO    SPY sweep: 10:00 no sweep and reclaim yet.
+2026-11-25 10:00:49  INFO    QQQ ifvg: lot 1 filled, 7 sh at 616.59 (take-profit 619.14, stop 607.76).
+2026-11-25 10:00:49  INFO    QQQ ifvg: lot 2 filled, 3 sh at 616.84 (take-profit 621.36, stop 607.76).
+2026-11-25 10:00:49  INFO    QQQ ifvg: lot 3 filled, 2 sh at 616.47 (take-profit 623.58, stop 607.76).
+2026-11-25 10:00:50  INFO    QQQ ifvg: lot 4 filled, 1 sh at 616.92 (take-profit 625.80, stop 607.76).
+2026-11-25 10:00:51  INFO    Futures: sent {"ticker": "MNQ1!", "action": "buy", "quantity": 1, "orderType": "market", "price": 25395.0, "takeProfit": {"percent": 0.4038}, "stopLoss": {"type": "stop", "percent": 1.4417}, "message": "ifvg long lot 1/1"} -> ok
+2026-11-25 10:00:51  INFO    Futures: QQQ -> MNQ1! long 1 contract(s) near 25395.00 in lots 1, stop 1.4417% away, risk about $733.
+2026-11-25 10:05:06  INFO    SPY sweep: 10:05 no sweep and reclaim yet.
+2026-11-25 10:10:06  INFO    SPY sweep: 10:10 no sweep and reclaim yet.
+2026-11-25 10:15:07  INFO    SPY sweep: 10:15 no sweep and reclaim yet.
+2026-11-25 10:20:06  INFO    SPY sweep: 10:20 no sweep and reclaim yet.
+2026-11-25 10:25:05  INFO    SPY sweep: 10:25 no sweep and reclaim yet.
+2026-11-25 10:30:06  INFO    SPY sweep: 10:30 no sweep and reclaim yet.
+2026-11-25 10:35:05  INFO    SPY sweep: 10:35 no sweep and reclaim yet.
+2026-11-25 10:40:06  INFO    SPY sweep: 10:40 no sweep and reclaim yet.
+2026-11-25 10:45:06  INFO    SPY sweep: 10:45 no sweep and reclaim yet.
+2026-11-25 10:50:06  INFO    SPY sweep: 10:50 no sweep and reclaim yet.
+2026-11-25 10:55:06  INFO    SPY sweep: 10:55 no sweep and reclaim yet.
+2026-11-25 11:00:07  INFO    SPY sweep: 11:00 no sweep and reclaim yet.
+2026-11-25 11:05:06  INFO    SPY sweep: 11:05 no sweep and reclaim yet.
+2026-11-25 11:10:06  INFO    SPY sweep: 11:10 no sweep and reclaim yet.
+2026-11-25 11:15:06  INFO    SPY sweep: 11:15 no sweep and reclaim yet.
+2026-11-25 11:20:06  INFO    SPY sweep: 11:20 no sweep and reclaim yet.
+2026-11-25 11:25:06  INFO    SPY sweep: 11:25 no sweep and reclaim yet.
+2026-11-25 11:30:07  INFO    SPY sweep: NO TRADE: no level swept and reclaimed between 09:35 and 11:30.
+2026-11-25 12:09:24  INFO    QQQ ifvg: step 1: closed 7 sh at 619.47.
+2026-11-25 12:09:24  INFO    QQQ ifvg: step 1 filled; stop on lot 2 (3 sh) moved to 616.92.
+2026-11-25 12:09:24  INFO    QQQ ifvg: step 1 filled; stop on lot 3 (2 sh) moved to 616.92.
+2026-11-25 12:09:24  INFO    QQQ ifvg: step 1 filled; stop on lot 4 (1 sh) moved to 616.92.
+2026-11-25 12:15:53  INFO    QQQ ifvg: step 2: closed 3 sh at 621.43.
+2026-11-25 12:15:53  INFO    QQQ ifvg: step 2 filled; stop on lot 3 (2 sh) moved to 619.14.
+2026-11-25 12:15:53  INFO    QQQ ifvg: step 2 filled; stop on lot 4 (1 sh) moved to 619.14.
+2026-11-25 12:18:35  INFO    QQQ ifvg: step 3: closed 2 sh at 623.63.
+2026-11-25 12:18:36  INFO    QQQ ifvg: step 3 filled; stop on lot 4 (1 sh) moved to 621.36.
+2026-11-25 12:21:17  INFO    QQQ ifvg: stop: closed 1 sh at 621.25.
+2026-11-25 12:21:17  INFO    Futures: sent {"ticker": "MNQ1!", "action": "exit", "orderType": "market", "cancel": true, "message": "ifvg: Trailing stop after step 3"} -> ok
+2026-11-25 12:21:17  INFO    QQQ: trade closed (Trailing stop after step 3) at 620.70, P&L +52.64 (+0.46R, grade C). Journal updated.
+2026-11-25 12:21:17  INFO    Intraday: no open intraday trade. Done for the day.
+2026-11-25 12:21:17  INFO    ===== Intraday models finished =====

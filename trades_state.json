@@ -1893,6 +1893,229 @@
       "points": 3.05,
       "pnl": 82.43,
       "r": 0.66
+    },
+    {
+      "symbol": "QQQ",
+      "direction": "long",
+      "model": "ifvg",
+      "qty": 13,
+      "setup": "Inverse fair value gap with the order flow",
+      "entry_order_id": "82637f62-0983-4d5e-8c00-40b371dc40a6",
+      "entry": 616.65,
+      "entry_time": "2026-11-25T10:00:37.859909-05:00",
+      "stop": 607.76,
+      "target": 619.14,
+      "stop_order_id": null,
+      "target_order_id": null,
+      "context": {
+        "session": "NY AM",
+        "direction": "long",
+        "signal_time": "10:00",
+        "signal_minute": 600,
+        "placed_at": "10:00 ET",
+        "news_count": 0,
+        "headlines": [],
+        "flow": "bullish",
+        "gap_low": 612.97,
+        "gap_high": 616.92,
+        "gap_time": "09:40",
+        "gap_age_bars": 4,
+        "inversion_close": 618.22,
+        "limit": 616.92,
+        "leg_extreme": 607.81,
+        "risk_ps": 9.16,
+        "planned_rr": 0.24,
+        "step": 2.22,
+        "single": false,
+        "risk_pct": 1.485,
+        "trend": "downtrend",
+        "volatility": "high",
+        "atr": 24.36,
+        "atr_pct": 3.95,
+        "price_vs_ma50_pct": -12.92,
+        "ma50_slope_pct": -1.5,
+        "htf_bias": "bearish"
+      },
+      "checklist": [
+        [
+          "Order flow bullish: the last break of structure was up",
+          "MET",
+          null
+        ],
+        [
+          "Bearish fair value gap 612.97-616.92 formed at 09:40, within 12 bars",
+          "MET",
+          null
+        ],
+        [
+          "Inverted: 5-min close 618.22 above it at 10:00",
+          "MET",
+          null
+        ],
+        [
+          "Setup completed between 10:00 and 12:00 ET",
+          "MET",
+          null
+        ],
+        [
+          "Limit entry at the retest of the gap (616.92), good for 45 minutes",
+          "MET",
+          null
+        ],
+        [
+          "One trade per day for this model",
+          "MET",
+          null
+        ],
+        [
+          "Hard limit: max 100 shares and $50,000 per position (13 sh, $8,020); no margin",
+          "MET",
+          null
+        ],
+        [
+          "Hard limit: daily loss under $250 (today +0.00)",
+          "MET",
+          null
+        ],
+        [
+          "Hard limit: max 3 trades per day",
+          "MET",
+          null
+        ],
+        [
+          "Hard limit: stop at entry (bracket order on every lot)",
+          "MET",
+          null
+        ],
+        [
+          "No APPROVED lessons.md rule blocks the entry",
+          "MET",
+          null
+        ],
+        [
+          "Higher-timeframe (weekly) bias agrees with the trade direction",
+          "BORDERLINE",
+          "ifvg_htf_not_aligned"
+        ],
+        [
+          "Gap formed within the last 30 minutes",
+          "MET",
+          "ifvg_old_gap"
+        ],
+        [
+          "Stop at least 0.08% of price from entry",
+          "MET",
+          "ifvg_tight_stop"
+        ],
+        [
+          "Stop at most 0.6% of price from entry",
+          "BORDERLINE",
+          "ifvg_wide_stop"
+        ]
+      ],
+      "grade": "C",
+      "grade_reason": "2 borderline: Higher-timeframe (weekly) bias agrees with the trade direction; Stop at most 0.6% of price from entry",
+      "adopted": false,
+      "lots": [
+        {
+          "k": 1,
+          "qty": 7,
+          "order_id": "82637f62-0983-4d5e-8c00-40b371dc40a6",
+          "take": 619.14,
+          "stop": 607.76,
+          "state": "tp",
+          "tp_id": "276c0438-450e-4462-b477-17662c3d7cc8",
+          "stop_id": "2b8ca1d5-672a-4ed0-b65c-0c92d33ac07c",
+          "fill": 616.59,
+          "filled_at": "2026-11-25T10:00:47.014128-05:00"
+        },
+        {
+          "k": 2,
+          "qty": 3,
+          "order_id": "d7a22090-3e85-4ff7-b904-58f99c888ca1",
+          "take": 621.36,
+          "stop": 616.92,
+          "state": "tp",
+          "tp_id": "1275fb93-fe05-46af-be34-8f6a85b1b9e3",
+          "stop_id": "d5300b24-8c40-4b3d-9690-5f59754a5d5f",
+          "fill": 616.84,
+          "filled_at": "2026-11-25T10:00:41.867479-05:00"
+        },
+        {
+          "k": 3,
+          "qty": 2,
+          "order_id": "e9ad6500-0ff9-4d31-b296-ed4246d9fe42",
+          "take": 623.58,
+          "stop": 619.14,
+          "state": "tp",
+          "tp_id": "42ca10d7-8aef-4b62-a972-be888ef6ad14",
+          "stop_id": "66693ee4-c0f2-4bec-b6df-28fbc16c1018",
+          "fill": 616.465,
+          "filled_at": "2026-11-25T10:00:45.741241-05:00"
+        },
+        {
+          "k": 4,
+          "qty": 1,
+          "order_id": "871e8df7-7025-4821-a7d5-63426d5aa446",
+          "take": 625.8,
+          "stop": 621.36,
+          "state": "stop",
+          "tp_id": "95c8ce1a-8bf1-4ec2-a6d7-8d6ab646ad04",
+          "stop_id": "4b3e46f4-0e07-4d2b-9eda-77c2291a8f29",
+          "fill": 616.92,
+          "filled_at": "2026-11-25T10:00:37.859909-05:00"
+        }
+      ],
+      "base": 616.92,
+      "step": 2.22,
+      "partials": [
+        {
+          "qty": 7,
+          "price": 619.47,
+          "time": "2026-11-25T12:09:06.715701-05:00",
+          "reason": "Step 1"
+        },
+        {
+          "qty": 3,
+          "price": 621.43,
+          "time": "2026-11-25T12:15:41.801583-05:00",
+          "reason": "Step 2"
+        },
+        {
+          "qty": 2,
+          "price": 623.63,
+          "time": "2026-11-25T12:18:29.469237-05:00",
+          "reason": "Step 3"
+        },
+        {
+          "qty": 1,
+          "price": 621.25,
+          "time": "2026-11-25T12:21:08.238843-05:00",
+          "reason": "Stop"
+        }
+      ],
+      "signal_start": "2026-11-25T10:00:00-05:00",
+      "expire": "2026-11-25T10:45:00-05:00",
+      "futures": {
+        "ticker": "MNQ1!",
+        "contracts": 1,
+        "lots": [
+          1
+        ],
+        "price": 25395.0,
+        "stop_pct": 1.4417,
+        "risk": 732.54,
+        "sent": [
+          true
+        ],
+        "closed": true
+      },
+      "exit": 620.7,
+      "exit_time": "2026-11-25T12:21:08.238843-05:00",
+      "exit_reason": "Trailing stop after step 3",
+      "points": 4.05,
+      "pnl": 52.64,
+      "r": 0.46
     }
   ],
   "last_review_at": 0,
@@ -1903,14 +2126,15 @@
     "2026-11-19": 2,
     "2026-11-20": 1,
     "2026-11-23": 0,
-    "2026-11-24": 2
+    "2026-11-24": 2,
+    "2026-11-25": 1
   },
   "last_scheduled_run": "2026-11-19",
   "tenam_last_start": "2026-11-13",
   "tenam_trades_by_day": {
     "2026-11-10": 1
   },
-  "intraday_last_start": "2026-11-24",
+  "intraday_last_start": "2026-11-25",
   "intraday_trades_by_day": {
     "2026-11-17": {
       "sweep": 1,
@@ -1932,6 +2156,9 @@
     },
     "2026-11-24": {
       "sweep": 1,
+      "ifvg": 1
+    },
+    "2026-11-25": {
       "ifvg": 1
     }
   }
