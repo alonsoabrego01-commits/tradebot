@@ -1042,3 +1042,8 @@
 2026-11-26 08:59:58  INFO    Last 10 trades: win rate 70%, avg R +0.74, grades {'A': 2, 'B': 3, 'C': 5}, losses by class {'b': 2, 'c': 1}
 2026-11-26 08:59:58  INFO    Intraday: market is closed today. Nothing to do.
 2026-11-26 08:59:58  INFO    ===== Intraday models finished =====
+2026-11-26 09:40:04  INFO    ===== Run started (AAPL 20/50 MA) =====
+2026-11-26 09:40:04  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-26 09:40:04  INFO    Last 10 trades: win rate 70%, avg R +0.74, grades {'A': 2, 'B': 3, 'C': 5}, losses by class {'b': 2, 'c': 1}
+2026-11-26 09:40:04  INFO    Market is closed today (weekend or holiday). Nothing to do.
+2026-11-26 09:40:04  INFO    ===== Run finished =====
