@@ -1037,3 +1037,8 @@
 2026-11-25 12:21:17  INFO    QQQ: trade closed (Trailing stop after step 3) at 620.70, P&L +52.64 (+0.46R, grade C). Journal updated.
 2026-11-25 12:21:17  INFO    Intraday: no open intraday trade. Done for the day.
 2026-11-25 12:21:17  INFO    ===== Intraday models finished =====
+2026-11-26 08:59:58  INFO    ===== Intraday models started (QQQ ifvg, SPY sweep) =====
+2026-11-26 08:59:58  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-26 08:59:58  INFO    Last 10 trades: win rate 70%, avg R +0.74, grades {'A': 2, 'B': 3, 'C': 5}, losses by class {'b': 2, 'c': 1}
+2026-11-26 08:59:58  INFO    Intraday: market is closed today. Nothing to do.
+2026-11-26 08:59:58  INFO    ===== Intraday models finished =====
