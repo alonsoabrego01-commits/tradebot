@@ -68,6 +68,7 @@ if sys.stderr is None:  # pythonw (Task Scheduler): no console
 import argparse
 import math
 import time
+import uuid
 
 import pandas as pd
 from alpaca.data.enums import Adjustment, DataFeed
@@ -90,6 +91,7 @@ FIVE = pd.Timedelta(minutes=5)
 START_WINDOW = ("08:40", "10:30")          # --scheduled only starts inside this ET window
 FLATTEN_START_WINDOW = ("13:30", "15:58")  # --flatten --scheduled only starts inside this one
 RUN_BUDGET = pd.Timedelta(hours=5, minutes=35)  # a GitHub job may run 6 hours; hand over before that
+BOT_ORDER_TAG = "tb-"                       # client order id prefix of the bot's intraday entries
 POLL_SECONDS = 20                          # how often open scale-out trades are checked
 
 
@@ -554,6 +556,7 @@ def place(clients, key, signal, daily, dry_run):
             time_in_force=TimeInForce.GTC, order_class=OrderClass.BRACKET,
             take_profit=TakeProfitRequest(limit_price=take),
             stop_loss=StopLossRequest(stop_price=plan["stop"]),
+            client_order_id=f"{BOT_ORDER_TAG}{key}-{k}-{uuid.uuid4().hex[:12]}",  # tells the bot's orders apart
         )
         try:
             order = client.submit_order(

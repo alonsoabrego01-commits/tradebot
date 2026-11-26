@@ -3,3 +3,5 @@ __pycache__/
 .venv/
 *.tmp
 bot_errors.log
+ninja.log
+ninja_state.json

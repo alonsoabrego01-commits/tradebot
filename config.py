@@ -54,6 +54,8 @@ FUTURES_RISK_PER_TRADE = 350.0  # Dollars to the stop per futures trade, unless 
 FUTURES_MIN_ONE_CONTRACT_UP_TO = 1000.0  # If one contract risks more than the budget, still trade 1 if
                                          # its risk is at most this (2026 worst: ~$890; Apex test still 100%)
 FUTURES_MAX_CONTRACTS = 10      # Max micro contracts per futures trade
+NINJA_ACCOUNT = "Sim101"        # ninja_bridge.py: NinjaTrader account to mirror into (Sim101 = practice).
+                                # The real account name goes in .env as NINJA_ACCOUNT=... (kept off GitHub).
 
 # ---------------------------------------------------------------------------
 # HARD LIMITS. Set by the account owner. Only a human edits these.
