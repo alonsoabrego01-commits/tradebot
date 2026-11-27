@@ -1047,3 +1047,36 @@
 2026-11-26 09:40:04  INFO    Last 10 trades: win rate 70%, avg R +0.74, grades {'A': 2, 'B': 3, 'C': 5}, losses by class {'b': 2, 'c': 1}
 2026-11-26 09:40:04  INFO    Market is closed today (weekend or holiday). Nothing to do.
 2026-11-26 09:40:04  INFO    ===== Run finished =====
+2026-11-27 09:01:45  INFO    ===== Intraday models started (QQQ ifvg, SPY sweep) =====
+2026-11-27 09:01:45  INFO    Active rules (APPROVED in lessons.md): none
+2026-11-27 09:01:45  INFO    Last 10 trades: win rate 70%, avg R +0.74, grades {'A': 2, 'B': 3, 'C': 5}, losses by class {'b': 2, 'c': 1}
+2026-11-27 09:35:05  INFO    QQQ: ignoring today's incomplete bar; using completed days only.
+2026-11-27 09:35:05  INFO    SPY: ignoring today's incomplete bar; using completed days only.
+2026-11-27 09:35:05  INFO    SPY sweep: premarket 726.77-731.49 | prior day 695.45-718.43
+2026-11-27 09:35:05  INFO    SPY sweep: 09:35 no sweep and reclaim yet.
+2026-11-27 09:40:05  INFO    SPY sweep: 09:40 no sweep and reclaim yet.
+2026-11-27 09:45:05  INFO    SPY sweep: 09:45 no sweep and reclaim yet.
+2026-11-27 09:50:05  INFO    SPY sweep: 09:50 no sweep and reclaim yet.
+2026-11-27 09:55:05  INFO    SPY sweep: 09:55 no sweep and reclaim yet.
+2026-11-27 10:00:05  INFO    SPY sweep: 10:00 no sweep and reclaim yet.
+2026-11-27 10:05:05  INFO    SPY sweep: 10:05 no sweep and reclaim yet.
+2026-11-27 10:10:05  INFO    SPY sweep: 10:10 no sweep and reclaim yet.
+2026-11-27 10:15:05  INFO    SPY sweep: 10:15 no sweep and reclaim yet.
+2026-11-27 10:20:05  INFO    SPY sweep: 10:20 no sweep and reclaim yet.
+2026-11-27 10:25:05  INFO    SPY sweep: 10:25 no sweep and reclaim yet.
+2026-11-27 10:30:05  INFO    SPY sweep: 10:30 no sweep and reclaim yet.
+2026-11-27 10:35:05  INFO    SPY sweep: 10:35 no sweep and reclaim yet.
+2026-11-27 10:40:05  INFO    SPY sweep: 10:40 no sweep and reclaim yet.
+2026-11-27 10:45:05  INFO    SPY sweep: 10:45 no sweep and reclaim yet.
+2026-11-27 10:50:05  INFO    SPY sweep: 10:50 no sweep and reclaim yet.
+2026-11-27 10:55:05  INFO    SPY sweep: 10:55 no sweep and reclaim yet.
+2026-11-27 11:00:05  INFO    SPY sweep: 11:00 no sweep and reclaim yet.
+2026-11-27 11:05:05  INFO    SPY sweep: 11:05 no sweep and reclaim yet.
+2026-11-27 11:10:05  INFO    SPY sweep: 11:10 no sweep and reclaim yet.
+2026-11-27 11:15:05  INFO    SPY sweep: 11:15 no sweep and reclaim yet.
+2026-11-27 11:20:05  INFO    SPY sweep: 11:20 no sweep and reclaim yet.
+2026-11-27 11:25:05  INFO    SPY sweep: 11:25 no sweep and reclaim yet.
+2026-11-27 11:30:05  INFO    SPY sweep: NO TRADE: no level swept and reclaimed between 09:35 and 11:30.
+2026-11-27 12:05:05  INFO    QQQ ifvg: NO TRADE: no setup filled by 12:00 ET.
+2026-11-27 12:05:05  INFO    Intraday: no open intraday trade. Done for the day.
+2026-11-27 12:05:05  INFO    ===== Intraday models finished =====
